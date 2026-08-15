@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { staggerContainer } from '@/utils/animations'
-import { SectionLabel } from '@/components/ui'
+import { SectionLabel, SectionBackground } from '@/components/ui'
 import { certifications } from '@/data'
 import CertCard from './CertCard'
 
@@ -9,9 +9,11 @@ export default function Certifications() {
     <section
       id="certifications"
       aria-label="Certifications section"
+      className="relative overflow-hidden"
       style={{ background: 'var(--bg-primary)' }}
     >
-      <div className="max-container section-padding">
+      <SectionBackground variant="award" />
+      <div className="max-container section-padding relative z-10">
         <SectionLabel
           index="06"
           label="Credentials"

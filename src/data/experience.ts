@@ -11,12 +11,11 @@ export const experiences: Experience[] = [
     current: true,
     type: 'fulltime',
     description: [
-      'Analyzed 150+ database models to design and implement efficient indexing strategies, measurably improving query performance and system reliability.',
-      'Built and deployed an administrator endpoint for loan initiation, delivering a critical backend feature to production.',
-      'Resolved complex relational model errors during project setup, ensuring smooth developer onboarding.',
-      'Contributed to backend architecture discussions and API design, shaping the foundation for scalable services.',
+      'Designed and implemented a complete authorization system from scratch for a finance-focused NestJS application, including role and resource-based access control — this implementation became the foundation for developing and publishing a reusable NestJS authorization library on npm.',
+      'Developed a reusable FileScanner service for a NestJS microservice that integrates with ClamAV and clamscan to scan uploaded files for malicious content, with image-specific processing to remove embedded metadata before files are persisted to storage.',
+      'Analyzed 150+ database models to identify and implement efficient indexing strategies, measurably improving query performance and overall system reliability.',
     ],
-    technologies: ['Node.js', 'Express.js', 'MySQL', 'REST APIs', 'Git'],
+    technologies: ['NestJS', 'TypeScript', 'Node.js', 'Express.js', 'MySQL', 'REST APIs', 'Git'],
   },
   {
     id: 'jai-balaji',

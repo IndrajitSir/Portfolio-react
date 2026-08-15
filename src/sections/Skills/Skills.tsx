@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { staggerContainer } from '@/utils/animations'
-import { SectionLabel } from '@/components/ui'
+import { SectionLabel, SectionBackground } from '@/components/ui'
 import { skillCategories, techStack } from '@/data'
 import SkillCategoryCard from './SkillCategoryCard'
 
@@ -9,9 +9,11 @@ export default function Skills() {
     <section
       id="skills"
       aria-label="Skills section"
+      className="relative overflow-hidden"
       style={{ background: 'var(--bg-primary)' }}
     >
-      <div className="max-container section-padding">
+      <SectionBackground variant="circuit" />
+      <div className="max-container section-padding relative z-10">
         <SectionLabel
           index="02"
           label="Expertise"

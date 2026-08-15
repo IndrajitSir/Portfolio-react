@@ -25,7 +25,16 @@ export default function TimelineItem({ experience, index, isLast }: TimelineItem
             background: 'linear-gradient(to bottom, var(--accent-teal), var(--accent-indigo), transparent)',
           }}
           aria-hidden="true"
-        />
+        >
+          {/* Traveling light pulse down the timeline */}
+          <div
+            className="absolute left-[-1.5px] top-0 w-1 h-24 timeline-flow rounded-full"
+            style={{
+              background: 'linear-gradient(to bottom, transparent, var(--accent-teal), transparent)',
+              boxShadow: '0 0 8px var(--glow-teal)',
+            }}
+          />
+        </div>
       )}
 
       {/* Dot */}

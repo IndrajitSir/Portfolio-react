@@ -161,3 +161,14 @@ body {
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
+
+/* ─── Timeline flow pulse ───────────────────────────────────────── */
+@keyframes timeline-flow {
+  0%   { top: -25%; opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.timeline-flow {
+  animation: timeline-flow 3.6s linear infinite;
+}

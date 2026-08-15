@@ -33,3 +33,5 @@ pnpm-debug.log*
 # Misc
 .cache/
 .parcel-cache/
+
+.freebuff

@@ -8,6 +8,7 @@ export interface PersonalInfo {
   phone: string
   location: string
   github: string
+  resumeUrl?: string
   linkedin?: string
   website?: string
   available: boolean

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 const stats = [
   { number: '150+', label: 'DB Models Optimised' },
   { number: '8.14', label: 'CGPA Score' },
-  { number: '2+',   label: 'Live Projects' },
+  { number: '3+',   label: 'Projects & Open Source' },
 ]
 
 export default function HeroStats() {

@@ -1,7 +1,15 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiGithub, FiExternalLink, FiChevronDown, FiChevronUp } from 'react-icons/fi'
-import { GlowCard, Tag, ProjectCanvas1, ProjectCanvas2 } from '@/components/ui'
+import {
+  GlowCard,
+  Tag,
+  ProjectCanvas1,
+  ProjectCanvas2,
+  NpmPackageCanvas,
+  PlacementPipelineCanvas,
+  WhatsAppAlertCanvas,
+} from '@/components/ui'
 import type { Project } from '@/types'
 
 interface ProjectCardProps {
@@ -9,57 +17,69 @@ interface ProjectCardProps {
   index: number
 }
 
+// Per-project animated visuals (keep the parity fallback for future projects)
+const projectVisuals: Record<string, () => JSX.Element> = {
+  'nest-auth-library': NpmPackageCanvas,
+  'campus-placement': PlacementPipelineCanvas,
+  'whatsapp-alert': WhatsAppAlertCanvas,
+}
+
 export default function ProjectCard({ project, index }: ProjectCardProps) {
   const [expanded, setExpanded] = useState(false)
+  const even = index % 2 === 0
+  const Visual = projectVisuals[project.id] ?? (even ? ProjectCanvas1 : ProjectCanvas2)
+
+  const visualBg =
+    project.id === 'nest-auth-library'
+      ? 'linear-gradient(135deg, rgba(203,56,55,0.12) 0%, rgba(94,234,212,0.07) 55%, rgba(129,140,248,0.05) 100%)'
+      : project.id === 'whatsapp-alert'
+        ? 'linear-gradient(135deg, rgba(37,211,102,0.1) 0%, rgba(129,140,248,0.07) 100%)'
+        : project.id === 'campus-placement'
+          ? 'linear-gradient(135deg, rgba(129,140,248,0.1) 0%, rgba(251,146,60,0.08) 100%)'
+          : even
+            ? 'linear-gradient(135deg, rgba(94,234,212,0.08) 0%, rgba(129,140,248,0.06) 100%)'
+            : 'linear-gradient(135deg, rgba(129,140,248,0.08) 0%, rgba(251,146,60,0.06) 100%)'
+
+  const numberColor =
+    project.id === 'nest-auth-library'
+      ? 'var(--accent-orange)'
+      : even
+        ? 'var(--accent-teal)'
+        : 'var(--accent-indigo)'
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.6, delay: index * 0.15, ease: [0.4, 0, 0.2, 1] }}
-    >
-      <GlowCard className="overflow-visible">
-        {/* Visual header */}
+    <GlowCard>
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        {/* ── Visual panel ──────────────────────────────────── */}
         <div
-          className="h-44 relative overflow-hidden rounded-t-2xl flex items-center justify-center"
-          style={{
-            background: index % 2 === 0
-              ? 'linear-gradient(135deg, rgba(94,234,212,0.08) 0%, rgba(129,140,248,0.06) 100%)'
-              : 'linear-gradient(135deg, rgba(129,140,248,0.08) 0%, rgba(251,146,60,0.06) 100%)',
-          }}
+          className="
+            relative h-52 md:h-full md:min-h-[400px]
+            overflow-hidden rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none
+            flex items-center justify-center
+          "
+          style={{ background: visualBg }}
           aria-hidden="true"
         >
           {/* Decorative canvas / visual */}
-          {index === 0 ? (
-            <ProjectCanvas1 />
-          ) : index === 1 ? (
-            <ProjectCanvas2 />
-          ) : (
-            <svg
-              className="absolute inset-0 w-full h-full opacity-10"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <pattern id={`grid-${project.id}`} x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill={`url(#grid-${project.id})`} />
-            </svg>
-          )}
+          <Visual />
 
           {/* Project number */}
           <span
-            className="font-display text-[5rem] font-light opacity-10 select-none"
-            style={{ color: index % 2 === 0 ? 'var(--accent-teal)' : 'var(--accent-indigo)' }}
+            className="
+              font-display text-[6.5rem] md:text-[7.5rem] font-light
+              opacity-[0.12] select-none leading-none
+            "
+            style={{ color: numberColor }}
           >
             {project.number}
           </span>
 
           {/* Category badge */}
           <span
-            className="absolute top-4 right-4 font-mono-code text-[0.65rem] px-2.5 py-1 rounded-full"
+            className="
+              absolute top-4 right-4 font-mono-code text-[0.65rem]
+              px-2.5 py-1 rounded-full
+            "
             style={{
               background: 'var(--surface)',
               border: '1px solid var(--border)',
@@ -68,10 +88,26 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
           >
             {project.category}
           </span>
+
+          {/* Period */}
+          <span
+            className="
+              absolute bottom-4 left-4 font-mono-code text-[0.65rem]
+              px-2.5 py-1 rounded-full
+            "
+            style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border-glow)',
+              color: 'var(--accent-teal)',
+            }}
+          >
+            {project.period}
+          </span>
         </div>
 
-        <div className="p-7">
-          {/* Number + Title */}
+        {/* ── Content panel ─────────────────────────────────── */}
+        <div className="p-7 md:p-8 flex flex-col">
+          {/* Label + title */}
           <p
             className="font-mono-code text-[0.65rem] tracking-widest uppercase mb-2"
             style={{ color: 'var(--accent-teal)' }}
@@ -79,17 +115,11 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             Project — {project.number}
           </p>
           <h3
-            className="text-xl font-semibold leading-tight mb-1"
+            className="text-2xl font-semibold leading-tight mb-3"
             style={{ color: 'var(--text-primary)' }}
           >
             {project.title}
           </h3>
-          <p
-            className="font-mono-code text-[0.7rem] mb-4"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            {project.period}
-          </p>
 
           {/* Short description */}
           <p
@@ -218,7 +248,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
           </AnimatePresence>
 
           {/* Footer: links + expand */}
-          <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="mt-auto flex items-center justify-between flex-wrap gap-3 pt-5 border-t border-[var(--border)]">
             <div className="flex gap-2">
               {project.liveUrl && (
                 <a
@@ -273,7 +303,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             </button>
           </div>
         </div>
-      </GlowCard>
-    </motion.div>
+      </div>
+    </GlowCard>
   )
 }

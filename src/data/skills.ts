@@ -7,6 +7,7 @@ export const skillCategories: SkillCategory[] = [
     icon: '💻',
     skills: [
       { name: 'JavaScript', level: 98 },
+      { name: 'TypeScript', level: 92 },
       { name: 'Java', level: 92 },
       { name: 'Python', level: 75 },
       { name: 'C/C++', level: 70 },
@@ -18,6 +19,7 @@ export const skillCategories: SkillCategory[] = [
     title: 'Backend',
     icon: '⚙️',
     skills: [
+      { name: 'NestJS', level: 82 },
       { name: 'Node.js', level: 85 },
       { name: 'Express.js', level: 90 },
       { name: 'REST APIs', level: 95 },
@@ -40,7 +42,7 @@ export const skillCategories: SkillCategory[] = [
     title: 'Tools & DevOps',
     icon: '🔧',
     skills: [],
-    tags: ['Git', 'GitHub', 'Postman', 'npm', 'VS Code', 'Linux'],
+    tags: ['Git', 'GitHub', 'GitLab', 'Postman', 'npm', 'VS Code', 'Linux', 'Docker', 'NGINX', 'PM2', 'Redis'],
   },
   {
     id: 'concepts',
@@ -59,15 +61,22 @@ export const skillCategories: SkillCategory[] = [
 ]
 
 export const techStack = [
+  { name: 'TypeScript', icon: '🔷' },
   { name: 'JavaScript', icon: '🟨' },
   { name: 'Java', icon: '☕' },
+  { name: 'NestJS', icon: '🐱' },
   { name: 'Node.js', icon: '🟢' },
   { name: 'Express.js', icon: '⚡' },
   { name: 'MySQL', icon: '🐬' },
   { name: 'MongoDB', icon: '🍃' },
   { name: 'PostgreSQL', icon: '🐘' },
+  { name: 'Docker', icon: '🐳' },
+  { name: 'NGINX', icon: '🌀' },
+  { name: 'PM2', icon: '📦' },
   { name: 'Git', icon: '🐙' },
+  { name: 'GitLab', icon: '🦊' },
   { name: 'Postman', icon: '📮' },
+  { name: 'Redis', icon: '🔴' },
   { name: 'JWT Auth', icon: '🛡️' },
   { name: 'REST APIs', icon: '🔄' },
   { name: 'SAP S/4HANA', icon: '📊' },

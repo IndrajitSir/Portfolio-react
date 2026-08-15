@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { FiGithub, FiMail, FiPhone, FiMapPin } from 'react-icons/fi'
 import { personalInfo, languages } from '@/data'
 import { staggerContainer, fadeInLeft, fadeInRight, fadeInUp } from '@/utils/animations'
-import { SectionLabel, GlowCard } from '@/components/ui'
+import { SectionLabel, GlowCard, SectionBackground } from '@/components/ui'
 
 const infoRows = [
   { icon: <FiMail size={16} />, key: 'Email', value: personalInfo.email, href: `mailto:${personalInfo.email}` },
@@ -17,9 +17,11 @@ export default function About() {
     <section
       id="about"
       aria-label="About section"
+      className="relative overflow-hidden"
       style={{ background: 'var(--bg-secondary)' }}
     >
-      <div className="max-container section-padding">
+      <SectionBackground variant="code" />
+      <div className="max-container section-padding relative z-10">
         <SectionLabel
           index="01"
           label="Background"

@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { FiArrowDown } from 'react-icons/fi'
+import { FiArrowDown, FiDownload } from 'react-icons/fi'
 import { personalInfo } from '@/data'
 import { scrollToSection } from '@/utils'
 import { MagneticButton } from '@/components/ui'
@@ -111,6 +111,26 @@ export default function Hero() {
                 View Work
                 <FiArrowDown size={16} />
               </MagneticButton>
+
+              {personalInfo.resumeUrl && (
+                <MagneticButton
+                  href={personalInfo.resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Download resume"
+                  className="
+                    inline-flex items-center gap-2 px-7 py-3.5 rounded-full
+                    font-semibold text-[0.9rem] tracking-wide
+                    border border-[var(--border)] bg-[var(--surface)]
+                    text-[var(--text-primary)]
+                    hover:border-[var(--accent-indigo)] hover:text-[var(--accent-indigo)]
+                    transition-all duration-300
+                  "
+                >
+                  <FiDownload size={16} />
+                  Resume
+                </MagneticButton>
+              )}
 
               <MagneticButton
                 href="#contact"

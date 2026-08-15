@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { staggerContainer } from '@/utils/animations'
-import { SectionLabel } from '@/components/ui'
+import { SectionLabel, SectionBackground } from '@/components/ui'
 import { educationList } from '@/data'
 import EduCard from './EduCard'
 
@@ -9,9 +9,11 @@ export default function Education() {
     <section
       id="education"
       aria-label="Education section"
+      className="relative overflow-hidden"
       style={{ background: 'var(--bg-secondary)' }}
     >
-      <div className="max-container section-padding">
+      <SectionBackground variant="orbit" />
+      <div className="max-container section-padding relative z-10">
         <SectionLabel
           index="05"
           label="Learning"

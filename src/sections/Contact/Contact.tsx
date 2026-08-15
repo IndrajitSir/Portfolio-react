@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { FiMail, FiPhone, FiGithub } from 'react-icons/fi'
 import { staggerContainer, fadeInLeft, fadeInRight } from '@/utils/animations'
-import { SectionLabel, GlowCard } from '@/components/ui'
+import { SectionLabel, GlowCard, SectionBackground } from '@/components/ui'
 import { personalInfo } from '@/data'
 import ContactForm from './ContactForm'
 
@@ -32,9 +32,11 @@ export default function Contact() {
     <section
       id="contact"
       aria-label="Contact section"
+      className="relative overflow-hidden"
       style={{ background: 'var(--bg-secondary)' }}
     >
-      <div className="max-container section-padding">
+      <SectionBackground variant="signal" />
+      <div className="max-container section-padding relative z-10">
         <SectionLabel
           index="07"
           label="Connect"

@@ -8,6 +8,7 @@ export const personalInfo: PersonalInfo = {
   phone: '+91 83910 15655',
   location: 'West Bengal, India',
   github: 'https://github.com/IndrajitSir',
+  resumeUrl: 'https://drive.google.com/uc?export=download&id=1OY4IPF4XNAmpu0SH2cgLxl9mOcGqrK2U',
   available: true,
 }
 
