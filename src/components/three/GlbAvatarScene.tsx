@@ -55,7 +55,7 @@ function Model() {
       onPointerOut={() => setHovered(false)}
     >
       {/* Auto-fits the model into the canvas view */}
-      <Bounds fit clip observe margin={0.35}>
+      <Bounds fit clip observe margin={0.5}>
         <primitive object={scene} />
       </Bounds>
     </group>
