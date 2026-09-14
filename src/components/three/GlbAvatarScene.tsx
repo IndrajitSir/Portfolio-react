@@ -1,6 +1,6 @@
 import { Suspense, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF } from '@react-three/drei'
+import { Bounds, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
 useGLTF.preload('/models/avatar-model.glb')
@@ -24,25 +24,25 @@ function Model() {
     // Damped pointer tilt
     model.current.rotation.x = THREE.MathUtils.damp(
       model.current.rotation.x,
-      pointer.y * 0.16,
+      pointer.y * 0.12,
       3,
       delta,
     )
     model.current.position.y = THREE.MathUtils.damp(
       model.current.position.y,
-      floatY + pointer.y * 0.05,
+      floatY + pointer.y * 0.04,
       3,
       delta,
     )
     model.current.position.x = THREE.MathUtils.damp(
       model.current.position.x,
-      pointer.x * 0.1,
+      pointer.x * 0.06,
       3,
       delta,
     )
 
     // Hover scale
-    const targetScale = hovered ? 1.04 : 1
+    const targetScale = hovered ? 1.03 : 1
     model.current.scale.setScalar(
       THREE.MathUtils.damp(model.current.scale.x, targetScale, 4, delta),
     )
@@ -51,11 +51,13 @@ function Model() {
   return (
     <group
       ref={model}
-      position={[0, -0.12, 0]}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-      <primitive object={scene} scale={1.05} />
+      {/* Auto-fits the model into the canvas view */}
+      <Bounds fit clip observe margin={1.18}>
+        <primitive object={scene} />
+      </Bounds>
     </group>
   )
 }
