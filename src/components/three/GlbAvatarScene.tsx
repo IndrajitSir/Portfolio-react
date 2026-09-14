@@ -93,17 +93,18 @@ function GlowRing({ color, radius }: { color: string; radius: number }) {
 
 function OrbitBubbles() {
   const group = useRef<THREE.Group>(null)
+  const BUBBLE_SIZE = 0.02
   const bubbles = useMemo(() => [
-    { radius: 1.62, speed: 0.45, phase: 0, color: '#00f2fe', size: 0.022 },
-    { radius: 1.68, speed: -0.32, phase: 0.63, color: '#05d5aa', size: 0.026 },
-    { radius: 1.74, speed: 0.24, phase: 1.26, color: '#67f4b7', size: 0.019 },
-    { radius: 1.8, speed: -0.38, phase: 1.89, color: '#00f2fe', size: 0.024 },
-    { radius: 1.86, speed: 0.29, phase: 2.52, color: '#05d5aa', size: 0.021 },
-    { radius: 1.92, speed: -0.22, phase: 3.15, color: '#67f4b7', size: 0.028 },
-    { radius: 1.82, speed: 0.34, phase: 3.78, color: '#00f2fe', size: 0.02 },
-    { radius: 1.7, speed: -0.27, phase: 4.41, color: '#05d5aa', size: 0.025 },
-    { radius: 1.88, speed: 0.2, phase: 5.04, color: '#67f4b7', size: 0.018 },
-    { radius: 1.76, speed: -0.42, phase: 5.67, color: '#00f2fe', size: 0.023 },
+    { radius: 1.62, speed: 0.45, phase: 0, color: '#00f2fe' },
+    { radius: 1.68, speed: -0.32, phase: 0.63, color: '#05d5aa' },
+    { radius: 1.74, speed: 0.24, phase: 1.26, color: '#67f4b7' },
+    { radius: 1.8, speed: -0.38, phase: 1.89, color: '#00f2fe' },
+    { radius: 1.86, speed: 0.29, phase: 2.52, color: '#05d5aa' },
+    { radius: 1.92, speed: -0.22, phase: 3.15, color: '#67f4b7' },
+    { radius: 1.82, speed: 0.34, phase: 3.78, color: '#00f2fe' },
+    { radius: 1.7, speed: -0.27, phase: 4.41, color: '#05d5aa' },
+    { radius: 1.88, speed: 0.2, phase: 5.04, color: '#67f4b7' },
+    { radius: 1.76, speed: -0.42, phase: 5.67, color: '#00f2fe' },
   ], [])
 
   useFrame(({ clock }) => {
@@ -124,7 +125,7 @@ function OrbitBubbles() {
     <group ref={group}>
       {bubbles.map((bubble) => (
         <mesh key={bubble.phase}>
-          <sphereGeometry args={[bubble.size, 12, 12]} />
+          <sphereGeometry args={[BUBBLE_SIZE, 12, 12]} />
           <meshBasicMaterial color={bubble.color} transparent opacity={0.7} />
         </mesh>
       ))}

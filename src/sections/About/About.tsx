@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { FiGithub, FiMail, FiMapPin } from 'react-icons/fi'
+import { FiMail, FiMapPin } from 'react-icons/fi'
 import { personalInfo, languages } from '@/data'
 import { staggerContainer, fadeInUp } from '@/utils/animations'
 import { SectionLabel, GlowCard, SectionBackground } from '@/components/ui'
