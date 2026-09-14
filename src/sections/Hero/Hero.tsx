@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { FiArrowDown, FiDownload } from 'react-icons/fi'
 import { personalInfo } from '@/data'
 import { scrollToSection } from '@/utils'
@@ -9,7 +9,6 @@ import HeroBadge from './HeroBadge'
 import HeroStats from './HeroStats'
 
 // Lazy-load heavy 3D canvas
-const HeroCanvas = lazy(() => import('@/components/three/HeroCanvas'))
 const PortraitCanvas = lazy(() => import('@/components/three/PortraitCanvas'))
 const heroRoles = ['Junior Software Developer', 'Chess Player', 'Backend Engineer']
 
@@ -17,14 +16,18 @@ const heroRoles = ['Junior Software Developer', 'Chess Player', 'Backend Enginee
 function GradientBlobs() {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      <div
-        className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full blur-[120px] opacity-[0.07]"
-        style={{ background: 'radial-gradient(ellipse, var(--accent-teal), transparent)' }}
-      />
-      <div
-        className="absolute bottom-0 right-0 w-[500px] h-[400px] rounded-full blur-[100px] opacity-[0.05]"
-        style={{ background: 'radial-gradient(ellipse, var(--accent-indigo), transparent)' }}
-      />
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[600px]">
+        <div
+          className="w-full h-full rounded-full blur-[120px] opacity-[0.07] animate-blob-1"
+          style={{ background: 'radial-gradient(ellipse, var(--accent-teal), transparent)' }}
+        />
+      </div>
+      <div className="absolute bottom-0 right-0 w-[500px] h-[400px]">
+        <div
+          className="w-full h-full rounded-full blur-[100px] opacity-[0.05] animate-blob-2"
+          style={{ background: 'radial-gradient(ellipse, var(--accent-indigo), transparent)' }}
+        />
+      </div>
     </div>
   )
 }
@@ -47,11 +50,8 @@ export default function Hero() {
       style={{ background: 'var(--bg-primary)' }}
       aria-label="Hero section"
     >
-      <GradientBlobs />
-
       {/* ── Background: Particle Swarm ────────────────────── */}
       <CursorParticlesCanvas />
-      <GradientBlobs />
 
       <div className="max-container section-padding w-full relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -73,9 +73,7 @@ export default function Hero() {
             >
               Indrajit
               <br />
-              <em className="not-italic" style={{ color: 'var(--accent-teal)' }}>
-                Mandal
-              </em>
+              <em className="not-italic text-sheen">Mandal</em>
             </motion.h1>
 
             {/* Role */}
@@ -87,8 +85,22 @@ export default function Hero() {
               style={{ color: 'var(--text-secondary)' }}
             >
               <span style={{ color: 'var(--accent-indigo)' }}>&lt;</span>
-              {heroRoles[roleIndex]}
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={heroRoles[roleIndex]}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -14 }}
+                  transition={{ duration: 0.35, ease: 'easeInOut' }}
+                  className="inline-block"
+                >
+                  {heroRoles[roleIndex]}
+                </motion.span>
+              </AnimatePresence>
               <span style={{ color: 'var(--accent-indigo)' }}> /&gt;</span>
+              <span className="role-caret" aria-hidden="true">
+                ▌
+              </span>
             </motion.p>
 
             {/* Tagline */}
