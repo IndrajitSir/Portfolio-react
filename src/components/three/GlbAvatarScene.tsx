@@ -51,10 +51,11 @@ function Model() {
   return (
     <group
       ref={model}
+      position={[0, -0.12, 0]}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-      <primitive object={scene} scale={1.2} />
+      <primitive object={scene} scale={1.05} />
     </group>
   )
 }
@@ -87,7 +88,7 @@ export default function GlbAvatarScene() {
       role="img"
     >
       <Canvas
-        camera={{ position: [0, 0.3, 2.7], fov: 36 }}
+        camera={{ position: [0, 0.25, 3.45], fov: 42 }}
         gl={{ antialias: true, alpha: true }}
         dpr={[1, 1.5]}
       >
