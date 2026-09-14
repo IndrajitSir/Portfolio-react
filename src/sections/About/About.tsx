@@ -36,6 +36,8 @@ export default function About() {
                     src="/indrajit-portrait.png"
                     alt="Portrait of Indrajit Mandal"
                     loading="lazy"
+                    fetchPriority="low"
+                    decoding="async"
                     className="h-[68px] w-[68px] rounded-xl object-cover border-2 border-[var(--accent-teal)] shadow-[0_0_18px_var(--glow-teal)]"
                   />
                   <span

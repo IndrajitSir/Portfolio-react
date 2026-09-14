@@ -87,6 +87,7 @@ export default function Hero() {
             </motion.p>
 
             {/* Role: IDE-style typewriter */}
+            <h2 className="sr-only">Junior Software Developer · Backend Engineer · API Architect</h2>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

@@ -93,7 +93,7 @@ function GlowRing({ color, radius }: { color: string; radius: number }) {
 
 function OrbitBubbles() {
   const group = useRef<THREE.Group>(null)
-  const BUBBLE_SIZE = 0.02
+  const BUBBLE_SIZE = 0.012
   const bubbles = useMemo(() => [
     { radius: 1.62, speed: 0.45, phase: 0, color: '#00f2fe' },
     { radius: 1.68, speed: -0.32, phase: 0.63, color: '#05d5aa' },
