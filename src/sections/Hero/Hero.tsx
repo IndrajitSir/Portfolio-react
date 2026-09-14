@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { FiArrowDown, FiDownload } from 'react-icons/fi'
 import { personalInfo } from '@/data'
@@ -10,6 +10,8 @@ import HeroStats from './HeroStats'
 
 // Lazy-load heavy 3D canvas
 const HeroCanvas = lazy(() => import('@/components/three/HeroCanvas'))
+const PortraitCanvas = lazy(() => import('@/components/three/PortraitCanvas'))
+const heroRoles = ['Junior Software Developer', 'Chess Player', 'Backend Engineer']
 
 // Background gradient blobs
 function GradientBlobs() {
@@ -28,6 +30,16 @@ function GradientBlobs() {
 }
 
 export default function Hero() {
+  const [roleIndex, setRoleIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setRoleIndex((current) => (current + 1) % heroRoles.length)
+    }, 2600)
+
+    return () => window.clearInterval(interval)
+  }, [])
+
   return (
     <section
       id="hero"
@@ -75,7 +87,7 @@ export default function Hero() {
               style={{ color: 'var(--text-secondary)' }}
             >
               <span style={{ color: 'var(--accent-indigo)' }}>&lt;</span>
-              {personalInfo.title}
+              {heroRoles[roleIndex]}
               <span style={{ color: 'var(--accent-indigo)' }}> /&gt;</span>
             </motion.p>
 
@@ -168,7 +180,8 @@ export default function Hero() {
                 </div>
               }
             >
-              <HeroCanvas />
+              {/* <HeroCanvas /> */}
+              <PortraitCanvas />
             </Suspense>
           </motion.div>
         </div>
