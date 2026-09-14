@@ -50,6 +50,8 @@ export default function Hero() {
       style={{ background: 'var(--bg-primary)' }}
       aria-label="Hero section"
     >
+      <GradientBlobs />
+
       {/* ── Background: Particle Swarm ────────────────────── */}
       <CursorParticlesCanvas />
 

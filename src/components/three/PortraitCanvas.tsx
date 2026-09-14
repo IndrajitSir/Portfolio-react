@@ -35,7 +35,7 @@ function PortraitHalo() {
     if (!points.current) return
     points.current.rotation.z += delta * 0.12
     const mat = points.current.material as THREE.PointsMaterial
-    mat.opacity = 0.55 + Math.sin(clock.getElapsedTime() * 1.6) * 0.2
+    mat.opacity = 0.32 + Math.sin(clock.getElapsedTime() * 1.6) * 0.1
   })
 
   return (
@@ -45,10 +45,10 @@ function PortraitHalo() {
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.032}
+        size={0.024}
         vertexColors
         transparent
-        opacity={0.75}
+        opacity={0.35}
         sizeAttenuation
         depthWrite={false}
       />
@@ -62,15 +62,15 @@ function GlowRing({ color, radius, speed }: { color: string; radius: number; spe
   useFrame(({ clock }) => {
     if (!ring.current) return
     const t = clock.getElapsedTime()
-    ring.current.scale.setScalar(1 + Math.sin(t * speed) * 0.07)
+    ring.current.scale.setScalar(1 + Math.sin(t * speed) * 0.04)
     const mat = ring.current.material as THREE.MeshBasicMaterial
-    mat.opacity = 0.16 + Math.sin(t * (speed * 1.25) + 1) * 0.08
+    mat.opacity = 0.08 + Math.sin(t * (speed * 1.25) + 1) * 0.04
   })
 
   return (
     <mesh ref={ring} position={[0, 0, -0.5]}>
-      <ringGeometry args={[radius - 0.02, radius, 72]} />
-      <meshBasicMaterial color={color} transparent opacity={0.2} side={THREE.DoubleSide} />
+      <ringGeometry args={[radius - 0.015, radius, 72]} />
+      <meshBasicMaterial color={color} transparent opacity={0.1} side={THREE.DoubleSide} />
     </mesh>
   )
 }
