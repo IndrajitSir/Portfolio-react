@@ -10,7 +10,8 @@ import HeroStats from './HeroStats'
 
 // Lazy-load heavy 3D canvas
 // const PortraitCanvas = lazy(() => import('@/components/three/PortraitCanvas'))
-const SignatureScene = lazy(() => import('@/components/three/SignatureScene'))
+// const SignatureScene = lazy(() => import('@/components/three/SignatureScene'))
+const AvatarScene = lazy(() => import('@/components/three/AvatarScene'))
 const heroRoles = ['Junior Software Developer', 'Chess Player', 'Backend Engineer']
 
 // Background gradient blobs
@@ -197,7 +198,8 @@ export default function Hero() {
             >
               {/* <HeroCanvas /> */}
               {/* <PortraitCanvas /> */}
-              <SignatureScene />
+              {/* <SignatureScene /> */}
+              <AvatarScene />
             </Suspense>
           </motion.div>
         </div>
