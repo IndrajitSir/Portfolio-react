@@ -1,9 +1,9 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { lazy, Suspense } from 'react'
+import { motion } from 'framer-motion'
 import { FiArrowDown, FiDownload } from 'react-icons/fi'
 import { personalInfo } from '@/data'
 import { scrollToSection } from '@/utils'
-import { MagneticButton } from '@/components/ui'
+import { CodeTypingWindow, MagneticButton } from '@/components/ui'
 import CursorParticlesCanvas from '@/components/ui/CursorParticlesCanvas'
 import HeroBadge from './HeroBadge'
 import HeroStats from './HeroStats'
@@ -11,8 +11,15 @@ import HeroStats from './HeroStats'
 // Lazy-load heavy 3D canvas
 // const PortraitCanvas = lazy(() => import('@/components/three/PortraitCanvas'))
 // const SignatureScene = lazy(() => import('@/components/three/SignatureScene'))
-const AvatarScene = lazy(() => import('@/components/three/AvatarScene'))
-const heroRoles = ['Junior Software Developer', 'Chess Player', 'Backend Engineer']
+// const AvatarScene = lazy(() => import('@/components/three/AvatarScene'))
+const GlbAvatarScene = lazy(() => import('@/components/three/GlbAvatarScene'))
+const heroRoles = [
+  'Junior Software Developer',
+  'Chess Player',
+  'Backend Engineer',
+  'API Architect',
+  'Problem Solver',
+]
 
 // Background gradient blobs
 function GradientBlobs() {
@@ -35,16 +42,6 @@ function GradientBlobs() {
 }
 
 export default function Hero() {
-  const [roleIndex, setRoleIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setRoleIndex((current) => (current + 1) % heroRoles.length)
-    }, 2600)
-
-    return () => window.clearInterval(interval)
-  }, [])
-
   return (
     <section
       id="hero"
@@ -80,32 +77,15 @@ export default function Hero() {
               <em className="not-italic text-sheen">Mandal</em>
             </motion.h1>
 
-            {/* Role */}
-            <motion.p
+            {/* Role: IDE-style typewriter */}
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.45 }}
-              className="font-mono-code text-base mb-5"
-              style={{ color: 'var(--text-secondary)' }}
+              className="mb-7 max-w-[540px]"
             >
-              <span style={{ color: 'var(--accent-indigo)' }}>&lt;</span>
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={heroRoles[roleIndex]}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -14 }}
-                  transition={{ duration: 0.35, ease: 'easeInOut' }}
-                  className="inline-block"
-                >
-                  {heroRoles[roleIndex]}
-                </motion.span>
-              </AnimatePresence>
-              <span style={{ color: 'var(--accent-indigo)' }}> /&gt;</span>
-              <span className="role-caret" aria-hidden="true">
-                ▌
-              </span>
-            </motion.p>
+              <CodeTypingWindow roles={heroRoles} />
+            </motion.div>
 
             {/* Tagline */}
             <motion.p
@@ -199,7 +179,8 @@ export default function Hero() {
               {/* <HeroCanvas /> */}
               {/* <PortraitCanvas /> */}
               {/* <SignatureScene /> */}
-              <AvatarScene />
+              {/* <AvatarScene /> */}
+              <GlbAvatarScene />
             </Suspense>
           </motion.div>
         </div>
