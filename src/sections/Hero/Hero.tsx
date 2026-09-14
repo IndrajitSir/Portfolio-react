@@ -164,7 +164,7 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="hidden lg:flex w-full h-[min(70vh,620px)] max-w-[620px] mx-auto z-10 items-center justify-center"
+            className="hidden lg:flex w-full h-[min(84vh,820px)] max-w-[820px] mx-auto z-10 items-center justify-center"
           >
             <Suspense
               fallback={
