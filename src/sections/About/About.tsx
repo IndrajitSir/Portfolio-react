@@ -103,7 +103,14 @@ $ status    → open to new roles & collabs`}
             <GlowCard>
               <div className="p-5 bg-gradient-to-br from-[var(--surface)] to-[var(--bg-primary)]">
                 <div className="flex items-center justify-between gap-4">
-                  <div>
+                  <div className="flex items-center gap-4">
+                    <img
+                      src="/indrajit-portrait.png"
+                      alt="Portrait of Indrajit Mandal"
+                      loading="lazy"
+                      className="h-16 w-16 rounded-xl object-cover border border-[var(--accent-teal)] shadow-[0_0_18px_var(--glow-teal)]"
+                    />
+                    <div>
                     <p
                       className="font-mono-code text-[0.68rem] uppercase tracking-widest mb-1"
                       style={{ color: 'var(--accent-teal)' }}
@@ -116,6 +123,7 @@ $ status    → open to new roles & collabs`}
                     <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
                       {personalInfo.title}
                     </p>
+                    </div>
                   </div>
                   <span
                     className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono-code text-[0.65rem] uppercase tracking-wider"

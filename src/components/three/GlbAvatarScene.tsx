@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Bounds, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
@@ -9,6 +9,16 @@ function Model() {
   const { scene } = useGLTF('/models/avatar-model.glb')
   const model = useRef<THREE.Group>(null)
   const [hovered, setHovered] = useState(false)
+
+  useEffect(() => {
+    scene.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        object.frustumCulled = true
+        object.castShadow = false
+        object.receiveShadow = false
+      }
+    })
+  }, [scene])
 
   useFrame(({ pointer, clock }, delta) => {
     if (!model.current) return
@@ -83,11 +93,18 @@ function GlowRing({ color, radius }: { color: string; radius: number }) {
 
 function OrbitBubbles() {
   const group = useRef<THREE.Group>(null)
-  const bubbles = [
-    { radius: 1.62, speed: 0.45, phase: 0, color: '#00f2fe', size: 0.045 },
-    { radius: 1.78, speed: -0.32, phase: 2.1, color: '#05d5aa', size: 0.06 },
-    { radius: 1.92, speed: 0.24, phase: 4.3, color: '#67f4b7', size: 0.035 },
-  ]
+  const bubbles = useMemo(() => [
+    { radius: 1.62, speed: 0.45, phase: 0, color: '#00f2fe', size: 0.022 },
+    { radius: 1.68, speed: -0.32, phase: 0.63, color: '#05d5aa', size: 0.026 },
+    { radius: 1.74, speed: 0.24, phase: 1.26, color: '#67f4b7', size: 0.019 },
+    { radius: 1.8, speed: -0.38, phase: 1.89, color: '#00f2fe', size: 0.024 },
+    { radius: 1.86, speed: 0.29, phase: 2.52, color: '#05d5aa', size: 0.021 },
+    { radius: 1.92, speed: -0.22, phase: 3.15, color: '#67f4b7', size: 0.028 },
+    { radius: 1.82, speed: 0.34, phase: 3.78, color: '#00f2fe', size: 0.02 },
+    { radius: 1.7, speed: -0.27, phase: 4.41, color: '#05d5aa', size: 0.025 },
+    { radius: 1.88, speed: 0.2, phase: 5.04, color: '#67f4b7', size: 0.018 },
+    { radius: 1.76, speed: -0.42, phase: 5.67, color: '#00f2fe', size: 0.023 },
+  ], [])
 
   useFrame(({ clock }) => {
     if (!group.current) return
