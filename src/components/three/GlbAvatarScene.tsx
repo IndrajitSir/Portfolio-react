@@ -14,8 +14,9 @@ function Model() {
     if (!model.current) return
     const t = clock.getElapsedTime()
 
-    // Smooth 360° idle rotation
-    model.current.rotation.y += delta * 0.14
+    // Idle rotation disabled — model stays facing forward
+    // (remove this line to re-enable smooth 360° idle rotation)
+    // model.current.rotation.y += delta * 0.14
 
     // Floating / breathing motion
     const floatY = Math.sin(t * 0.8) * 0.05

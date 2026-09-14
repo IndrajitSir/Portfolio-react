@@ -130,29 +130,16 @@ export default function CodeTypingWindow({
           <code>
             <div className="flex gap-4">
               <span className="select-none text-right text-slate-600">1</span>
-              <span className="text-slate-500">// Indrajit Mandal — developer profile</span>
-            </div>
-            <div className="flex gap-4">
-              <span className="select-none text-right text-slate-600">2</span>
               <span>
                 <span className="text-indigo-300">const</span>{' '}
                 <span className="text-slate-200">developer</span>{' '}
                 <span className="text-slate-400">=</span> <span className="text-slate-400">{'{'}</span>
               </span>
             </div>
-            <div className="flex gap-4">
-              <span className="select-none text-right text-slate-600">3</span>
-              <span className="pl-4">
-                <span className="text-slate-200">name</span>
-                <span className="text-slate-400">:</span>{' '}
-                <span className="text-teal-300">&quot;Indrajit Mandal&quot;</span>
-                <span className="text-slate-400">,</span>
-              </span>
-            </div>
 
             {/* Active typing line */}
             <div className="flex gap-4 bg-teal-400/[0.04]">
-              <span className="select-none text-right text-slate-600">4</span>
+              <span className="select-none text-right text-slate-600">2</span>
               <span className="pl-4">
                 <span className="text-slate-200">role</span>
                 <span className="text-slate-400">:</span>{' '}
@@ -168,7 +155,7 @@ export default function CodeTypingWindow({
             </div>
 
             <div className="flex gap-4">
-              <span className="select-none text-right text-slate-600">5</span>
+              <span className="select-none text-right text-slate-600">3</span>
               <span className="text-slate-400">{'};'}</span>
             </div>
           </code>
