@@ -1,15 +1,13 @@
 import { motion } from 'framer-motion'
-import { FiGithub, FiMail, FiPhone, FiMapPin } from 'react-icons/fi'
+import { FiGithub, FiMail, FiMapPin } from 'react-icons/fi'
 import { personalInfo, languages } from '@/data'
-import { staggerContainer, fadeInLeft, fadeInRight, fadeInUp } from '@/utils/animations'
+import { staggerContainer, fadeInUp } from '@/utils/animations'
 import { SectionLabel, GlowCard, SectionBackground } from '@/components/ui'
 
-const infoRows = [
-  { icon: <FiMail size={16} />, key: 'Email', value: personalInfo.email, href: `mailto:${personalInfo.email}` },
-  { icon: <FiPhone size={16} />, key: 'Phone', value: personalInfo.phone, href: `tel:${personalInfo.phone.replace(/\s/g, '')}` },
-  { icon: <FiGithub size={16} />, key: 'GitHub', value: 'github.com/IndrajitSir', href: personalInfo.github },
-  { icon: <span className="font-bold">in</span>, key: 'LinkedIn', value: 'linkedin.com/in/indrajitmandal', href: 'https://linkedin.com/in/indrajit-mandal-34a9842a5' },
-  { icon: <FiMapPin size={16} />, key: 'Location', value: personalInfo.location, href: undefined },
+const contactLinks = [
+  { icon: <FiMail size={15} />, label: personalInfo.email, href: `mailto:${personalInfo.email}`, wide: true },
+  { icon: <span className="font-bold text-xs">&lt;&gt;</span>, label: 'GitHub', href: personalInfo.github },
+  { icon: <span className="font-bold text-xs">⌘</span>, label: 'LinkedIn', href: 'https://linkedin.com/in/indrajit-mandal-34a9842a5' },
 ]
 
 export default function About() {
@@ -22,199 +20,104 @@ export default function About() {
     >
       <SectionBackground variant="code" />
       <div className="max-container section-padding relative z-10">
-        <SectionLabel
-          index="01"
-          label="Background"
-          title="The person behind the"
-          titleAccent="code"
-        />
+        <SectionLabel index="01" label="Background" title="The person behind the" titleAccent="code" />
 
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-80px' }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start"
         >
-          {/* Left: Bio */}
-          <motion.div variants={fadeInLeft} className="space-y-5">
-            <p className="text-[1.05rem] leading-[1.85]" style={{ color: 'var(--text-secondary)' }}>
-              I'm a Junior Software Developer currently working at{' '}
-              <strong className="text-[var(--text-primary)] font-semibold">Distronix</strong>,
-              where I specialise in backend optimisation, API development, and resolving complex
-              relational model issues. My foundation is built on real-world engineering
-              challenges — not just theory.
-            </p>
-            <p className="text-[1.05rem] leading-[1.85]" style={{ color: 'var(--text-secondary)' }}>
-              Before software development, I spent time as a SAP Officer Trainee at Jai Balaji
-              Industries, supporting end-to-end order-to-cash operations in SAP S/4HANA. This
-              cross-domain experience gives me a business-aware perspective on every technical
-              decision I make.
-            </p>
-            <p className="text-[1.05rem] leading-[1.85]" style={{ color: 'var(--text-secondary)' }}>
-              I'm driven by clean architecture, measurable performance improvements, and the
-              satisfaction of systems that just{' '}
-              <em className="text-[var(--accent-teal)] not-italic font-medium">work</em>.
-            </p>
-
-            {/* Terminal block */}
-            <GlowCard className="mt-6">
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-3 h-3 rounded-full bg-red-500/70" />
-                  <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                  <span className="w-3 h-3 rounded-full bg-green-500/70" />
-                </div>
-                <pre
-                  className="font-mono-code text-sm leading-[1.9]"
-                  style={{ color: 'var(--accent-teal)' }}
-                >
-                  {`$ currently → building @ Distronix.in
-$ location  → West Bengal, India 🇮🇳
-$ status    → open to new roles & collabs`}
-                </pre>
-              </div>
-            </GlowCard>
-
-            {/* Languages */}
-            <div className="mt-4">
-              <p
-                className="font-mono-code text-[0.7rem] uppercase tracking-widest mb-3"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                Languages Spoken
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {languages.map((lang) => (
+          <GlowCard>
+            <div className="p-5 sm:p-7 lg:p-8">
+              <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-4">
+                <div className="relative shrink-0">
+                  <img
+                    src="/indrajit-portrait.png"
+                    alt="Portrait of Indrajit Mandal"
+                    loading="lazy"
+                    className="h-[68px] w-[68px] rounded-xl object-cover border-2 border-[var(--accent-teal)] shadow-[0_0_18px_var(--glow-teal)]"
+                  />
                   <span
-                    key={lang.name}
-                    className="px-3 py-1.5 rounded-full border border-[var(--border)] text-sm"
-                    style={{ background: 'var(--surface)', color: 'var(--text-secondary)' }}
+                    className="absolute -right-1 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold"
+                    style={{ background: 'var(--accent-teal)', color: 'var(--bg-primary)' }}
+                    aria-label="Available for opportunities"
                   >
-                    {lang.flag} {lang.name} · <span style={{ color: 'var(--text-muted)' }}>{lang.level}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right: Info cards */}
-          <motion.div variants={fadeInRight} className="space-y-3">
-            <GlowCard>
-              <div className="p-5 bg-gradient-to-br from-[var(--surface)] to-[var(--bg-primary)]">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <img
-                      src="/indrajit-portrait.png"
-                      alt="Portrait of Indrajit Mandal"
-                      loading="lazy"
-                      className="h-16 w-16 rounded-xl object-cover border border-[var(--accent-teal)] shadow-[0_0_18px_var(--glow-teal)]"
-                    />
-                    <div>
-                    <p
-                      className="font-mono-code text-[0.68rem] uppercase tracking-widest mb-1"
-                      style={{ color: 'var(--accent-teal)' }}
-                    >
-                      IDENTITY_NODE / 01
-                    </p>
-                    <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      {personalInfo.name}
-                    </h3>
-                    <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                      {personalInfo.title}
-                    </p>
-                    </div>
-                  </div>
-                  <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono-code text-[0.65rem] uppercase tracking-wider"
-                    style={{
-                      color: 'var(--accent-teal)',
-                      background: 'var(--glow-teal)',
-                      border: '1px solid var(--border-glow)',
-                    }}
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-teal)] shadow-[0_0_8px_var(--accent-teal)]" />
-                    Online
+                    ✓
                   </span>
                 </div>
-                <div className="mt-4 flex items-center gap-2 font-mono-code text-xs" style={{ color: 'var(--text-muted)' }}>
-                  <FiMapPin size={13} style={{ color: 'var(--accent-teal)' }} />
-                  {personalInfo.location}
+                <div className="min-w-[190px] flex-1">
+                  <h3 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>
+                    {personalInfo.name}
+                  </h3>
+                  <p className="font-mono-code text-sm" style={{ color: 'var(--accent-teal)' }}>
+                    {personalInfo.title}
+                  </p>
+                  <p className="mt-1 flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                    <FiMapPin size={12} style={{ color: 'var(--accent-teal)' }} />
+                    {personalInfo.location}
+                  </p>
                 </div>
-              </div>
-            </GlowCard>
-
-            {infoRows.map((row, i) => (
-              <motion.div
-                key={row.key}
-                variants={fadeInUp}
-                custom={i}
-              >
-                <GlowCard>
-                  <div className="flex items-center gap-4 p-4">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{
-                        background: 'var(--glow-teal)',
-                        border: '1px solid var(--border-glow)',
-                        color: 'var(--accent-teal)',
-                      }}
-                    >
-                      {row.icon}
-                    </div>
-                    <div>
-                      <p
-                        className="font-mono-code text-[0.68rem] uppercase tracking-widest mb-0.5"
-                        style={{ color: 'var(--text-muted)' }}
-                      >
-                        {row.key}
-                      </p>
-                      {row.href ? (
-                        <a
-                          href={row.href}
-                          target={row.key === 'GitHub' ? '_blank' : undefined}
-                          rel={row.key === 'GitHub' ? 'noopener noreferrer' : undefined}
-                          className="text-sm transition-colors duration-200 hover:text-[var(--accent-teal)]"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {row.value}
-                        </a>
-                      ) : (
-                        <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
-                          {row.value}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </GlowCard>
               </motion.div>
-            ))}
 
-            {/* Education teaser */}
-            <GlowCard className="mt-2">
-              <div className="p-5 flex items-center gap-4">
-                <span className="text-2xl" aria-hidden="true">🎓</span>
-                <div>
-                  <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
-                    Bachelor in Computer Application
-                  </p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-                    Kazi Nazrul University · CGPA 8.14
-                  </p>
+              <motion.div variants={fadeInUp} className="mt-5 space-y-2 text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>
+                <p>
+                  Currently engineering at <strong className="text-[var(--text-primary)]">Distronix</strong>, specializing in robust backend optimization, REST API architectures, and high-throughput relational data workflows.
+                </p>
+                <p>
+                  Prior to native deep-stack software development, trained as an <strong className="text-[var(--text-primary)]">SAP Officer Trainee at Jai Balaji Industries</strong> (SAP S/4HANA), gaining rare operational domain insight into order-to-cash enterprise lifecycles.
+                </p>
+              </motion.div>
+
+              <motion.div variants={fadeInUp} className="mt-5 rounded-xl p-4 sm:p-5" style={{ background: 'var(--bg-primary)' }}>
+                <div className="mb-3 flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-yellow-300" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                  <span className="ml-2 font-mono-code text-[0.6rem] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                    runtime_specs.sh
+                  </span>
                 </div>
-                <span
-                  className="ml-auto font-mono-code text-[0.75rem] px-2 py-0.5 rounded-full"
-                  style={{
-                    background: 'var(--glow-teal)',
-                    border: '1px solid var(--border-glow)',
-                    color: 'var(--accent-teal)',
-                  }}
-                >
-                  2022–2025
+                <pre className="overflow-x-auto font-mono-code text-xs leading-[2]" style={{ color: 'var(--accent-teal)' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>$ currently: </span>building @ Distronix, IN{'\n'}
+                  <span style={{ color: 'var(--text-muted)' }}>$ focus: </span>Distributed APIs &amp; RBAC Security{'\n'}
+                  <span style={{ color: 'var(--text-muted)' }}>$ status: </span>Open to high-impact software roles
+                </pre>
+              </motion.div>
+
+              <motion.div variants={fadeInUp} className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {contactLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target={link.label === 'GitHub' || link.label === 'LinkedIn' ? '_blank' : undefined}
+                    rel={link.label === 'GitHub' || link.label === 'LinkedIn' ? 'noopener noreferrer' : undefined}
+                    className={`${link.wide ? 'sm:col-span-2' : ''} flex items-center gap-3 rounded-xl border border-[var(--border)] px-3 py-3 font-mono-code text-xs transition-colors hover:border-[var(--accent-teal)]`}
+                    style={{ background: 'var(--surface)', color: 'var(--text-primary)' }}
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: 'var(--glow-teal)', color: 'var(--accent-teal)' }}>
+                      {link.icon}
+                    </span>
+                    <span className="truncate">{link.label}</span>
+                    <span className="ml-auto" style={{ color: 'var(--text-muted)' }}>→</span>
+                  </a>
+                ))}
+              </motion.div>
+            </div>
+          </GlowCard>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2">
+              {languages.map((lang) => (
+                <span key={lang.name} className="rounded-full border border-[var(--border)] px-3 py-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                  {lang.flag} {lang.name}
                 </span>
-              </div>
-            </GlowCard>
-          </motion.div>
+              ))}
+            </div>
+            <p className="font-mono-code text-xs" style={{ color: 'var(--text-muted)' }}>
+              BCA · Kazi Nazrul University · CGPA 8.14
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>
