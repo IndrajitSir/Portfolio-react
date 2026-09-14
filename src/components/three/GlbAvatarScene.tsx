@@ -56,7 +56,7 @@ function Model() {
     >
       {/* Auto-fits the model into the canvas view */}
       <Bounds fit clip observe margin={0.62}>
-        <primitive object={scene} rotation={[0, Math.PI, 0]} />
+        <primitive object={scene} />
       </Bounds>
     </group>
   )
