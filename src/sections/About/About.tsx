@@ -100,6 +100,42 @@ $ status    → open to new roles & collabs`}
 
           {/* Right: Info cards */}
           <motion.div variants={fadeInRight} className="space-y-3">
+            <GlowCard>
+              <div className="p-5 bg-gradient-to-br from-[var(--surface)] to-[var(--bg-primary)]">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p
+                      className="font-mono-code text-[0.68rem] uppercase tracking-widest mb-1"
+                      style={{ color: 'var(--accent-teal)' }}
+                    >
+                      IDENTITY_NODE / 01
+                    </p>
+                    <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      {personalInfo.name}
+                    </h3>
+                    <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                      {personalInfo.title}
+                    </p>
+                  </div>
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono-code text-[0.65rem] uppercase tracking-wider"
+                    style={{
+                      color: 'var(--accent-teal)',
+                      background: 'var(--glow-teal)',
+                      border: '1px solid var(--border-glow)',
+                    }}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-teal)] shadow-[0_0_8px_var(--accent-teal)]" />
+                    Online
+                  </span>
+                </div>
+                <div className="mt-4 flex items-center gap-2 font-mono-code text-xs" style={{ color: 'var(--text-muted)' }}>
+                  <FiMapPin size={13} style={{ color: 'var(--accent-teal)' }} />
+                  {personalInfo.location}
+                </div>
+              </div>
+            </GlowCard>
+
             {infoRows.map((row, i) => (
               <motion.div
                 key={row.key}

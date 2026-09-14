@@ -72,10 +72,19 @@ export default function Hero() {
                 color: 'var(--text-primary)',
               }}
             >
-              Indrajit
-              <br />
-              <em className="not-italic text-sheen">Mandal</em>
+              Indrajit <em className="not-italic text-sheen">Mandal</em>
             </motion.h1>
+
+            {/* Summary */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="text-sm leading-6 max-w-[480px] mb-5"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {personalInfo.tagline}
+            </motion.p>
 
             {/* Role: IDE-style typewriter */}
             <motion.div
@@ -86,17 +95,6 @@ export default function Hero() {
             >
               <CodeTypingWindow roles={heroRoles} />
             </motion.div>
-
-            {/* Tagline */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.55 }}
-              className="text-[1.05rem] leading-[1.8] max-w-[480px] mb-9"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              {personalInfo.tagline}
-            </motion.p>
 
             {/* CTAs */}
             <motion.div

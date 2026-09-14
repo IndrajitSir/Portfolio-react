@@ -81,6 +81,40 @@ function GlowRing({ color, radius }: { color: string; radius: number }) {
   )
 }
 
+function OrbitBubbles() {
+  const group = useRef<THREE.Group>(null)
+  const bubbles = [
+    { radius: 1.62, speed: 0.45, phase: 0, color: '#00f2fe', size: 0.045 },
+    { radius: 1.78, speed: -0.32, phase: 2.1, color: '#05d5aa', size: 0.06 },
+    { radius: 1.92, speed: 0.24, phase: 4.3, color: '#67f4b7', size: 0.035 },
+  ]
+
+  useFrame(({ clock }) => {
+    if (!group.current) return
+    const time = clock.getElapsedTime()
+    group.current.children.forEach((bubble, index) => {
+      const item = bubbles[index]
+      const angle = time * item.speed + item.phase
+      bubble.position.set(
+        Math.cos(angle) * item.radius,
+        Math.sin(angle * 1.35) * 0.5,
+        Math.sin(angle) * item.radius,
+      )
+    })
+  })
+
+  return (
+    <group ref={group}>
+      {bubbles.map((bubble) => (
+        <mesh key={bubble.phase}>
+          <sphereGeometry args={[bubble.size, 12, 12]} />
+          <meshBasicMaterial color={bubble.color} transparent opacity={0.7} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
 export default function GlbAvatarScene() {
   return (
     <div
@@ -102,6 +136,7 @@ export default function GlbAvatarScene() {
 
         <GlowRing color="#6366f1" radius={1.45} />
         <GlowRing color="#5eead4" radius={1.75} />
+        <OrbitBubbles />
 
         <Suspense fallback={null}>
           <Model />
