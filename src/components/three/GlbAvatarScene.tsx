@@ -54,7 +54,7 @@ function Model() {
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-      <primitive object={scene} />
+      <primitive object={scene} scale={1.2} />
     </group>
   )
 }
@@ -87,7 +87,7 @@ export default function GlbAvatarScene() {
       role="img"
     >
       <Canvas
-        camera={{ position: [0, 0.3, 3.6], fov: 40 }}
+        camera={{ position: [0, 0.3, 2.7], fov: 36 }}
         gl={{ antialias: true, alpha: true }}
         dpr={[1, 1.5]}
       >
