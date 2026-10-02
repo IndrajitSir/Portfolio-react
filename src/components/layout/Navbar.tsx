@@ -4,11 +4,13 @@ import { FiSun, FiMoon, FiMenu, FiX } from 'react-icons/fi'
 import { navItems } from '@/data/navigation'
 import { useTheme } from '@/hooks/useTheme'
 import { scrollToSection } from '@/utils'
+import MagneticButton from '@/components/ui/MagneticButton'
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme()
   const [scrolled,    setScrolled]    = useState(false)
   const [activeSection, setActive]    = useState('')
+  const [hoveredNav,  setHoveredNav]  = useState<string | null>(null)
   const [menuOpen,    setMenuOpen]    = useState(false)
 
   /* ── Scroll detection ─────────────────────────────────── */
@@ -96,24 +98,32 @@ export default function Navbar() {
           {navItems.map((item) => {
             const id = item.href.replace('#', '')
             const isActive = activeSection === id
+            const indicatorId = hoveredNav ?? (activeSection || null)
+            const showIndicator = indicatorId === id
             return (
               <li key={item.href}>
                 <button
                   onClick={() => handleNavClick(item.href)}
+                  onMouseEnter={() => setHoveredNav(id)}
+                  onMouseLeave={() => setHoveredNav((h) => (h === id ? null : h))}
+                  onFocus={() => setHoveredNav(id)}
+                  onBlur={() => setHoveredNav((h) => (h === id ? null : h))}
+                  aria-current={isActive ? 'true' : undefined}
                   className={`
                     relative font-body text-[0.8rem] font-medium tracking-widest uppercase
                     transition-colors duration-200
-                    ${isActive
+                    ${isActive || hoveredNav === id
                       ? 'text-[var(--accent-teal)]'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--accent-teal)]'}
+                      : 'text-[var(--text-secondary)]'}
                   `}
                 >
                   {item.label}
-                  {isActive && (
+                  {showIndicator && (
                     <motion.span
-                      layoutId="nav-underline"
+                      layoutId="nav-indicator"
                       className="absolute -bottom-1 left-0 right-0 h-px"
                       style={{ background: 'var(--accent-teal)' }}
+                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
                     />
                   )}
                 </button>
@@ -127,32 +137,47 @@ export default function Navbar() {
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            aria-label="Toggle colour theme"
+            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
             className="
-              w-9 h-9 rounded-full flex items-center justify-center
+              w-9 h-9 rounded-full flex items-center justify-center overflow-hidden
               border border-[var(--border)] bg-[var(--surface)]
               hover:border-[var(--accent-teal)] hover:bg-[var(--glow-teal)]
               transition-all duration-200 text-[var(--text-secondary)]
               hover:text-[var(--accent-teal)]
             "
           >
-            {isDark ? <FiSun size={15} /> : <FiMoon size={15} />}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={isDark ? 'sun' : 'moon'}
+                initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+                animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+                transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+                className="flex"
+                aria-hidden="true"
+              >
+                {isDark ? <FiSun size={15} /> : <FiMoon size={15} />}
+              </motion.span>
+            </AnimatePresence>
           </button>
 
-          {/* Hire Me CTA — desktop only */}
-          <a
-            href="#contact"
-            onClick={(e) => { e.preventDefault(); scrollToSection('contact') }}
-            className="
-              hidden md:inline-flex items-center gap-2
-              px-5 py-2 rounded-full border border-[var(--accent-teal)]
-              text-[var(--accent-teal)] text-[0.8rem] font-semibold tracking-wide
-              hover:bg-[var(--accent-teal)] hover:text-[var(--bg-primary)]
-              transition-all duration-200
-            "
-          >
-            Hire Me
-          </a>
+          {/* Hire Me CTA — desktop only, magnetic */}
+          <div className="hidden md:block">
+            <MagneticButton
+              href="#contact"
+              strength={0.18}
+              onClick={(e) => { e?.preventDefault(); scrollToSection('contact') }}
+              className="
+                inline-flex items-center gap-2
+                px-5 py-2 rounded-full border border-[var(--accent-teal)]
+                text-[var(--accent-teal)] text-[0.8rem] font-semibold tracking-wide
+                hover:bg-[var(--accent-teal)] hover:text-[var(--bg-primary)]
+                transition-all duration-200
+              "
+            >
+              Hire Me
+            </MagneticButton>
+          </div>
 
           {/* Hamburger — mobile only */}
           <button

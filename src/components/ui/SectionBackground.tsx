@@ -579,9 +579,16 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
       cancelAnimationFrame(animationFrameId)
     }
 
+    // Honour reduced-motion: paint a single static frame, never loop.
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          if (reduceMotion) {
+            if (entry.isIntersecting) draw()
+            return
+          }
           if (entry.isIntersecting) start()
           else stop()
         })

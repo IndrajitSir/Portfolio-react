@@ -1,211 +1,232 @@
-import { lazy, Suspense } from 'react'
-import { motion } from 'framer-motion'
-import { FiArrowDown, FiDownload } from 'react-icons/fi'
+import { useRef } from 'react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { FiArrowDown, FiArrowRight, FiArrowUpRight } from 'react-icons/fi'
 import { personalInfo } from '@/data'
 import { scrollToSection } from '@/utils'
-import { CodeTypingWindow, MagneticButton } from '@/components/ui'
-import CursorParticlesCanvas from '@/components/ui/CursorParticlesCanvas'
-import HeroBadge from './HeroBadge'
-import HeroStats from './HeroStats'
+import InteractiveBackground from '@/components/ui/InteractiveBackground'
+import SystemsConstellation from '@/components/ui/SystemsConstellation'
+import InteractiveCodePanel from '@/components/ui/InteractiveCodePanel'
+import AnimatedMetrics from '@/components/ui/AnimatedMetrics'
+import ScrollIndicator from '@/components/ui/ScrollIndicator'
+import MagneticButton from '@/components/ui/MagneticButton'
+import HeroIdentity from './HeroIdentity'
 
-// Lazy-load heavy 3D canvas
-// const PortraitCanvas = lazy(() => import('@/components/three/PortraitCanvas'))
-// const SignatureScene = lazy(() => import('@/components/three/SignatureScene'))
-// const AvatarScene = lazy(() => import('@/components/three/AvatarScene'))
-const GlbAvatarScene = lazy(() => import('@/components/three/GlbAvatarScene'))
-const heroRoles = [
-  'Junior Software Developer',
-  'Chess Player',
-  'Backend Engineer',
-  'API Architect',
-  'Problem Solver',
-]
+const EASE = [0.22, 1, 0.36, 1] as const
 
-// Background gradient blobs
-function GradientBlobs() {
+/** Slim system telemetry strip that frames the hero like a runtime dashboard. */
+function TelemetryStrip() {
+  const reduceMotion = useReducedMotion()
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[600px]">
-        <div
-          className="w-full h-full rounded-full blur-[120px] opacity-[0.07] animate-blob-1"
-          style={{ background: 'radial-gradient(ellipse, var(--accent-teal), transparent)' }}
+    <motion.div
+      initial={reduceMotion ? undefined : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.7 }}
+      className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-3 font-mono-code text-[0.6rem] uppercase tracking-[0.16em]"
+      style={{ color: 'var(--text-muted)' }}
+    >
+      <span className="flex items-center gap-2">
+        <span
+          className="h-1.5 w-1.5 rounded-full"
+          style={{ background: 'var(--accent-teal)' }}
+          aria-hidden="true"
         />
-      </div>
-      <div className="absolute bottom-0 right-0 w-[500px] h-[400px]">
-        <div
-          className="w-full h-full rounded-full blur-[100px] opacity-[0.05] animate-blob-2"
-          style={{ background: 'radial-gradient(ellipse, var(--accent-indigo), transparent)' }}
-        />
-      </div>
-    </div>
+        Location: {personalInfo.location} // Remote-capable
+      </span>
+      <span className="hidden items-center gap-3 sm:flex">
+        <span className="flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--accent-indigo)' }} aria-hidden="true" />
+          Runtime: v3.8.2-prod
+        </span>
+        <span style={{ color: 'var(--border)' }} aria-hidden="true">|</span>
+        <span>System state: nominal</span>
+      </span>
+    </motion.div>
   )
 }
 
 export default function Hero() {
+  const reduceMotion = useReducedMotion()
+  const heroRef = useRef<HTMLElement>(null)
+
+  // As the hero scrolls away, the visualization recedes slightly — a gentle
+  // hand-off into the About section rather than an abrupt cut.
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  })
+  const constellationY = useTransform(scrollYProgress, [0, 1], [0, -34])
+  const constellationScale = useTransform(scrollYProgress, [0, 1], [1, 0.95])
+  const constellationOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [1, 0.6, 0.35])
+
   return (
     <section
+      ref={heroRef}
       id="hero"
-      className="relative min-h-screen flex items-center overflow-hidden"
+      className="relative flex min-h-[100svh] items-center overflow-hidden"
       style={{ background: 'var(--bg-primary)' }}
       aria-label="Hero section"
     >
-      <GradientBlobs />
+      {/* Interactive generative environment */}
+      <InteractiveBackground opacity={0.9} />
 
-      {/* ── Background: Particle Swarm ────────────────────── */}
-      <CursorParticlesCanvas />
+      {/* Ambient glow fields that anchor the composition */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div
+          className="absolute -left-40 -top-40 h-[560px] w-[560px] rounded-full opacity-[0.06] blur-[140px]"
+          style={{ background: 'var(--accent-teal)' }}
+        />
+        <div
+          className="absolute -right-40 top-1/3 h-[520px] w-[520px] rounded-full opacity-[0.05] blur-[150px]"
+          style={{ background: 'var(--accent-indigo)' }}
+        />
+      </div>
 
-      <div className="max-container section-padding w-full relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="max-container section-padding relative z-10 w-full py-24">
+        <TelemetryStrip />
 
-          {/* ── Left: Content ───────────────────────── */}
-          <div>
-            <HeroBadge />
+        {/* ── Asymmetric hero grid ───────────────────────── */}
+        <div className="mt-8 grid grid-cols-1 items-start gap-10 lg:grid-cols-12 xl:gap-14">
+          {/* Left — identity, actions, code */}
+          <div className="flex flex-col gap-7 lg:col-span-7">
+            <HeroIdentity />
 
-            {/* Name */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="font-display font-light leading-[1.05] tracking-tight mb-4 whitespace-nowrap"
-              style={{
-                fontSize: 'clamp(3rem, 7vw, 5.8rem)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              Indrajit <em className="not-italic text-sheen">Mandal</em>
-            </motion.h1>
-
-            {/* Summary */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-sm leading-6 max-w-[480px] mb-5"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              {personalInfo.tagline}
-            </motion.p>
-
-            {/* Role: IDE-style typewriter */}
-            <h2 className="sr-only">Junior Software Developer · Backend Engineer · API Architect</h2>
+            {/* Action cluster */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={reduceMotion ? undefined : { opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.45 }}
-              className="mb-7 max-w-[540px]"
+              transition={{ duration: 0.7, delay: 1.05, ease: EASE }}
+              className="flex flex-wrap items-center gap-3"
             >
-              <CodeTypingWindow roles={heroRoles} />
-            </motion.div>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.65 }}
-              className="flex flex-wrap gap-4"
-            >
+              {/* Primary CTA */}
               <MagneticButton
                 href="#projects"
-                onClick={(e?: React.MouseEvent) => { e?.preventDefault(); scrollToSection('projects') }}
+                onClick={(e) => {
+                  e?.preventDefault()
+                  scrollToSection('projects')
+                }}
                 className="
-                  inline-flex items-center gap-2 px-7 py-3.5 rounded-full
-                  font-semibold text-[0.9rem] tracking-wide
-                  bg-[var(--accent-teal)] text-[var(--bg-primary)]
-                  hover:shadow-[0_0_40px_var(--glow-teal)]
-                  transition-all duration-300
+                  group relative inline-flex items-center gap-2 overflow-hidden rounded-lg
+                  bg-[linear-gradient(110deg,var(--accent-teal),var(--accent-indigo),var(--accent-teal))]
+                  bg-[length:200%_100%] bg-left px-6 py-3
+                  font-mono-code text-[0.72rem] font-semibold uppercase tracking-wider
+                  text-[var(--bg-primary)] shadow-[0_0_24px_var(--glow-teal)]
+                  transition-[background-position,transform,box-shadow] duration-500
+                  hover:-translate-y-0.5 hover:bg-right hover:shadow-[0_0_36px_var(--glow-teal)]
                 "
               >
-                View Work
-                <FiArrowDown size={16} />
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg"
+                >
+                  <span className="absolute inset-y-0 w-1/3 -translate-x-[160%] -skew-x-12 bg-white/30 transition-transform duration-700 ease-out group-hover:translate-x-[420%]" />
+                </span>
+                <span className="relative z-10">Explore My Work</span>
+                <FiArrowRight
+                  size={15}
+                  aria-hidden="true"
+                  className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
+                />
               </MagneticButton>
 
+              {/* Secondary CTA */}
               {personalInfo.resumeUrl && (
                 <MagneticButton
                   href={personalInfo.resumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Download resume"
+                  aria-label="Download resume PDF"
                   className="
-                    inline-flex items-center gap-2 px-7 py-3.5 rounded-full
-                    font-semibold text-[0.9rem] tracking-wide
-                    border border-[var(--border)] bg-[var(--surface)]
-                    text-[var(--text-primary)]
-                    hover:border-[var(--accent-indigo)] hover:text-[var(--accent-indigo)]
-                    transition-all duration-300
+                    group inline-flex items-center gap-2 rounded-lg border border-[var(--border)]
+                    bg-[var(--surface)] px-5 py-3 font-mono-code text-[0.72rem] uppercase
+                    tracking-wider text-[var(--text-primary)] backdrop-blur-md
+                    transition-colors duration-200
+                    hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]
                   "
                 >
-                  <FiDownload size={16} />
+                  <FiArrowDown
+                    size={15}
+                    aria-hidden="true"
+                    className="transition-transform duration-200 group-hover:translate-y-0.5"
+                  />
                   Resume
+                  <span className="text-[0.58rem]" style={{ color: 'var(--text-muted)' }}>
+                    PDF
+                  </span>
                 </MagneticButton>
               )}
 
+              {/* Tertiary action */}
               <MagneticButton
                 href="#contact"
-                onClick={(e?: React.MouseEvent) => { e?.preventDefault(); scrollToSection('contact') }}
+                strength={0.14}
+                onClick={(e) => {
+                  e?.preventDefault()
+                  scrollToSection('contact')
+                }}
                 className="
-                  inline-flex items-center gap-2 px-7 py-3.5 rounded-full
-                  font-semibold text-[0.9rem] tracking-wide
-                  border border-[var(--border)] bg-[var(--surface)]
-                  text-[var(--text-primary)]
-                  hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]
-                  transition-all duration-300
+                  group inline-flex items-center gap-1.5 px-2 py-2 font-mono-code text-[0.68rem]
+                  uppercase tracking-wider text-[var(--text-secondary)]
+                  transition-colors duration-200 hover:text-[var(--accent-teal)]
                 "
               >
-                Get In Touch →
+                <span style={{ color: 'var(--text-muted)' }} aria-hidden="true">
+                  01 //
+                </span>
+                <span className="relative">
+                  Get in Touch
+                  <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[var(--accent-teal)] transition-all duration-300 group-hover:w-full" />
+                </span>
+                <FiArrowUpRight
+                  size={13}
+                  aria-hidden="true"
+                  className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
               </MagneticButton>
             </motion.div>
 
-            <HeroStats />
+            {/* Interactive code module */}
+            <motion.div
+              initial={reduceMotion ? undefined : { opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.2, ease: EASE }}
+            >
+              <InteractiveCodePanel />
+            </motion.div>
           </div>
 
-          {/* ── Right: 3D Canvas ────────────────────── */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="hidden lg:flex w-full h-[min(84vh,820px)] max-w-[820px] mx-auto z-10 items-center justify-center"
-          >
-            <Suspense
-              fallback={
-                <div className="w-full h-full flex items-center justify-center">
-                  <div
-                    className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-                    style={{ borderColor: 'var(--accent-teal)', borderTopColor: 'transparent' }}
-                  />
-                </div>
+          {/* Right — interactive systems constellation */}
+          <div className="w-full lg:col-span-5">
+            <motion.div
+              style={
+                reduceMotion
+                  ? undefined
+                  : { y: constellationY, scale: constellationScale, opacity: constellationOpacity }
               }
             >
-              {/* <HeroCanvas /> */}
-              {/* <PortraitCanvas /> */}
-              {/* <SignatureScene /> */}
-              {/* <AvatarScene /> */}
-              <GlbAvatarScene />
-            </Suspense>
-          </motion.div>
+              <motion.div
+                initial={reduceMotion ? undefined : { opacity: 0, y: 28, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 1, delay: 0.5, ease: EASE }}
+              >
+                <SystemsConstellation />
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
+
+        {/* ── Integrated engineering metrics ───────────────── */}
+        <motion.div
+          initial={reduceMotion ? undefined : { opacity: 0, y: 24 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="mt-10"
+        >
+          <AnimatedMetrics />
+        </motion.div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        aria-hidden="true"
-      >
-        <span
-          className="font-mono-code text-[0.65rem] tracking-[0.2em] uppercase"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          scroll
-        </span>
-        <motion.div
-          className="w-px h-10"
-          style={{ background: 'linear-gradient(to bottom, var(--accent-teal), transparent)' }}
-          animate={{ scaleY: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      </motion.div>
+      <ScrollIndicator targetId="about" label="Scroll to explore" />
     </section>
   )
 }
