@@ -1,7 +1,10 @@
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
 import { fadeInUp } from '@/utils/animations'
-import { GlowCard, Tag } from '@/components/ui'
-import type { Experience } from '@/types'
+import { GlowCard, Tag, WorkflowStory } from '@/components/ui'
+import { accentColor, accentRgb } from '@/utils/accents'
+import type { AccentKey, Experience } from '@/types'
 
 interface TimelineItemProps {
   experience: Experience
@@ -9,7 +12,22 @@ interface TimelineItemProps {
   isLast: boolean
 }
 
+// Each role gets an accent that matches the flavour of its work.
+const ROLE_ACCENT: Record<string, AccentKey> = {
+  distronix: 'teal',
+  'jai-balaji': 'orange',
+}
+
 export default function TimelineItem({ experience, index, isLast }: TimelineItemProps) {
+  const [flowIndex, setFlowIndex] = useState(0)
+  const [expanded, setExpanded] = useState(false)
+
+  const story = experience.story
+  const flow = story?.flows[flowIndex]
+  const accent = ROLE_ACCENT[experience.id] ?? 'teal'
+  const accentHex = accentColor[accent]
+  const detailsId = `exp-details-${experience.id}`
+
   return (
     <motion.div
       variants={fadeInUp}
@@ -26,7 +44,6 @@ export default function TimelineItem({ experience, index, isLast }: TimelineItem
           }}
           aria-hidden="true"
         >
-          {/* Traveling light pulse down the timeline */}
           <div
             className="absolute left-[-1.5px] top-0 w-1 h-24 timeline-flow rounded-full"
             style={{
@@ -49,9 +66,9 @@ export default function TimelineItem({ experience, index, isLast }: TimelineItem
         aria-hidden="true"
       />
 
-      <GlowCard className="mb-10">
-        <div className="p-7">
-          {/* Top row */}
+      <GlowCard className="mb-10" glowColor={`rgba(${accentRgb[accent]},0.14)`}>
+        <div className="p-6 md:p-7">
+          {/* ── Header ──────────────────────────────────────── */}
           <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
             <div className="flex items-center flex-wrap gap-3">
               <h3 className="font-semibold text-[1.05rem]" style={{ color: 'var(--text-primary)' }}>
@@ -90,38 +107,97 @@ export default function TimelineItem({ experience, index, isLast }: TimelineItem
               href={experience.companyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium mb-5 block hover:text-[var(--accent-teal)] transition-colors duration-200"
+              className="text-sm font-medium mb-4 block hover:text-[var(--accent-teal)] transition-colors duration-200"
               style={{ color: 'var(--accent-indigo)' }}
             >
               {experience.company} ↗
             </a>
           ) : (
-            <p className="text-sm font-medium mb-5" style={{ color: 'var(--accent-indigo)' }}>
+            <p className="text-sm font-medium mb-4" style={{ color: 'var(--accent-indigo)' }}>
               {experience.company}
             </p>
           )}
 
-          {/* Bullets */}
-          <ul className="space-y-2.5">
-            {experience.description.map((point, i) => (
-              <li
-                key={i}
-                className="flex gap-3 items-start text-sm leading-[1.7]"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                <span
-                  className="mt-[5px] text-[0.6rem] flex-shrink-0"
-                  style={{ color: 'var(--accent-teal)' }}
-                  aria-hidden="true"
-                >
-                  ▸
-                </span>
-                {point}
-              </li>
-            ))}
-          </ul>
+          {story && (
+            <p className="mb-5 text-sm leading-[1.7]" style={{ color: 'var(--text-secondary)' }}>
+              {story.summary}
+            </p>
+          )}
 
-          {/* Tech tags */}
+          {/* ── Storytelling: flow tabs + animated narrative ── */}
+          {story && flow && (
+            <div className="mb-5">
+              {story.flows.length > 1 && (
+                <div className="mb-3 flex flex-wrap gap-2" role="tablist" aria-label="Work narratives">
+                  {story.flows.map((f, i) => {
+                    const selected = i === flowIndex
+                    return (
+                      <button
+                        key={f.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={selected}
+                        onClick={() => setFlowIndex(i)}
+                        className="rounded-full px-3 py-1.5 font-mono-code text-[0.65rem] uppercase tracking-wide transition-all duration-200"
+                        style={{
+                          background: selected ? accentHex : 'var(--surface)',
+                          color: selected ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                          border: `1px solid ${selected ? accentHex : 'var(--border)'}`,
+                        }}
+                      >
+                        {f.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+              <WorkflowStory flow={flow} accent={accent} />
+            </div>
+          )}
+
+          {/* ── Responsibilities (retained, expandable) ─────── */}
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            aria-controls={detailsId}
+            className="flex items-center gap-2 font-mono-code text-[0.72rem] transition-colors duration-200"
+            style={{ color: expanded ? accentHex : 'var(--text-muted)' }}
+          >
+            {expanded ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+            Responsibilities &amp; achievements ({experience.description.length})
+          </button>
+
+          <AnimatePresence initial={false}>
+            {expanded && (
+              <motion.div
+                key="details"
+                id={detailsId}
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+                className="overflow-hidden"
+              >
+                <ul className="space-y-2.5 pt-4">
+                  {experience.description.map((point, i) => (
+                    <li
+                      key={i}
+                      className="flex gap-3 items-start text-sm leading-[1.7]"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      <span className="mt-[5px] text-[0.6rem] flex-shrink-0" style={{ color: accentHex }} aria-hidden="true">
+                        ▸
+                      </span>
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── Tech tags ───────────────────────────────────── */}
           {experience.technologies && experience.technologies.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-[var(--border)]">
               {experience.technologies.map((tech) => (

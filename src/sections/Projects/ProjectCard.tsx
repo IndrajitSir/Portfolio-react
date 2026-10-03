@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiGithub, FiExternalLink, FiChevronDown, FiChevronUp } from 'react-icons/fi'
+import { FiGithub, FiExternalLink, FiChevronDown, FiChevronUp, FiCode, FiClock } from 'react-icons/fi'
 import {
   GlowCard,
   Tag,
@@ -9,46 +9,36 @@ import {
   NpmPackageCanvas,
   PlacementPipelineCanvas,
   WhatsAppAlertCanvas,
+  OmniScriptCanvas,
+  ResQGoCanvas,
 } from '@/components/ui'
-import type { Project } from '@/types'
+import { accentColor, accentRgb } from '@/utils/accents'
+import type { Project, ProjectVisual } from '@/types'
 
 interface ProjectCardProps {
   project: Project
   index: number
 }
 
-// Per-project animated visuals (keep the parity fallback for future projects)
-const projectVisuals: Record<string, () => JSX.Element> = {
-  'nest-auth-library': NpmPackageCanvas,
-  'campus-placement': PlacementPipelineCanvas,
+// Visual registry — a project points at its showcase through `project.visual`.
+const projectVisuals: Partial<Record<ProjectVisual, () => JSX.Element>> = {
+  'nest-auth': NpmPackageCanvas,
   'whatsapp-alert': WhatsAppAlertCanvas,
+  placement: PlacementPipelineCanvas,
+  omniscript: OmniScriptCanvas,
+  resqgo: ResQGoCanvas,
 }
 
 export default function ProjectCard({ project, index }: ProjectCardProps) {
   const [expanded, setExpanded] = useState(false)
   const even = index % 2 === 0
-  const Visual = projectVisuals[project.id] ?? (even ? ProjectCanvas1 : ProjectCanvas2)
-
-  const visualBg =
-    project.id === 'nest-auth-library'
-      ? 'linear-gradient(135deg, rgba(203,56,55,0.12) 0%, rgba(94,234,212,0.07) 55%, rgba(129,140,248,0.05) 100%)'
-      : project.id === 'whatsapp-alert'
-        ? 'linear-gradient(135deg, rgba(37,211,102,0.1) 0%, rgba(129,140,248,0.07) 100%)'
-        : project.id === 'campus-placement'
-          ? 'linear-gradient(135deg, rgba(129,140,248,0.1) 0%, rgba(251,146,60,0.08) 100%)'
-          : even
-            ? 'linear-gradient(135deg, rgba(94,234,212,0.08) 0%, rgba(129,140,248,0.06) 100%)'
-            : 'linear-gradient(135deg, rgba(129,140,248,0.08) 0%, rgba(251,146,60,0.06) 100%)'
-
-  const numberColor =
-    project.id === 'nest-auth-library'
-      ? 'var(--accent-orange)'
-      : even
-        ? 'var(--accent-teal)'
-        : 'var(--accent-indigo)'
+  const accent = project.accent ?? (even ? 'teal' : 'indigo')
+  const accentHex = accentColor[accent]
+  const rgb = accentRgb[accent]
+  const Visual = (project.visual && projectVisuals[project.visual]) ?? (even ? ProjectCanvas1 : ProjectCanvas2)
 
   return (
-    <GlowCard>
+    <GlowCard glowColor={`rgba(${rgb},0.16)`}>
       <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         {/* ── Visual panel ──────────────────────────────────── */}
         <div
@@ -57,29 +47,37 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             overflow-hidden rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none
             flex items-center justify-center
           "
-          style={{ background: visualBg }}
+          style={{
+            background: `linear-gradient(135deg, rgba(${rgb},0.12) 0%, rgba(129,140,248,0.07) 55%, rgba(94,234,212,0.05) 100%)`,
+          }}
           aria-hidden="true"
         >
-          {/* Decorative canvas / visual */}
           <Visual />
 
-          {/* Project number */}
+          {/* Project number watermark */}
           <span
-            className="
-              font-display text-[6.5rem] md:text-[7.5rem] font-light
-              opacity-[0.12] select-none leading-none
-            "
-            style={{ color: numberColor }}
+            className="font-display text-[6.5rem] md:text-[7.5rem] font-light opacity-[0.1] select-none leading-none"
+            style={{ color: accentHex }}
           >
             {project.number}
           </span>
 
+          {/* Period — top-left stays clear so canvas HUDs never collide */}
+          <span
+            className="absolute top-4 left-4 flex items-center gap-1.5 font-mono-code text-[0.65rem] px-2.5 py-1 rounded-full"
+            style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border-glow)',
+              color: accentHex,
+            }}
+          >
+            <FiClock size={10} />
+            {project.period}
+          </span>
+
           {/* Category badge */}
           <span
-            className="
-              absolute top-4 right-4 font-mono-code text-[0.65rem]
-              px-2.5 py-1 rounded-full
-            "
+            className="absolute top-4 right-4 font-mono-code text-[0.65rem] px-2.5 py-1 rounded-full"
             style={{
               background: 'var(--surface)',
               border: '1px solid var(--border)',
@@ -89,43 +87,44 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             {project.category}
           </span>
 
-          {/* Period */}
-          <span
-            className="
-              absolute bottom-4 left-4 font-mono-code text-[0.65rem]
-              px-2.5 py-1 rounded-full
-            "
-            style={{
-              background: 'var(--surface)',
-              border: '1px solid var(--border-glow)',
-              color: 'var(--accent-teal)',
-            }}
-          >
-            {project.period}
-          </span>
         </div>
 
         {/* ── Content panel ─────────────────────────────────── */}
         <div className="p-7 md:p-8 flex flex-col">
-          {/* Label + title */}
-          <p
-            className="font-mono-code text-[0.65rem] tracking-widest uppercase mb-2"
-            style={{ color: 'var(--accent-teal)' }}
-          >
-            Project — {project.number}
-          </p>
-          <h3
-            className="text-2xl font-semibold leading-tight mb-3"
-            style={{ color: 'var(--text-primary)' }}
-          >
+          {/* Label + open-source marker */}
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <p
+              className="font-mono-code text-[0.65rem] tracking-widest uppercase"
+              style={{ color: accentHex }}
+            >
+              Project — {project.number}
+            </p>
+            {project.openSource && (
+              <span
+                className="flex items-center gap-1 font-mono-code text-[0.6rem] px-2 py-0.5 rounded-full"
+                style={{
+                  background: `rgba(${rgb},0.12)`,
+                  border: `1px solid rgba(${rgb},0.45)`,
+                  color: accentHex,
+                }}
+              >
+                <FiCode size={10} />
+                Open source
+              </span>
+            )}
+          </div>
+          <h3 className="text-2xl font-semibold leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
             {project.title}
           </h3>
 
+          {project.highlight && (
+            <p className="mb-3 font-mono-code text-[0.7rem]" style={{ color: 'var(--text-muted)' }}>
+              {project.highlight}
+            </p>
+          )}
+
           {/* Short description */}
-          <p
-            className="text-sm leading-[1.75] mb-5"
-            style={{ color: 'var(--text-secondary)' }}
-          >
+          <p className="text-sm leading-[1.75] mb-5" style={{ color: 'var(--text-secondary)' }}>
             {project.description}
           </p>
 
@@ -144,7 +143,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
                   className="flex gap-2 items-start text-[0.82rem] leading-[1.6]"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  <span style={{ color: 'var(--accent-indigo)' }} aria-hidden="true">◆</span>
+                  <span style={{ color: accentHex }} aria-hidden="true">◆</span>
                   {f}
                 </li>
               ))}
@@ -235,7 +234,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
                             className="flex gap-2 items-start text-[0.82rem] leading-[1.6]"
                             style={{ color: 'var(--text-secondary)' }}
                           >
-                            <span style={{ color: 'var(--accent-indigo)' }} aria-hidden="true">◆</span>
+                            <span style={{ color: accentHex }} aria-hidden="true">◆</span>
                             {f}
                           </li>
                         ))}

@@ -4,6 +4,7 @@ import { FiArrowLeft, FiArrowRight } from 'react-icons/fi'
 import { projects } from '@/data'
 import { SectionBackground } from '@/components/ui'
 import ProjectCard from './ProjectCard'
+import SideProjects from './SideProjects'
 
 const AUTOPLAY_MS = 6000
 
@@ -195,6 +196,9 @@ export default function Projects() {
             ))}
           </div>
         </div>
+
+        {/* ── Side projects collection ──────────────────────── */}
+        <SideProjects />
       </div>
     </section>
   )

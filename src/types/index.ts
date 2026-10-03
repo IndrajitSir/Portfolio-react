@@ -27,6 +27,21 @@ export interface SkillCategory {
   tags?: string[]
 }
 
+// Key into the showcase-canvas registry (see sections/Projects/ProjectCard).
+export type ProjectVisual =
+  | 'nest-auth'
+  | 'whatsapp-alert'
+  | 'placement'
+  | 'omniscript'
+  | 'resqgo'
+  | 'grapify'
+  | 'tryonix'
+  | 'bubble'
+  | 'generic-a'
+  | 'generic-b'
+
+export type AccentKey = 'teal' | 'indigo' | 'orange' | 'violet' | 'green'
+
 export interface Project {
   id: string
   number: string
@@ -41,6 +56,56 @@ export interface Project {
   liveUrl?: string
   githubUrl?: string
   category: string
+  /** Which animated showcase canvas renders this project. */
+  visual?: ProjectVisual
+  /** Accent colour used for the card's number, glow and tags. */
+  accent?: AccentKey
+  /** Marks a project whose source is publicly available. */
+  openSource?: boolean
+  /** One-line outcome, shown as a caption under the title. */
+  highlight?: string
+}
+
+/** Compact, future-proof entries for the Side Projects collection. */
+export interface SideProject {
+  id: string
+  number: string
+  title: string
+  tagline: string
+  description: string
+  technologies: string[]
+  liveUrl?: string
+  githubUrl?: string
+  accent: AccentKey
+  visual: ProjectVisual
+  /** Hint shown on the preview, describing the real interaction. */
+  interaction?: string
+  /** Honest qualifier where functionality has boundaries (e.g. demo mode). */
+  note?: string
+  /** Presentation hint — `wide` spans the full row on large screens. */
+  layout?: 'card' | 'wide'
+}
+
+/** A single step in a work-story flow diagram. */
+export interface FlowStage {
+  id: string
+  label: string
+  detail: string
+  accent?: AccentKey
+}
+
+/** One self-explanatory narrative within a role. */
+export interface ExperienceFlow {
+  id: string
+  label: string
+  title: string
+  stages: FlowStage[]
+}
+
+export interface ExperienceStory {
+  /** One-sentence "what the work was". */
+  summary: string
+  flows: ExperienceFlow[]
 }
 
 export interface Experience {
@@ -55,6 +120,8 @@ export interface Experience {
   description: string[]
   technologies?: string[]
   type: 'fulltime' | 'parttime' | 'internship' | 'contract'
+  /** Visual narrative(s) that demonstrate the actual work. */
+  story?: ExperienceStory
 }
 
 export interface Education {
