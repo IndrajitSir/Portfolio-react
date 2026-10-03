@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { scrollToSectionWhenReady, scrollBehavior, sectionFromHash } from '@/utils'
 import {
   HOME_ROUTE,
   RouteContext,
@@ -15,6 +16,7 @@ const readHash = (): string => {
 export function RouteProvider({ children }: { children: ReactNode }) {
   const [path, setPath] = useState<string>(readHash)
   const pendingSection = useRef<string | null>(null)
+  const isFirstRun = useRef(true)
 
   // Keep state in sync with browser back/forward and manual hash edits.
   useEffect(() => {
@@ -29,12 +31,20 @@ export function RouteProvider({ children }: { children: ReactNode }) {
     const section = pendingSection.current
     pendingSection.current = null
 
+    // First run: the browser attempts the native anchor jump from the URL hash,
+    // but below-fold sections are lazy-loaded, so that jump usually runs before
+    // the target exists. Re-run it (retried) for a section hash; for a bare
+    // route like `#/side-missions` the page simply starts at the top already.
+    if (isFirstRun.current) {
+      isFirstRun.current = false
+      const target = section ?? sectionFromHash(window.location.hash)
+      if (target) scrollToSectionWhenReady(target)
+      return
+    }
+
     if (section) {
-      // Let the portfolio commit before measuring the target.
-      const id = window.setTimeout(() => {
-        document.getElementById(section)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }, 60)
-      return () => window.clearTimeout(id)
+      scrollToSectionWhenReady(section)
+      return
     }
 
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
@@ -48,9 +58,9 @@ export function RouteProvider({ children }: { children: ReactNode }) {
     if (window.location.hash === hash) {
       // Same route: nothing to re-render, but still honour a section request.
       if (opts?.section) {
-        document.getElementById(opts.section)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        scrollToSectionWhenReady(opts.section)
       } else {
-        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+        window.scrollTo({ top: 0, left: 0, behavior: scrollBehavior('smooth') })
       }
       return
     }

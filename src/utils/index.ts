@@ -1,3 +1,5 @@
+// Re-exported so `@/utils` remains a single entry point for helpers and the
+// shared framer-motion variants.
 export * from './animations'
 
 /** Clamp a number between min and max */
@@ -23,13 +25,60 @@ export const degToRad = (deg: number): number => (deg * Math.PI) / 180
 export const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
-/** Smoothly scroll to an element by ID */
+/** True when the visitor has asked the OS/browser for reduced motion. */
+export const prefersReducedMotion = (): boolean =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+/**
+ * Scroll behaviour for programmatic navigation.
+ *
+ * An explicit `behavior` in JS overrides the page's CSS `scroll-behavior`, so
+ * every scroll helper must ask this itself — otherwise reduced-motion visitors
+ * would still get eased scrolling from the JS side.
+ */
+export const scrollBehavior = (preferred: ScrollBehavior = 'smooth'): ScrollBehavior =>
+  prefersReducedMotion() ? 'auto' : preferred
+
+/** Smoothly scroll to an element by ID, honouring reduced motion. */
 export const scrollToSection = (id: string): void => {
   const el = document.getElementById(id)
   if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
   }
 }
+
+/**
+ * Scroll to a section, retrying for a few frames first.
+ *
+ * Below-fold sections are lazy-loaded, so a deep link or cross-route handoff can
+ * run before the target exists. Retrying for ~1s bridges that gap without
+ * blocking; if the section never mounts we simply give up rather than loop.
+ */
+export const scrollToSectionWhenReady = (id: string, attempts = 60): void => {
+  let remaining = attempts
+  const tryScroll = () => {
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
+      return
+    }
+    if (remaining-- <= 0) return
+    requestAnimationFrame(tryScroll)
+  }
+  tryScroll()
+}
+
+/**
+ * The section id encoded in a hash, or null when the hash is a route (or empty).
+ * `#about` → `about`; `#/side-missions` → null.
+ */
+export const sectionFromHash = (hash: string): string | null => {
+  const raw = hash.replace(/^#/, '')
+  if (!raw || raw.startsWith('/')) return null
+  return raw
+}
+
 
 /** Format a percentage value */
 export const formatPct = (value: number): string => `${value}%`

@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext } from 'react'
+import { scrollToSectionWhenReady } from '@/utils'
 
 /**
  * Minimal hash router — context, constants and hooks.
@@ -52,7 +53,8 @@ export function useSectionNavigation() {
   return useCallback(
     (sectionId: string) => {
       if (path === HOME_ROUTE) {
-        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        // Sections are lazy-loaded, so tolerate a brief delay before they exist.
+        scrollToSectionWhenReady(sectionId)
       } else {
         navigate(HOME_ROUTE, { section: sectionId })
       }

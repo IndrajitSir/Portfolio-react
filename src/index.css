@@ -190,6 +190,33 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .beam-flow { animation: none; }
+
+  /* ── Respect reduced motion portfolio-wide ───────────────────────
+     Component code already gates framer-motion with useReducedMotion();
+     this block silences the remaining CSS keyframe loops (timeline pulse,
+     caret/editor cursors, sheen sweeps, drift blobs) so visitors who ask
+     for less motion get a genuinely still page. Auto-advancing *content*
+     is not affected — that behaviour lives in JS and is gated there. */
+  .timeline-flow,
+  .role-caret,
+  .editor-cursor,
+  .text-sheen,
+  .animate-blob-1,
+  .animate-blob-2,
+  .animate-pulse,
+  .animate-pulse-slow,
+  .animate-float,
+  .animate-blob {
+    animation: none !important;
+  }
+
+  /* Keep state transitions, drop the travel. */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ─── Hero live effects ─────────────────────────────────────────── */

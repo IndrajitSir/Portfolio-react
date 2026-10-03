@@ -17,12 +17,42 @@ export default function CertExplorer({ certifications }: { certifications: Certi
   const [activeId, setActiveId] = useState(certifications[0]?.id ?? '')
   const active = certifications.find((c) => c.id === activeId) ?? certifications[0]
 
+  /**
+   * Tabs are a roving-tabindex widget: Tab enters the group once, then
+   * Up/Down/Home/End move between credentials and activate them. Without this,
+   * `role="tab"` promises keyboard behaviour that plain buttons do not deliver.
+   */
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const count = certifications.length
+    if (count === 0) return
+    const current = certifications.findIndex((c) => c.id === active.id)
+    let next: number | null = null
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = (current + 1) % count
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = (current - 1 + count) % count
+    else if (e.key === 'Home') next = 0
+    else if (e.key === 'End') next = count - 1
+    else return
+
+    e.preventDefault()
+    const target = certifications[next]
+    setActiveId(target.id)
+    // Move focus with selection, which is the tabs pattern's contract.
+    document.getElementById(`cert-tab-${target.id}`)?.focus()
+  }
+
   if (!active) return null
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
       {/* ── Selector: the credential seals ───────────────────────── */}
-      <div className="flex flex-col gap-3" role="tablist" aria-label="Certifications" aria-orientation="vertical">
+      <div
+        className="flex flex-col gap-3"
+        role="tablist"
+        aria-label="Certifications"
+        aria-orientation="vertical"
+        onKeyDown={onKeyDown}
+      >
         {certifications.map((cert, i) => {
           const selected = cert.id === active.id
           return (
@@ -33,6 +63,7 @@ export default function CertExplorer({ certifications }: { certifications: Certi
               aria-selected={selected}
               aria-controls="cert-detail"
               id={`cert-tab-${cert.id}`}
+              tabIndex={selected ? 0 : -1}
               onClick={() => setActiveId(cert.id)}
               initial={reduceMotion ? undefined : { opacity: 0, y: 18 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}

@@ -85,13 +85,13 @@ export default function Hero() {
         <TelemetryStrip />
 
         {/* ── Asymmetric hero grid ───────────────────────── */}
-        {/* The right track is deliberately wider than a 7/5 split so the cluster
-            topology has room to read; it also leans into the right gutter on
-            large screens, which shifts and widens the visualization without
-            hardcoding coordinates or creating overflow. */}
-        <div className="mt-8 grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,6fr)] xl:gap-14">
+        {/* The 7/5 split is kept exactly as it was so the identity column reads
+            the same as before. The topology gains its extra size and rightward
+            shift from a negative right margin, which lets the track extend into
+            the page gutter instead of relying on hardcoded coordinates. */}
+        <div className="mt-8 grid grid-cols-1 items-start gap-10 lg:grid-cols-12 xl:gap-14">
           {/* Left — identity, actions, code */}
-          <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-7 lg:col-span-7">
             <HeroIdentity />
 
             {/* Action cluster */}
@@ -199,10 +199,13 @@ export default function Hero() {
           </div>
 
           {/* Right — interactive systems constellation.
-              `lg:mt-*` drops it slightly below the headline baseline and the
-              negative right margin claims part of the page gutter so the graph
-              sits further right and larger, balanced against the left column. */}
-          <div className="w-full lg:-mr-6 lg:mt-10 xl:-mr-12 xl:mt-14">
+              `lg:mt-*` drops it slightly below the headline baseline; the
+              negative right margin widens the track into the gutter so the graph
+              sits further right and larger. No `w-full` here on purpose: a fixed
+              width would pin the box to its track and cancel the negative
+              margin. Below `lg` the grid is single-column, so the negative
+              margin and offset are scoped to `lg+` and never affect mobile. */}
+          <div className="lg:col-span-5 lg:-mr-6 lg:mt-10 xl:-mr-14 xl:mt-14">
             <motion.div
               style={
                 reduceMotion
