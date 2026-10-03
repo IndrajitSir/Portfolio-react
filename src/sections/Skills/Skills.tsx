@@ -1,10 +1,47 @@
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { staggerContainer } from '@/utils/animations'
-import { SectionLabel, SectionBackground } from '@/components/ui'
+import { SectionLabel, SectionBackground, SkillConstellation, type SkillDomain } from '@/components/ui'
 import { skillCategories, techStack } from '@/data'
-import SkillCategoryCard from './SkillCategoryCard'
+import { DURATION, EASE_OUT_EXPO, REVEAL_VIEWPORT } from '@/utils/motion'
+
+/**
+ * How the domains relate. This is the missing information the old card grid
+ * never conveyed: which capability feeds which. Kept as data next to the map so
+ * the graph stays honest and easy to adjust.
+ */
+const CONNECTIONS: Record<string, string[]> = {
+  languages: ['backend', 'concepts'],
+  backend: ['databases', 'tools'],
+  databases: ['backend', 'concepts'],
+  tools: ['backend'],
+  concepts: ['backend', 'databases'],
+  enterprise: ['concepts'],
+}
 
 export default function Skills() {
+  // Derive each domain's strength from the real skill levels rather than
+  // inventing a number, so node size is grounded in the actual data.
+  const domains = useMemo<SkillDomain[]>(
+    () =>
+      skillCategories.map((cat) => {
+        const items = [...cat.skills].sort((a, b) => b.level - a.level)
+        const strength =
+          items.length > 0
+            ? Math.round(items.reduce((sum, s) => sum + s.level, 0) / items.length)
+            : null
+        return {
+          id: cat.id,
+          title: cat.title,
+          icon: cat.icon,
+          strength,
+          items,
+          tags: cat.tags ?? [],
+          connects: CONNECTIONS[cat.id] ?? [],
+        }
+      }),
+    [],
+  )
+
   return (
     <section
       id="skills"
@@ -21,25 +58,23 @@ export default function Skills() {
           titleAccent="skills"
         />
 
-        {/* Category grid */}
+        {/* ── Capability constellation: domains and how they connect ── */}
         <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16"
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={REVEAL_VIEWPORT}
+          transition={{ duration: DURATION.reveal, ease: EASE_OUT_EXPO }}
         >
-          {skillCategories.map((cat, i) => (
-            <SkillCategoryCard key={cat.id} category={cat} index={i} />
-          ))}
+          <SkillConstellation domains={domains} />
         </motion.div>
 
-        {/* Tech stack chips */}
+        {/* ── Tech stack chips ─────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          viewport={REVEAL_VIEWPORT}
+          transition={{ duration: DURATION.reveal, ease: EASE_OUT_EXPO }}
+          className="mt-16"
         >
           <p
             className="font-mono-code text-[0.72rem] uppercase tracking-widest mb-6"

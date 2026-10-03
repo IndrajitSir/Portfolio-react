@@ -1,5 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { ThemeProvider } from '@/context/ThemeContext'
+import { RouteProvider } from '@/context/RouteContext'
+import { useRoute } from '@/context/route'
 import { useLenis } from '@/hooks/useLenis'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -17,6 +19,7 @@ const Projects    = lazy(() => import('@/sections/Projects/Projects'))
 const Education   = lazy(() => import('@/sections/Education/Education'))
 const Certifications = lazy(() => import('@/sections/Certifications/Certifications'))
 const Contact     = lazy(() => import('@/sections/Contact/Contact'))
+const SideMissions = lazy(() => import('@/sections/SideMissions/SideMissions'))
 
 const SectionFallback = () => (
   <div className="w-full h-32 flex items-center justify-center">
@@ -24,8 +27,38 @@ const SectionFallback = () => (
   </div>
 )
 
+function Portfolio() {
+  return (
+    <main id="main-content" role="main">
+      <Hero />
+      <Suspense fallback={<SectionFallback />}>
+        <About />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <Skills />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <Experience />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <Projects />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <Education />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <Certifications />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <Contact />
+      </Suspense>
+    </main>
+  )
+}
+
 function AppInner() {
   useLenis()
+  const { isSideMissions } = useRoute()
 
   return (
     <div className="relative min-h-screen">
@@ -35,30 +68,15 @@ function AppInner() {
       <Preloader />
       <Navbar />
 
-      <main id="main-content" role="main">
-        <Hero />
+      {isSideMissions ? (
         <Suspense fallback={<SectionFallback />}>
-          <About />
+          <main id="main-content" role="main">
+            <SideMissions />
+          </main>
         </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Skills />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Experience />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Projects />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Education />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Certifications />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Contact />
-        </Suspense>
-      </main>
+      ) : (
+        <Portfolio />
+      )}
 
       <Footer />
     </div>
@@ -68,7 +86,9 @@ function AppInner() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppInner />
+      <RouteProvider>
+        <AppInner />
+      </RouteProvider>
     </ThemeProvider>
   )
 }

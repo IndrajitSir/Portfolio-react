@@ -1,8 +1,6 @@
-import { motion } from 'framer-motion'
-import { staggerContainer } from '@/utils/animations'
 import { SectionLabel, SectionBackground } from '@/components/ui'
 import { educationList } from '@/data'
-import EduCard from './EduCard'
+import AcademicJourney from './AcademicJourney'
 
 export default function Education() {
   return (
@@ -21,17 +19,9 @@ export default function Education() {
           titleAccent="background"
         />
 
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-        >
-          {educationList.map((edu, i) => (
-            <EduCard key={edu.id} edu={edu} index={i} />
-          ))}
-        </motion.div>
+        {/* The journey is ordered earliest → latest and fills in as you scroll,
+            so the progression itself is the story. */}
+        <AcademicJourney items={educationList} />
       </div>
     </section>
   )

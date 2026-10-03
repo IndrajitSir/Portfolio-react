@@ -85,9 +85,13 @@ export default function Hero() {
         <TelemetryStrip />
 
         {/* ── Asymmetric hero grid ───────────────────────── */}
-        <div className="mt-8 grid grid-cols-1 items-start gap-10 lg:grid-cols-12 xl:gap-14">
+        {/* The right track is deliberately wider than a 7/5 split so the cluster
+            topology has room to read; it also leans into the right gutter on
+            large screens, which shifts and widens the visualization without
+            hardcoding coordinates or creating overflow. */}
+        <div className="mt-8 grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,6fr)] xl:gap-14">
           {/* Left — identity, actions, code */}
-          <div className="flex flex-col gap-7 lg:col-span-7">
+          <div className="flex flex-col gap-7">
             <HeroIdentity />
 
             {/* Action cluster */}
@@ -194,8 +198,11 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* Right — interactive systems constellation */}
-          <div className="w-full lg:col-span-5">
+          {/* Right — interactive systems constellation.
+              `lg:mt-*` drops it slightly below the headline baseline and the
+              negative right margin claims part of the page gutter so the graph
+              sits further right and larger, balanced against the left column. */}
+          <div className="w-full lg:-mr-6 lg:mt-10 xl:-mr-12 xl:mt-14">
             <motion.div
               style={
                 reduceMotion

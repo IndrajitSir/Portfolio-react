@@ -282,7 +282,7 @@ export default function SystemsConstellation() {
         onMouseLeave={resetTilt}
       >
         <motion.div
-          className="relative mx-auto aspect-square w-full max-w-[420px]"
+          className="relative mx-auto aspect-square w-full max-w-[460px] sm:max-w-[500px] xl:max-w-[540px]"
           style={{ rotateX, rotateY, scale, transformStyle: 'preserve-3d' }}
         >
           {/* Depth glow behind the core */}

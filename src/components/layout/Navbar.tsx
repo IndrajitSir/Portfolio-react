@@ -1,13 +1,15 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiSun, FiMoon, FiMenu, FiX } from 'react-icons/fi'
+import { FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight } from 'react-icons/fi'
 import { navItems } from '@/data/navigation'
 import { useTheme } from '@/hooks/useTheme'
-import { scrollToSection } from '@/utils'
+import { useRoute, useSectionNavigation, SIDE_MISSIONS_ROUTE, HOME_ROUTE } from '@/context/route'
 import MagneticButton from '@/components/ui/MagneticButton'
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme()
+  const { path, isSideMissions, navigate } = useRoute()
+  const goToSection = useSectionNavigation()
   const [scrolled,    setScrolled]    = useState(false)
   const [activeSection, setActive]    = useState('')
   const [hoveredNav,  setHoveredNav]  = useState<string | null>(null)
@@ -21,7 +23,13 @@ export default function Navbar() {
   }, [])
 
   /* ── Active section via IntersectionObserver ──────────── */
+  // Only meaningful on the portfolio route — the Side Missions page has none of
+  // these anchors, so observing there would just leave a stale highlight.
   useEffect(() => {
+    if (path !== HOME_ROUTE) {
+      setActive('')
+      return
+    }
     const ids = navItems.map((n) => n.href.replace('#', ''))
     const observers: IntersectionObserver[] = []
 
@@ -37,7 +45,7 @@ export default function Navbar() {
     })
 
     return () => observers.forEach((o) => o.disconnect())
-  }, [])
+  }, [path])
 
   /* ── Mobile menu helpers ──────────────────────────────── */
   const openMenu  = useCallback(() => {
@@ -58,8 +66,9 @@ export default function Navbar() {
   }, [closeMenu])
 
   const handleNavClick = (href: string) => {
-    const id = href.replace('#', '')
-    scrollToSection(id)
+    // Route-aware: scrolls on the portfolio, or returns home first when invoked
+    // from the Side Missions experience.
+    goToSection(href.replace('#', ''))
     closeMenu()
   }
 
@@ -85,7 +94,7 @@ export default function Navbar() {
         {/* Logo */}
         <a
           href="#hero"
-          onClick={(e) => { e.preventDefault(); scrollToSection('hero') }}
+          onClick={(e) => { e.preventDefault(); goToSection('hero') }}
           className="font-mono-code font-bold text-base tracking-wide"
           style={{ color: 'var(--accent-teal)' }}
           aria-label="Go to top"
@@ -130,6 +139,29 @@ export default function Navbar() {
               </li>
             )
           })}
+
+          {/* Side Missions — a route, not a section anchor, so it sits apart */}
+          <li>
+            <button
+              onClick={() => {
+                navigate(SIDE_MISSIONS_ROUTE)
+                closeMenu()
+              }}
+              aria-current={isSideMissions ? 'page' : undefined}
+              className={`
+                group inline-flex items-center gap-1 font-body text-[0.8rem] font-medium
+                tracking-widest uppercase transition-colors duration-200
+                ${isSideMissions ? 'text-[var(--accent-indigo)]' : 'text-[var(--text-secondary)] hover:text-[var(--accent-indigo)]'}
+              `}
+            >
+              Side Missions
+              <FiArrowUpRight
+                size={12}
+                aria-hidden="true"
+                className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </button>
+          </li>
         </ul>
 
         {/* Right controls */}
@@ -166,7 +198,7 @@ export default function Navbar() {
             <MagneticButton
               href="#contact"
               strength={0.18}
-              onClick={(e) => { e?.preventDefault(); scrollToSection('contact') }}
+              onClick={(e) => { e?.preventDefault(); goToSection('contact') }}
               className="
                 inline-flex items-center gap-2
                 px-5 py-2 rounded-full border border-[var(--accent-teal)]
@@ -266,6 +298,29 @@ export default function Navbar() {
                       </button>
                     </motion.li>
                   ))}
+
+                  {/* Side Missions destination */}
+                  <motion.li
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: navItems.length * 0.07, duration: 0.35 }}
+                  >
+                    <button
+                      onClick={() => {
+                        navigate(SIDE_MISSIONS_ROUTE)
+                        closeMenu()
+                      }}
+                      className="
+                        flex w-full items-center gap-2 py-4 text-left
+                        font-display text-2xl font-light italic
+                        text-[var(--accent-indigo)]
+                        transition-colors duration-200
+                      "
+                    >
+                      Side Missions
+                      <FiArrowUpRight size={18} aria-hidden="true" />
+                    </button>
+                  </motion.li>
                 </ul>
               </nav>
 
@@ -273,6 +328,7 @@ export default function Navbar() {
                 <a
                   href="#contact"
                   onClick={(e) => { e.preventDefault(); handleNavClick('#contact') }}
+                  aria-label="Go to contact section"
                   className="
                     block text-center py-3 rounded-full
                     border border-[var(--accent-teal)] text-[var(--accent-teal)]

@@ -2,7 +2,15 @@ import { motion } from 'framer-motion'
 import { FiMail, FiMapPin } from 'react-icons/fi'
 import { personalInfo, languages } from '@/data'
 import { staggerContainer, fadeInUp } from '@/utils/animations'
-import { SectionLabel, GlowCard, SectionBackground } from '@/components/ui'
+import { SectionLabel, GlowCard, SectionBackground, MindsetTrace } from '@/components/ui'
+
+// The three facts that used to sit in the static shell block, kept as a compact
+// readout beside the mindset trace so no content is lost.
+const READOUT = [
+  { key: 'currently', value: 'building @ Distronix, IN' },
+  { key: 'focus', value: 'Distributed APIs & RBAC Security' },
+  { key: 'status', value: 'Open to high-impact software roles' },
+]
 
 const contactLinks = [
   { icon: <FiMail size={15} />, label: personalInfo.email, href: `mailto:${personalInfo.email}`, wide: true },
@@ -70,20 +78,29 @@ export default function About() {
                 </p>
               </motion.div>
 
-              <motion.div variants={fadeInUp} className="mt-5 rounded-xl p-4 sm:p-5" style={{ background: 'var(--bg-primary)' }}>
-                <div className="mb-3 flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-yellow-300" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                  <span className="ml-2 font-mono-code text-[0.6rem] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-                    runtime_specs.sh
-                  </span>
-                </div>
-                <pre className="overflow-x-auto font-mono-code text-xs leading-[2]" style={{ color: 'var(--accent-teal)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>$ currently: </span>building @ Distronix, IN{'\n'}
-                  <span style={{ color: 'var(--text-muted)' }}>$ focus: </span>Distributed APIs &amp; RBAC Security{'\n'}
-                  <span style={{ color: 'var(--text-muted)' }}>$ status: </span>Open to high-impact software roles
-                </pre>
+              {/* ── Engineering mindset, demonstrated as a walkable path ── */}
+              <motion.div variants={fadeInUp} className="mt-5">
+                <MindsetTrace />
+              </motion.div>
+
+              {/* ── Compact status readout (preserves the old shell facts) ── */}
+              <motion.div
+                variants={fadeInUp}
+                className="mt-3 rounded-xl border border-[var(--border)] px-4 py-3"
+                style={{ background: 'var(--bg-primary)' }}
+              >
+                <dl className="grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-3">
+                  {READOUT.map((row) => (
+                    <div key={row.key} className="flex items-baseline gap-2">
+                      <dt className="font-mono-code text-[0.58rem] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                        {row.key}:
+                      </dt>
+                      <dd className="font-mono-code text-[0.68rem]" style={{ color: 'var(--accent-teal)' }}>
+                        {row.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </motion.div>
 
               <motion.div variants={fadeInUp} className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
