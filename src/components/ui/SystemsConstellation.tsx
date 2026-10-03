@@ -281,8 +281,11 @@ export default function SystemsConstellation() {
         onMouseMove={onStageMove}
         onMouseLeave={resetTilt}
       >
+        {/* 420px is the original cap and still governs phones/tablets. At lg+
+            the stage is narrower than its (now wider) track, so the negative
+            right margin in Hero — not this cap — drives the size increase. */}
         <motion.div
-          className="relative mx-auto aspect-square w-full max-w-[460px] sm:max-w-[500px] xl:max-w-[540px]"
+          className="relative mx-auto aspect-square w-full max-w-[420px]"
           style={{ rotateX, rotateY, scale, transformStyle: 'preserve-3d' }}
         >
           {/* Depth glow behind the core */}
