@@ -47,8 +47,9 @@ export default function SideMissions() {
 
   return (
     <div className="relative min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <SectionBackground variant="packages" />
-
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <SectionBackground variant="packages" />
+      </div>
       <div className="max-container section-padding relative z-10 pt-28">
         {/* ── Return + header ──────────────────────────────────────── */}
         <motion.button
