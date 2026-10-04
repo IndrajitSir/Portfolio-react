@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi'
 import { projects } from '@/data'
-import { SectionBackground, SideMissionsCTA } from '@/components/ui'
+import { SectionBackground, SideMissionsCTA, CaseStudyDialog } from '@/components/ui'
+import { accentKey } from './accent'
+import type { Project } from '@/types'
 import ProjectCard from './ProjectCard'
 
 const AUTOPLAY_MS = 6000
@@ -35,6 +37,22 @@ export default function Projects() {
   const [[activeIndex, direction], setIndex] = useState<[number, number]>([0, 0])
   const [paused, setPaused] = useState(false)
 
+  /**
+   * The case study being read. It lives here rather than inside the card so the
+   * panel outlives the slide it was opened from, and so opening one does not
+   * resize anything: the card keeps the height it already had.
+   */
+  const [caseStudy, setCaseStudy] = useState<{ project: Project; index: number } | null>(null)
+  // The control that opened the panel, so focus can go back where it came from.
+  const [caseStudyTrigger, setCaseStudyTrigger] = useState<HTMLButtonElement | null>(null)
+
+  const openCaseStudy = useCallback((project: Project, trigger: HTMLButtonElement) => {
+    setCaseStudyTrigger(trigger)
+    setCaseStudy({ project, index: projects.indexOf(project) })
+  }, [])
+
+  const closeCaseStudy = useCallback(() => setCaseStudy(null), [])
+
   const paginate = useCallback(
     (dir: number) => {
       setIndex(([i]) => [(i + dir + count) % count, dir])
@@ -49,12 +67,13 @@ export default function Projects() {
     })
   }, [])
 
-  // Autoplay (pauses on hover / focus)
+  // Autoplay (pauses on hover / focus, and for as long as a case study is open —
+  // the carousel must not change the slide out from under someone reading).
   useEffect(() => {
-    if (paused) return
+    if (paused || caseStudy) return
     const id = window.setInterval(() => paginate(1), AUTOPLAY_MS)
     return () => window.clearInterval(id)
-  }, [paused, paginate])
+  }, [paused, caseStudy, paginate])
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowLeft') {
@@ -171,7 +190,11 @@ export default function Projects() {
                   else if (info.offset.x > 70) paginate(-1)
                 }}
               >
-                <ProjectCard project={projects[activeIndex]} index={activeIndex} />
+                <ProjectCard
+                  project={projects[activeIndex]}
+                  index={activeIndex}
+                  onOpenCaseStudy={openCaseStudy}
+                />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -195,6 +218,17 @@ export default function Projects() {
             ))}
           </div>
         </div>
+
+        {/* ── Case study ──────────────────────────────────────
+            Outside the carousel on purpose: the panel is portalled to the
+            body, so it sits above the section and is never scaled or clipped
+            by the slide's transform. */}
+        <CaseStudyDialog
+          project={caseStudy?.project ?? null}
+          accent={caseStudy ? accentKey(caseStudy.project, caseStudy.index) : 'teal'}
+          onClose={closeCaseStudy}
+          returnFocusTo={caseStudyTrigger}
+        />
 
         {/* ── Side Missions doorway ─────────────────────────── */}
         {/* Side projects deliberately no longer render inline: the collection

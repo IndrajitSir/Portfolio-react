@@ -60,6 +60,11 @@ html {
   position: relative;
   scroll-behavior: smooth;
   font-size: 16px;
+  /* The root scrollbar's width is reserved even when something removes the bar
+     (the case-study panel does, via Lenis' stopped state). Without this the
+     whole page reflows by the bar's width, which can wrap a line and change a
+     card's height. */
+  scrollbar-gutter: stable;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

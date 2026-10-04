@@ -1,6 +1,4 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { FiGithub, FiExternalLink, FiChevronDown, FiChevronUp, FiCode, FiClock } from 'react-icons/fi'
+import { FiGithub, FiExternalLink, FiArrowUpRight, FiCode, FiClock } from 'react-icons/fi'
 import {
   GlowCard,
   Tag,
@@ -13,11 +11,18 @@ import {
   ResQGoCanvas,
 } from '@/components/ui'
 import { accentColor, accentRgb } from '@/utils/accents'
+import { accentKey } from './accent'
 import type { Project, ProjectVisual } from '@/types'
 
 interface ProjectCardProps {
   project: Project
   index: number
+  /**
+   * Opens the case study. The study lives in a panel over the page rather than
+   * inside the card: expanding it here grew the card by ~700px, which moved
+   * every section below the carousel and lost the reader's place outright.
+   */
+  onOpenCaseStudy: (project: Project, trigger: HTMLButtonElement) => void
 }
 
 // Visual registry — a project points at its showcase through `project.visual`.
@@ -29,10 +34,9 @@ const projectVisuals: Partial<Record<ProjectVisual, () => JSX.Element>> = {
   resqgo: ResQGoCanvas,
 }
 
-export default function ProjectCard({ project, index }: ProjectCardProps) {
-  const [expanded, setExpanded] = useState(false)
+export default function ProjectCard({ project, index, onOpenCaseStudy }: ProjectCardProps) {
   const even = index % 2 === 0
-  const accent = project.accent ?? (even ? 'teal' : 'indigo')
+  const accent = accentKey(project, index)
   const accentHex = accentColor[accent]
   const rgb = accentRgb[accent]
   const Visual = (project.visual && projectVisuals[project.visual]) ?? (even ? ProjectCanvas1 : ProjectCanvas2)
@@ -157,96 +161,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             ))}
           </div>
 
-          {/* Expandable: Deep-dive */}
-          <AnimatePresence initial={false}>
-            {expanded && (
-              <motion.div
-                key="deep-dive"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="pt-4 border-t border-[var(--border)] space-y-5 mb-5">
-                  {/* Long description */}
-                  <p className="text-sm leading-[1.75]" style={{ color: 'var(--text-secondary)' }}>
-                    {project.longDescription}
-                  </p>
-
-                  {/* Challenges */}
-                  <div>
-                    <p
-                      className="font-mono-code text-[0.68rem] uppercase tracking-wider mb-2"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      Challenges
-                    </p>
-                    <ul className="space-y-1.5">
-                      {project.challenges.map((c, i) => (
-                        <li
-                          key={i}
-                          className="flex gap-2 items-start text-[0.82rem] leading-[1.6]"
-                          style={{ color: 'var(--text-secondary)' }}
-                        >
-                          <span style={{ color: 'var(--accent-orange)' }} aria-hidden="true">⚡</span>
-                          {c}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Solutions */}
-                  <div>
-                    <p
-                      className="font-mono-code text-[0.68rem] uppercase tracking-wider mb-2"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      Solutions
-                    </p>
-                    <ul className="space-y-1.5">
-                      {project.solutions.map((s, i) => (
-                        <li
-                          key={i}
-                          className="flex gap-2 items-start text-[0.82rem] leading-[1.6]"
-                          style={{ color: 'var(--text-secondary)' }}
-                        >
-                          <span style={{ color: 'var(--accent-teal)' }} aria-hidden="true">✓</span>
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Remaining features */}
-                  {project.features.length > 3 && (
-                    <div>
-                      <p
-                        className="font-mono-code text-[0.68rem] uppercase tracking-wider mb-2"
-                        style={{ color: 'var(--text-muted)' }}
-                      >
-                        All features
-                      </p>
-                      <ul className="space-y-1.5">
-                        {project.features.map((f, i) => (
-                          <li
-                            key={i}
-                            className="flex gap-2 items-start text-[0.82rem] leading-[1.6]"
-                            style={{ color: 'var(--text-secondary)' }}
-                          >
-                            <span style={{ color: accentHex }} aria-hidden="true">◆</span>
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Footer: links + expand */}
+          {/* Footer: links + the case study */}
           <div className="mt-auto flex items-center justify-between flex-wrap gap-3 pt-5 border-t border-[var(--border)]">
             <div className="flex gap-2">
               {project.liveUrl && (
@@ -286,19 +201,16 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             </div>
 
             <button
-              onClick={() => setExpanded(!expanded)}
-              aria-expanded={expanded}
+              type="button"
+              onClick={(event) => onOpenCaseStudy(project, event.currentTarget)}
+              aria-haspopup="dialog"
               className="
                 flex items-center gap-1.5 text-[0.78rem] font-mono-code
                 text-[var(--text-muted)] hover:text-[var(--accent-teal)]
                 transition-colors duration-200
               "
             >
-              {expanded ? (
-                <><FiChevronUp size={14} /> Collapse</>
-              ) : (
-                <><FiChevronDown size={14} /> Case study</>
-              )}
+              <FiArrowUpRight size={13} /> Case study
             </button>
           </div>
         </div>
