@@ -1,45 +1,72 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { FiArrowUpRight } from 'react-icons/fi'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD } from '@/utils/motion'
+import type { SkillEvidence } from '@/types'
 
 /**
- * Skill relationships, shown as a connected map.
+ * The capability map — a graph, not a scoreboard.
  *
- * Skills used to be six independent cards of bars. That says "here is a list";
- * it does not say how the domains relate or where the strength actually is.
- * This constellation keeps every real skill value but adds the missing layer:
- * domains are nodes whose size reflects their average proficiency, the links
- * show which domains feed into each other, and selecting a node reveals the
- * concrete skills behind it.
+ * This used to draw a node per domain sized by an average "proficiency" score and
+ * a bar per skill. Those numbers were self-assigned and measured nothing, so both
+ * are gone. What replaces them is something a visitor can actually check:
  *
- * Readability is preserved — the node label and value are always visible, so the
- * section still works without any interaction.
+ *  - a node is sized by how many distinct pieces of evidence back its domain,
+ *  - selecting a domain lists each technology with the project, role or
+ *    credential that demonstrates it,
+ *  - every one of those is a link, so a claim can be verified in a click.
+ *
+ * The domain list and the connections come from `src/data/skills.ts`, so the map
+ * cannot drift away from the rest of the portfolio.
  */
 
 export interface SkillDomain {
   id: string
   title: string
+  /** Compact label for the map node, where the full title would overflow. */
+  short: string
   icon: string
-  /** Average proficiency of the measurable skills, or null for tag-only domains. */
-  strength: number | null
-  /** Concrete skills, strongest first. */
-  items: { name: string; level: number }[]
-  /** Tag-only domains (tools, concepts, enterprise) list capability names. */
-  tags: string[]
+  /** One line on what the domain is actually used for. */
+  summary: string
+  /** Technologies in this domain, each carrying its evidence. */
+  items: { name: string; evidence: SkillEvidence[] }[]
   /** Ids of domains this one flows into. */
   connects: string[]
+  /** Distinct evidence points across every technology in the domain. */
+  evidenceCount: number
 }
 
+/**
+ * A ring around the backend hub.
+ *
+ * Backend sits at the centre because it is the domain the documented career
+ * actually builds on; everything else radiates from it.
+ */
 const NODE_POSITIONS: Record<string, { x: number; y: number }> = {
-  languages: { x: 50, y: 16 },
-  backend: { x: 80, y: 40 },
-  databases: { x: 68, y: 78 },
-  tools: { x: 32, y: 78 },
-  concepts: { x: 20, y: 40 },
-  enterprise: { x: 50, y: 52 },
+  backend: { x: 50, y: 50 },
+  languages: { x: 50, y: 11 },
+  databases: { x: 76, y: 23 },
+  security: { x: 86, y: 50 },
+  infrastructure: { x: 76, y: 77 },
+  'open-source': { x: 50, y: 89 },
+  learning: { x: 24, y: 77 },
+  frontend: { x: 14, y: 50 },
+  architecture: { x: 24, y: 23 },
 }
 
-const CENTER = { x: 50, y: 47 }
+const CENTER = NODE_POSITIONS.backend
+
+/**
+ * Node diameter range, scaled by evidence count.
+ *
+ * Expressed against `SIZE_REF`, which is the map's maximum width, so a node is
+ * sized as a percentage of whatever the map actually measures. Sizing in pixels
+ * looked right on desktop but overflowed and collided once the map shrank to a
+ * phone: nine 76px circles simply do not fit in a 300px box.
+ */
+const SIZE_REF = 560
+const MIN_SIZE = 46
+const MAX_SIZE = 76
 
 export default function SkillConstellation({ domains }: { domains: SkillDomain[] }) {
   const reduceMotion = useReducedMotion()
@@ -49,13 +76,18 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
   const selectedId = pinnedId ?? activeId
   const active = domains.find((d) => d.id === selectedId) ?? null
 
-  // Focus + context: when a domain is selected, its neighbours stay lit and the
-  // rest recede — the same graph-reading behaviour as the hero topology, so the
-  // motion language stays consistent across sections.
+  // Selecting a node keeps its neighbours lit and recedes the rest — the same
+  // graph-reading behaviour as the hero topology, so the motion language is one
+  // across the portfolio rather than one per section.
   const related = useMemo(() => {
     if (!active) return null
     return new Set<string>([active.id, ...active.connects])
   }, [active])
+
+  const maxEvidence = useMemo(
+    () => Math.max(1, ...domains.map((d) => d.evidenceCount)),
+    [domains],
+  )
 
   const togglePin = (id: string) => setPinnedId((prev) => (prev === id ? null : id))
 
@@ -75,7 +107,7 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
           </span>
         </div>
 
-        <div className="relative mx-auto aspect-[4/3] w-full max-w-[520px]">
+        <div className="relative mx-auto aspect-[4/3] min-h-[440px] w-full max-w-[560px]">
           {/* Connective tissue — drawn first so nodes sit on top */}
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" fill="none" aria-hidden="true">
             {domains.flatMap((domain) =>
@@ -102,8 +134,9 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
               }),
             )}
 
-            {/* Faint hub links so tag-only domains still read as connected */}
+            {/* Faint hub spokes, so every domain reads as connected */}
             {domains.map((domain) => {
+              if (domain.id === 'backend') return null
               const pos = NODE_POSITIONS[domain.id]
               if (!pos) return null
               const lit = related?.has(domain.id) ?? false
@@ -117,7 +150,7 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
                   stroke={lit ? 'var(--accent-indigo)' : 'var(--border)'}
                   strokeWidth={0.25}
                   initial={false}
-                  animate={{ opacity: !related ? 0.5 : lit ? 0.8 : 0.12 }}
+                  animate={{ opacity: !related ? 0.45 : lit ? 0.8 : 0.1 }}
                   transition={{ duration: DURATION.quick, ease: EASE_STANDARD }}
                 />
               )
@@ -130,9 +163,10 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
             if (!pos) return null
             const isActive = selectedId === domain.id
             const dimmed = !!related && !related.has(domain.id)
-            // Node size encodes real proficiency; tag-only domains sit at a
-            // neutral size since they have no measured level.
-            const size = domain.strength === null ? 54 : 48 + (domain.strength / 100) * 26
+            // Size encodes how much evidence backs the domain — a count, not a score.
+            const size = MIN_SIZE + (domain.evidenceCount / maxEvidence) * (MAX_SIZE - MIN_SIZE)
+            // Percentage of the map's own width, so it shrinks with the layout.
+            const sizePct = (size / SIZE_REF) * 100
 
             return (
               <motion.button
@@ -143,50 +177,55 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
                 onFocus={() => setActiveId(domain.id)}
                 onBlur={() => setActiveId((v) => (v === domain.id ? null : v))}
                 aria-pressed={pinnedId === domain.id}
-                aria-label={
-                  `${domain.title}` +
-                  (domain.strength !== null ? `, average proficiency ${domain.strength}%` : ', capability tags')
-                }
+                aria-label={`${domain.title}: ${domain.items.length} technologies, ${domain.evidenceCount} pieces of supporting evidence`}
                 initial={false}
                 animate={{ opacity: dimmed ? 0.35 : 1, scale: isActive ? 1.06 : 1 }}
                 transition={{ duration: DURATION.quick, ease: EASE_OUT_EXPO }}
                 className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 outline-offset-4"
-                style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: 'translate(-50%, -50%)' }}
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                  // The button carries the width, not the circle: a percentage
+                  // width on the circle would resolve against a zero-width
+                  // absolutely-positioned button and collapse to nothing.
+                  width: `${sizePct}%`,
+                }}
               >
                 <span
-                  className="flex items-center justify-center rounded-full border transition-colors duration-200"
+                  className="flex aspect-square w-full items-center justify-center rounded-full border transition-colors duration-200"
                   style={{
-                    width: size,
-                    height: size,
                     borderColor: isActive ? 'var(--accent-teal)' : 'var(--border)',
                     background: isActive ? 'var(--glow-teal)' : 'var(--bg-secondary)',
                     boxShadow: isActive ? '0 0 18px var(--glow-teal)' : 'none',
                   }}
                 >
-                  <span className="text-lg" aria-hidden="true">{domain.icon}</span>
+                  <span className="text-base sm:text-lg" aria-hidden="true">{domain.icon}</span>
                 </span>
                 <span
-                  className="whitespace-nowrap font-mono-code text-[0.56rem] uppercase tracking-tight"
+                  className="whitespace-nowrap text-center font-mono-code text-[0.56rem] uppercase tracking-tight"
                   style={{ color: isActive ? 'var(--accent-teal)' : 'var(--text-muted)' }}
                 >
-                  {domain.title}
-                  {domain.strength !== null && (
-                    <span style={{ color: isActive ? 'var(--accent-teal)' : 'var(--text-secondary)' }}>
-                      {' '}{domain.strength}%
-                    </span>
-                  )}
+                  {domain.short}
+                  <span style={{ color: isActive ? 'var(--accent-teal)' : 'var(--text-secondary)' }}>
+                    {' '}
+                    {domain.evidenceCount}
+                  </span>
                 </span>
               </motion.button>
             )
           })}
         </div>
 
-        <p className="mt-2 text-center font-mono-code text-[0.58rem] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-          Node size reflects measured proficiency
+        <p
+          className="mt-2 text-center font-mono-code text-[0.58rem] uppercase tracking-widest"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Node size = supporting evidence, not a self-assigned score
         </p>
       </div>
 
-      {/* ── Detail panel: reveals the concrete skills behind a domain ── */}
+      {/* ── Detail panel ──────────────────────────────────────────── */}
       <div
         role="status"
         aria-live="polite"
@@ -202,67 +241,48 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
               transition={{ duration: DURATION.quick, ease: EASE_STANDARD }}
               className="flex flex-1 flex-col"
             >
-              <div className="mb-3 flex items-center gap-3">
+              <div className="mb-1 flex items-center gap-3">
                 <span className="text-2xl" aria-hidden="true">{active.icon}</span>
                 <div>
-                  <h3 className="font-mono-code text-[0.72rem] uppercase tracking-widest" style={{ color: 'var(--accent-teal)' }}>
+                  <h3
+                    className="font-mono-code text-[0.72rem] uppercase tracking-widest"
+                    style={{ color: 'var(--accent-teal)' }}
+                  >
                     {active.title}
                   </h3>
-                  {active.strength !== null && (
-                    <p className="font-mono-code text-[0.62rem]" style={{ color: 'var(--text-muted)' }}>
-                      average {active.strength}%
-                    </p>
-                  )}
+                  <p className="font-mono-code text-[0.62rem]" style={{ color: 'var(--text-muted)' }}>
+                    {active.evidenceCount} pieces of evidence
+                  </p>
                 </div>
               </div>
+              <p className="mb-4 text-[0.78rem] leading-[1.6]" style={{ color: 'var(--text-secondary)' }}>
+                {active.summary}
+              </p>
 
-              {active.items.length > 0 ? (
-                <ul className="space-y-3">
-                  {active.items.map((item) => (
-                    <li key={item.name}>
-                      <div className="mb-1 flex items-baseline justify-between gap-2">
-                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
-                        <span className="font-mono-code text-[0.68rem]" style={{ color: 'var(--accent-teal)' }}>
-                          {item.level}%
-                        </span>
-                      </div>
-                      <div
-                        className="h-[3px] overflow-hidden rounded-full"
-                        style={{ background: 'var(--border)' }}
-                        role="progressbar"
-                        aria-valuenow={item.level}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-label={`${item.name} proficiency: ${item.level}%`}
-                      >
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ background: 'linear-gradient(90deg, var(--accent-teal), var(--accent-indigo))' }}
-                          initial={reduceMotion ? { width: `${item.level}%` } : { width: 0 }}
-                          animate={{ width: `${item.level}%` }}
-                          transition={{ duration: reduceMotion ? 0 : 0.6, ease: EASE_OUT_EXPO }}
-                        />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {active.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-1 font-mono-code text-[0.68rem]"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {/* Technologies with the thing that demonstrates each one. */}
+              <ul className="space-y-3">
+                {active.items.map((item) => (
+                  <li key={item.name}>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                      {item.name}
+                    </p>
+                    <ul className="mt-1 flex flex-wrap gap-1.5">
+                      {item.evidence.map((evidence, i) => (
+                        <li key={`${item.name}-${evidence.label}-${i}`}>
+                          <EvidenceChip evidence={evidence} />
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
 
               {active.connects.length > 0 && (
                 <div className="mt-auto border-t border-[var(--border)] pt-4">
-                  <p className="mb-2 font-mono-code text-[0.56rem] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                  <p
+                    className="mb-2 font-mono-code text-[0.56rem] uppercase tracking-widest"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
                     Feeds into
                   </p>
                   <div className="flex flex-wrap gap-1.5">
@@ -277,7 +297,7 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
                           className="rounded border border-[var(--border)] px-2 py-0.5 font-mono-code text-[0.6rem] uppercase transition-colors hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
                           style={{ color: 'var(--text-secondary)' }}
                         >
-                          {target.title}
+                          {target.short}
                         </button>
                       )
                     })}
@@ -295,15 +315,15 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
               className="flex flex-1 flex-col justify-center"
             >
               <p className="font-mono-code text-[0.62rem] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-                Domain detail
+                How to read this
               </p>
               <p className="mt-2 text-sm leading-[1.75]" style={{ color: 'var(--text-secondary)' }}>
-                The map connects the domains I work across — languages feed the backend, the backend
-                leans on databases and tooling, and enterprise process knowledge shapes how the
-                systems get designed.
+                Nothing here carries a self-assigned proficiency score. Each domain is sized by
+                how much verifiable work sits behind it, and every technology lists the project,
+                role or credential that demonstrates it.
               </p>
               <p className="mt-3 text-[0.8rem] leading-[1.7]" style={{ color: 'var(--text-muted)' }}>
-                Select any domain to see the specific skills and levels behind it.
+                Select a domain to see the technologies and follow the evidence.
               </p>
             </motion.div>
           )}
@@ -312,3 +332,50 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
     </div>
   )
 }
+
+const EVIDENCE_STYLE: Record<SkillEvidence['kind'], { glyph: string; color: string }> = {
+  project: { glyph: '▣', color: 'var(--accent-teal)' },
+  role: { glyph: '◆', color: 'var(--accent-indigo)' },
+  credential: { glyph: '✦', color: 'var(--accent-violet)' },
+  learning: { glyph: '◇', color: 'var(--accent-orange)' },
+}
+
+/**
+ * One piece of evidence.
+ *
+ * Links to a portfolio anchor (`#projects`) navigate in-page; links to npm or
+ * GitHub open externally. Both are labelled so the behaviour is never a
+ * surprise.
+ */
+function EvidenceChip({ evidence }: { evidence: SkillEvidence }) {
+  const style = EVIDENCE_STYLE[evidence.kind]
+  const external = evidence.href ? !evidence.href.startsWith('#') : false
+
+  return (
+    <a
+      href={evidence.href ?? '#projects'}
+      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      className="
+        group inline-flex max-w-full items-center gap-1.5 rounded-full border px-2 py-0.5
+        font-mono-code text-[0.6rem] transition-colors duration-200 hover:border-[var(--accent-teal)]
+      "
+      style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+      title={`${evidence.kind}: ${evidence.label}`}
+    >
+      <span style={{ color: style.color }} aria-hidden="true">
+        {style.glyph}
+      </span>
+      <span className="truncate">{evidence.label}</span>
+      {evidence.href && (
+        <FiArrowUpRight
+          size={9}
+          aria-hidden="true"
+          className="shrink-0 opacity-50 transition-opacity group-hover:opacity-100"
+        />
+      )}
+      <span className="sr-only">
+        {external ? ' (opens in a new tab)' : ''}
+      </span>
+    </a>
+  )
+}

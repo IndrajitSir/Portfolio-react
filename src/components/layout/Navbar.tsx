@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight } from 'react-icons/fi'
+import { FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight, FiDownload } from 'react-icons/fi'
 import { navItems } from '@/data/navigation'
+import { personalInfo } from '@/data/personal'
 import { useTheme } from '@/hooks/useTheme'
 import { useRoute, useSectionNavigation, SIDE_MISSIONS_ROUTE, HOME_ROUTE } from '@/context/route'
 import MagneticButton from '@/components/ui/MagneticButton'
@@ -166,6 +167,27 @@ export default function Navbar() {
 
         {/* Right controls */}
         <div className="flex items-center gap-3">
+          {/* Resume — the one control a recruiter reaches for immediately, so
+              it stays on screen rather than living inside a section. */}
+          {personalInfo.resumeUrl && (
+            <a
+              href={personalInfo.resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="
+                hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5
+                rounded-full border border-[var(--border)] bg-[var(--surface)]
+                font-mono-code text-[0.68rem] uppercase tracking-wider
+                text-[var(--text-secondary)]
+                hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]
+                transition-all duration-200
+              "
+            >
+              <FiDownload size={12} aria-hidden="true" />
+              Resume
+            </a>
+          )}
+
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
@@ -324,7 +346,26 @@ export default function Navbar() {
                 </ul>
               </nav>
 
-              <div className="mt-auto">
+              <div className="mt-auto space-y-3">
+                {/* Resume stays reachable on mobile too — it is the control
+                    recruiters reach for first. */}
+                {personalInfo.resumeUrl && (
+                  <a
+                    href={personalInfo.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="
+                      flex items-center justify-center gap-2 py-3 rounded-full
+                      border border-[var(--border)] bg-[var(--surface)]
+                      font-mono-code text-xs uppercase tracking-wider
+                      text-[var(--text-secondary)] hover:text-[var(--accent-teal)]
+                      hover:border-[var(--accent-teal)] transition-all duration-200
+                    "
+                  >
+                    <FiDownload size={13} aria-hidden="true" />
+                    Resume
+                  </a>
+                )}
                 <a
                   href="#contact"
                   onClick={(e) => { e.preventDefault(); handleNavClick('#contact') }}

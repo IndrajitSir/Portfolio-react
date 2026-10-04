@@ -15,6 +15,7 @@ export type SectionBackgroundVariant =
   | 'award'
   | 'signal'
   | 'packages'
+  | 'journey'
 
 interface SectionBackgroundProps {
   variant: SectionBackgroundVariant
@@ -30,6 +31,7 @@ interface DrawCtx {
   orange: string
   green: string
   gold: string
+  violet: string
   isLight: boolean
 }
 
@@ -210,6 +212,56 @@ function drawRise(d: DrawCtx, particles: Particle[]) {
     ctx.arc(p.x * W, py, 0.8 + p.z * 1.2, 0, Math.PI * 2)
     ctx.fill()
   }
+}
+
+/**
+ * A topographic route — contour bands crossed by a single traced path with a
+ * marker travelling along it. Used behind the Journey chapter so the backdrop
+ * literally illustrates the section's thread motif without repeating the exact
+ * graphic (the thread itself is real markup in the foreground).
+ */
+function drawJourney(d: DrawCtx) {
+  const { ctx, W, H, t, teal, indigo, violet, isLight } = d
+
+  // Contour bands: wide, slow sine ridges suggesting terrain.
+  ctx.lineWidth = 1
+  for (let band = 0; band < 4; band++) {
+    const phase = t * 0.12 + band * 1.6
+    ctx.strokeStyle = `rgba(${band % 2 ? indigo : teal},${isLight ? 0.05 : 0.06})`
+    ctx.beginPath()
+    for (let x = 0; x <= W; x += 12) {
+      const y =
+        H * (0.18 + band * 0.22) +
+        Math.sin(x * 0.004 + phase) * 26 +
+        Math.sin(x * 0.011 + phase * 1.7) * 11
+      if (x === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    }
+    ctx.stroke()
+  }
+
+  // The traced route: a single continuous curve down the section.
+  const route: { x: number; y: number }[] = []
+  for (let i = 0; i <= 60; i++) {
+    const u = i / 60
+    route.push({
+      x: W * (0.24 + 0.3 * Math.sin(u * Math.PI * 1.6 + t * 0.1)),
+      y: u * H * 1.05 - H * 0.02,
+    })
+  }
+  ctx.strokeStyle = `rgba(${violet},${isLight ? 0.1 : 0.13})`
+  ctx.beginPath()
+  route.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)))
+  ctx.stroke()
+
+  // A marker travelling the route, looping slowly.
+  const head = (t * 0.06) % 1
+  const idx = Math.min(route.length - 1, Math.floor(head * 60))
+  const p = route[idx]
+  ctx.fillStyle = `rgba(${violet},${0.5 + Math.sin(t * 2) * 0.12})`
+  ctx.beginPath()
+  ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2)
+  ctx.fill()
 }
 
 function drawOrbit(d: DrawCtx) {
@@ -495,6 +547,7 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
         orange: isLight ? '234,88,12' : '251,146,60',
         green: isLight ? '16,145,87' : '37,211,102',
         gold: isLight ? '202,138,4' : '251,191,36',
+        violet: isLight ? '124,58,237' : '167,139,250',
         isLight,
       }
 
@@ -530,6 +583,9 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
           break
         case 'orbit':
           drawOrbit(d)
+          break
+        case 'journey':
+          drawJourney(d)
           break
         case 'award':
           drawAward(d, starsRef.current)

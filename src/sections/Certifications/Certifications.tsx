@@ -1,26 +1,26 @@
 import { SectionLabel, SectionBackground } from '@/components/ui'
-import { certifications } from '@/data'
-import CertExplorer from './CertExplorer'
+import { sortedCredentials } from '@/data'
+import CredentialExplorer from './CertExplorer'
 
 export default function Certifications() {
   return (
     <section
-      id="certifications"
-      aria-label="Certifications section"
+      id="credentials"
+      aria-label="Certifications and achievements"
       className="relative overflow-hidden"
       style={{ background: 'var(--bg-primary)' }}
     >
       <SectionBackground variant="award" />
       <div className="max-container section-padding relative z-10">
         <SectionLabel
-          index="06"
+          index="07"
           label="Credentials"
-          title="Certifications &"
-          titleAccent="achievements"
+          title="Certifications,"
+          titleAccent="badges & awards"
         />
 
-        <CertExplorer certifications={certifications} />
+        <CredentialExplorer credentials={sortedCredentials} />
       </div>
     </section>
   )
-}
+}

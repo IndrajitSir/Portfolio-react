@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
+import { FiChevronDown, FiChevronUp, FiArrowUpRight } from 'react-icons/fi'
 import { fadeInUp } from '@/utils/animations'
 import { GlowCard, Tag, WorkflowStory } from '@/components/ui'
 import { accentColor, accentRgb } from '@/utils/accents'
@@ -16,6 +16,21 @@ interface TimelineItemProps {
 const ROLE_ACCENT: Record<string, AccentKey> = {
   distronix: 'teal',
   'jai-balaji': 'orange',
+  'ardent-computech': 'indigo',
+  systemtron: 'violet',
+}
+
+/**
+ * Engagement type, stated plainly.
+ *
+ * Internships are kept visually distinct from employment so a short placement is
+ * never read as a permanent role. The label is always visible, not a tooltip.
+ */
+const TYPE_LABEL: Record<Experience['type'], string> = {
+  fulltime: 'Full-time',
+  parttime: 'Part-time',
+  internship: 'Internship',
+  contract: 'Contract',
 }
 
 export default function TimelineItem({ experience, index, isLast }: TimelineItemProps) {
@@ -87,6 +102,16 @@ export default function TimelineItem({ experience, index, isLast }: TimelineItem
                   Current
                 </span>
               )}
+              <span
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[0.62rem] uppercase tracking-wider font-mono-code"
+                style={{
+                  background: experience.type === 'internship' ? 'transparent' : 'var(--surface)',
+                  border: `1px solid ${experience.type === 'internship' ? accentHex : 'var(--border)'}`,
+                  color: experience.type === 'internship' ? accentHex : 'var(--text-muted)',
+                }}
+              >
+                {TYPE_LABEL[experience.type]}
+              </span>
             </div>
 
             <span
@@ -204,6 +229,20 @@ export default function TimelineItem({ experience, index, isLast }: TimelineItem
                 <Tag key={tech} label={tech} variant="indigo" />
               ))}
             </div>
+          )}
+
+          {/* ── Evidence link, where the role has a public record ── */}
+          {experience.sourceUrl && (
+            <a
+              href={experience.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-1.5 font-mono-code text-[0.68rem] transition-colors duration-200 hover:text-[var(--accent-teal)]"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              View the public post about this role
+              <FiArrowUpRight size={11} aria-hidden="true" />
+            </a>
           )}
         </div>
       </GlowCard>

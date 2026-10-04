@@ -1,5 +1,13 @@
-import type { Education, Certification } from '@/types'
+import type { Education } from '@/types'
 
+/**
+ * Academic record.
+ *
+ * Chronology, institution and result exactly as recorded. The narrative
+ * deliberately stops here: the education section does not claim that a
+ * qualification caused any later technical interest, because the available
+ * sources do not establish that link.
+ */
 export const educationList: Education[] = [
   {
     id: 'bca',
@@ -31,22 +39,14 @@ export const educationList: Education[] = [
   },
 ]
 
-export const certifications: Certification[] = [
-  {
-    id: 'csde',
-    title: 'CSDE – Certificate in Service Desk Executive',
-    issuer: 'Anudip Foundation · METTL',
-    description:
-      'IT skills and soft skills certification covering service desk operations, customer support, and communication excellence.',
-    icon: '🎖️',
-  },
-  {
-    id: 'efset',
-    title: 'EF SET English Certificate — B2 Upper-Intermediate',
-    issuer: 'EF Education First',
-    description:
-      'Scored 58/100, achieving B2 Upper-Intermediate level. Demonstrates professional-level English communication capability.',
-    url: 'https://cert.efset.org/yXKKuy',
-    icon: '🌍',
-  },
-]
+/**
+ * Institution context that the sources do confirm.
+ *
+ * `RICIS Institution, Raniganj` is named as the representing institution in the
+ * TATA Crucible Campus Quiz entry, and `Kazi Nazrul University` is associated with
+ * the RBI@90 Nationwide Online Quiz. Both are stated as they appear — this is a
+ * record of where the study happened, not a claim about what it produced.
+ */
+export const institutionNotes: Record<string, string> = {
+  bca: 'RICIS Institution, Raniganj — also the representing institution in the TATA Crucible Campus Quiz (2024). Kazi Nazrul University is associated with the RBI@90 Nationwide Online Quiz entry.',
+}

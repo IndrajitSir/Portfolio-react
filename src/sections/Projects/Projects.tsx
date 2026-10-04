@@ -84,7 +84,7 @@ export default function Projects() {
                 className="font-mono-code text-xs tracking-widest uppercase"
                 style={{ color: 'var(--accent-teal)' }}
               >
-                04 — Work
+                05 — Work
               </span>
             </div>
             <h2

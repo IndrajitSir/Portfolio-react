@@ -16,6 +16,7 @@ const About       = lazy(() => import('@/sections/About/About'))
 const Skills      = lazy(() => import('@/sections/Skills/Skills'))
 const Experience  = lazy(() => import('@/sections/Experience/Experience'))
 const Projects    = lazy(() => import('@/sections/Projects/Projects'))
+const Journey     = lazy(() => import('@/sections/Journey/Journey'))
 const Education   = lazy(() => import('@/sections/Education/Education'))
 const Certifications = lazy(() => import('@/sections/Certifications/Certifications'))
 const Contact     = lazy(() => import('@/sections/Contact/Contact'))
@@ -33,6 +34,9 @@ function Portfolio() {
       <Hero />
       <Suspense fallback={<SectionFallback />}>
         <About />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <Journey />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <Skills />

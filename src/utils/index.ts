@@ -2,6 +2,8 @@
 // shared framer-motion variants.
 export * from './animations'
 
+import { getLenis } from './lenisRef'
+
 /** Clamp a number between min and max */
 export const clamp = (value: number, min: number, max: number): number =>
   Math.min(Math.max(value, min), max)
@@ -40,11 +42,28 @@ export const prefersReducedMotion = (): boolean =>
 export const scrollBehavior = (preferred: ScrollBehavior = 'smooth'): ScrollBehavior =>
   prefersReducedMotion() ? 'auto' : preferred
 
+/**
+ * Scroll an element into view through Lenis when it is running.
+ *
+ * Lenis owns the scroll position while it is active, so calling
+ * `scrollIntoView` directly is undone on the next animation frame. Routing
+ * through the instance is what makes in-page navigation actually move. Without
+ * Lenis (reduced-motion visitors) this falls back to native scrolling.
+ */
+const scrollElementIntoView = (el: HTMLElement): void => {
+  const lenis = getLenis()
+  if (lenis) {
+    lenis.scrollTo(el, { offset: -96, duration: 1.1 })
+    return
+  }
+  el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
+}
+
 /** Smoothly scroll to an element by ID, honouring reduced motion. */
 export const scrollToSection = (id: string): void => {
   const el = document.getElementById(id)
   if (el) {
-    el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
+    scrollElementIntoView(el)
   }
 }
 
@@ -54,17 +73,20 @@ export const scrollToSection = (id: string): void => {
  * Below-fold sections are lazy-loaded, so a deep link or cross-route handoff can
  * run before the target exists. Retrying for ~1s bridges that gap without
  * blocking; if the section never mounts we simply give up rather than loop.
+ *
+ * The retry is on a timer rather than rAF because it may be waiting on a
+ * network-bound chunk to mount, and a rAF loop would burn frames for no reason.
  */
 export const scrollToSectionWhenReady = (id: string, attempts = 60): void => {
   let remaining = attempts
   const tryScroll = () => {
     const el = document.getElementById(id)
     if (el) {
-      el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
+      scrollElementIntoView(el)
       return
     }
     if (remaining-- <= 0) return
-    requestAnimationFrame(tryScroll)
+    window.setTimeout(tryScroll, 16)
   }
   tryScroll()
 }

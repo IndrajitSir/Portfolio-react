@@ -1,5 +1,13 @@
 import type { Experience } from '@/types'
 
+/**
+ * Roles, newest first.
+ *
+ * Employment and internships are kept in one list so the timeline reads
+ * chronologically, but `type` keeps them honestly distinct: an internship is
+ * never presented as a permanent role, and responsibilities are only ever those
+ * the source documents.
+ */
 export const experiences: Experience[] = [
   {
     id: 'distronix',
@@ -177,6 +185,122 @@ export const experiences: Experience[] = [
               id: 'erp',
               label: 'ERP exposure',
               detail: 'Built hands-on understanding of enterprise ERP systems and business process modelling.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 'ardent-computech',
+    role: 'Industrial Intern — Full Stack Web Development (MERN)',
+    company: 'Ardent Computech Pvt. Ltd.',
+    period: '2025',
+    // Only the year is documented for this internship, so no month is guessed here.
+    startDate: '2025',
+    current: false,
+    type: 'internship',
+    description: [
+      'Industrial internship in full-stack web development on the MERN stack.',
+      'Built the Campus Placement Recruitment System — a multi-role platform bridging students, companies and administrators.',
+      'Covered the full placement lifecycle: profile creation, job posting, application tracking, interview scheduling and offer management.',
+    ],
+    technologies: ['MongoDB', 'Express.js', 'React.js', 'Node.js', 'Full-Stack'],
+    sourceUrl: 'https://lnkd.in/p/dKbPKHbq',
+    story: {
+      summary:
+        'The step from learning individual technologies to shipping one complete full-stack system with real roles and real data.',
+      flows: [
+        {
+          id: 'lifecycle',
+          label: 'Placement lifecycle',
+          title: 'Student → company → administrator',
+          stages: [
+            {
+              id: 'profile',
+              label: 'Profile',
+              detail: 'Students create profiles that companies can actually search.',
+            },
+            {
+              id: 'post',
+              label: 'Job posting',
+              detail: 'Companies post roles and filter applicants against them.',
+            },
+            {
+              id: 'apply',
+              label: 'Application',
+              detail: 'Applications carry a tracked status rather than disappearing into email.',
+            },
+            {
+              id: 'interview',
+              label: 'Interview',
+              detail: 'The administrator coordinates schedules across the batch.',
+            },
+            {
+              id: 'offer',
+              label: 'Offer',
+              detail: 'Offers close the loop and notify the student.',
+            },
+          ],
+        },
+        {
+          id: 'stack',
+          label: 'MERN stack',
+          title: 'The four layers',
+          stages: [
+            { id: 'react', label: 'React.js', detail: 'The interface students and companies interact with.' },
+            { id: 'express', label: 'Express.js', detail: 'The REST layer between interface and data.' },
+            { id: 'node', label: 'Node.js', detail: 'The server-side runtime hosting the application logic.' },
+            { id: 'mongo', label: 'MongoDB', detail: 'Document storage for profiles, jobs and applications.' },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 'systemtron',
+    role: 'Web Development Intern',
+    company: 'SystemTron',
+    period: 'April 2024 – May 2024',
+    startDate: '2024-04',
+    endDate: '2024-05',
+    current: false,
+    type: 'internship',
+    description: [
+      'Four-week web development internship, 22 April to 19 May 2024.',
+      'Shipped four front-end applications as internship tasks: a calculator, a Netflix clone, a to-do website and Connect Four.',
+      'Worked in a team environment on projects, learning development practices and building technical skills.',
+    ],
+    technologies: ['HTML', 'CSS', 'JavaScript', 'UI Implementation'],
+    sourceUrl: 'https://lnkd.in/p/dRJE79Sp',
+    story: {
+      summary:
+        'Four tasks, each one a working interface — the first time the work was an application someone could open and use.',
+      flows: [
+        {
+          id: 'tasks',
+          label: 'The four tasks',
+          title: 'Calculator → Netflix → To-do → Connect Four',
+          stages: [
+            {
+              id: 'calculator',
+              label: 'Calculator',
+              detail: 'The first task: building a working interface and handling input.',
+            },
+            {
+              id: 'netflix',
+              label: 'Netflix clone',
+              detail: 'The second task: UI design and frontend implementation at a larger surface area.',
+            },
+            {
+              id: 'todo',
+              label: 'To-do website',
+              detail: 'The third task: a practical application with state the user can change.',
+            },
+            {
+              id: 'connect4',
+              label: 'Connect Four',
+              detail: 'The fourth task: game logic, rules and algorithmic thinking.',
             },
           ],
         },

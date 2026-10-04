@@ -17,11 +17,12 @@ export const BREAKPOINTS = {
 export const SECTION_IDS = {
   hero: 'hero',
   about: 'about',
+  journey: 'journey',
   skills: 'skills',
   experience: 'experience',
   projects: 'projects',
   education: 'education',
-  certifications: 'certifications',
+  credentials: 'credentials',
   contact: 'contact',
 } as const
 

@@ -13,7 +13,7 @@ export default function Education() {
       <SectionBackground variant="orbit" />
       <div className="max-container section-padding relative z-10">
         <SectionLabel
-          index="05"
+          index="06"
           label="Learning"
           title="Academic"
           titleAccent="background"

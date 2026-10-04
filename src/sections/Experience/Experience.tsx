@@ -15,7 +15,7 @@ export default function Experience() {
       <SectionBackground variant="rise" />
       <div className="max-container section-padding relative z-10">
         <SectionLabel
-          index="03"
+          index="04"
           label="Career"
           title="Work"
           titleAccent="experience"

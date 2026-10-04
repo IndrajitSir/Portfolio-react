@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
+import { projects, educationList } from '@/data'
 import { useScrollReveal } from '@/hooks'
 
 interface Metric {
@@ -15,25 +16,31 @@ interface Metric {
   detail: string
 }
 
+/**
+ * Headline numbers, derived from the portfolio data so they cannot drift.
+ *
+ * Each figure here is something a visitor can check elsewhere on the page: the
+ * project count matches the Projects carousel, the model count comes from the
+ * Distronix role, and the CGPA is the one recorded in the education data.
+ */
 const METRICS: Metric[] = [
+  {
+    value: projects.length,
+    label: 'Projects Shipped',
+    detail: 'Open-source packages, full-stack systems and mobile apps.',
+  },
   {
     value: 150,
     suffix: '+',
-    label: 'Database Models Optimised',
-    detail: 'Normalised schemas, indexed partitions, sub-second query plans.',
+    label: 'Database Models Analysed',
+    detail: 'Reviewed at Distronix to find and fix the indexing strategy.',
   },
   {
-    value: 8.14,
+    value: Number.parseFloat(educationList[0]?.score ?? '0'),
     decimals: 2,
     unit: '/ 10',
     label: 'CGPA',
-    detail: 'Core computer science & distributed systems coursework.',
-  },
-  {
-    value: 3,
-    suffix: '+',
-    label: 'Projects & Open Source',
-    detail: 'Production-grade tools, backend templates and public APIs.',
+    detail: 'Bachelor in Computer Application, Kazi Nazrul University.',
   },
 ]
 

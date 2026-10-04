@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { FiAward, FiBookOpen } from 'react-icons/fi'
 import { accentColor } from '@/utils/accents'
+import { institutionNotes } from '@/data/education'
 import type { Education } from '@/types'
 
 /**
@@ -104,6 +105,14 @@ export default function AcademicJourney({ items }: AcademicJourneyProps) {
                     {edu.university && (
                       <p className="text-[0.75rem]" style={{ color: 'var(--text-muted)' }}>
                         {edu.university}
+                      </p>
+                    )}
+                    {institutionNotes[edu.id] && (
+                      <p
+                        className="mt-2 max-w-[46ch] text-[0.72rem] leading-[1.6]"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        {institutionNotes[edu.id]}
                       </p>
                     )}
                   </div>

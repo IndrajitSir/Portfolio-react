@@ -38,7 +38,7 @@ export default function Contact() {
       <SectionBackground variant="signal" />
       <div className="max-container section-padding relative z-10">
         <SectionLabel
-          index="07"
+          index="08"
           label="Connect"
           title="Let's build something"
           titleAccent="together"

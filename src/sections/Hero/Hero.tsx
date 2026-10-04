@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { FiArrowDown, FiArrowRight, FiArrowUpRight } from 'react-icons/fi'
-import { personalInfo } from '@/data'
+import { personalInfo, journeyChapters } from '@/data'
 import { scrollToSection } from '@/utils'
 import InteractiveBackground from '@/components/ui/InteractiveBackground'
 import SystemsConstellation from '@/components/ui/SystemsConstellation'
@@ -233,6 +233,41 @@ export default function Hero() {
           className="mt-10"
         >
           <AnimatedMetrics />
+        </motion.div>
+
+        {/* ── Journey doorway ──────────────────────────────────────── */}
+        {/* The hero's job is to point both audiences somewhere: recruiters get
+            the CTAs above, first-time visitors get a way into the narrative. */}
+        <motion.div
+          initial={reduceMotion ? undefined : { opacity: 0, y: 18 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="mt-6"
+        >
+          <a
+            href="#journey"
+            onClick={(e) => {
+              e.preventDefault()
+              scrollToSection('journey')
+            }}
+            className="group inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border px-4 py-3 transition-colors duration-300 hover:border-[var(--accent-teal)]"
+            style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+          >
+            <span className="font-mono-code text-[0.62rem] uppercase tracking-widest" style={{ color: 'var(--accent-teal)' }}>
+              New here?
+            </span>
+            <span className="text-[0.85rem]" style={{ color: 'var(--text-secondary)' }}>
+              Start at Chapter I — {journeyChapters.length} documented chapters from the first Java
+              badge to a package on npm.
+            </span>
+            <FiArrowDown
+              size={14}
+              aria-hidden="true"
+              className="transition-transform duration-300 group-hover:translate-y-0.5"
+              style={{ color: 'var(--text-muted)' }}
+            />
+          </a>
         </motion.div>
       </div>
 

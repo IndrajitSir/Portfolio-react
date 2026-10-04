@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { FiMail, FiMapPin } from 'react-icons/fi'
-import { personalInfo, languages } from '@/data'
+import { personalInfo, languages, journeyChapters } from '@/data'
 import { staggerContainer, fadeInUp } from '@/utils/animations'
 import { SectionLabel, GlowCard, SectionBackground, MindsetTrace } from '@/components/ui'
 
@@ -12,10 +12,26 @@ const READOUT = [
   { key: 'status', value: 'Open to high-impact software roles' },
 ]
 
+/**
+ * The documented route so far, straight from the journey data.
+ *
+ * Kept as a one-line arc here so the About section answers "where did this come
+ * from?" without making the reader scroll into Chapter I. The Journey section
+ * that follows expands each of these into the full story.
+ */
+const ARC = [
+  { label: 'Java & HackerRank', href: '#chapter-learn' },
+  { label: 'Web development internship', href: '#chapter-build' },
+  { label: 'MERN full stack', href: '#chapter-systems' },
+  { label: 'Low-level design', href: '#chapter-design' },
+  { label: 'Production backend', href: '#chapter-ship' },
+  { label: 'Open source on npm', href: '#chapter-publish' },
+]
+
 const contactLinks = [
   { icon: <FiMail size={15} />, label: personalInfo.email, href: `mailto:${personalInfo.email}`, wide: true },
   { icon: <span className="font-bold text-xs">&lt;&gt;</span>, label: 'GitHub', href: personalInfo.github },
-  { icon: <span className="font-bold text-xs">⌘</span>, label: 'LinkedIn', href: 'https://linkedin.com/in/indrajit-mandal-34a9842a5' },
+  { icon: <span className="font-bold text-xs">⌘</span>, label: 'LinkedIn', href: personalInfo.linkedin ?? '#' },
 ]
 
 export default function About() {
@@ -28,7 +44,7 @@ export default function About() {
     >
       <SectionBackground variant="code" />
       <div className="max-container section-padding relative z-10">
-        <SectionLabel index="01" label="Background" title="The person behind the" titleAccent="code" />
+        <SectionLabel index="02" label="Background" title="The person behind the" titleAccent="code" />
 
         <motion.div
           variants={staggerContainer}
@@ -71,11 +87,45 @@ export default function About() {
 
               <motion.div variants={fadeInUp} className="mt-5 space-y-2 text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>
                 <p>
-                  Currently engineering at <strong className="text-[var(--text-primary)]">Distronix</strong>, specializing in robust backend optimization, REST API architectures, and high-throughput relational data workflows.
+                  Currently engineering at <strong className="text-[var(--text-primary)]">Distronix</strong>, building backend foundations for a finance-focused NestJS application — an authorization system, a secure file-handling service, and an indexing pass across 150+ database models.
                 </p>
                 <p>
-                  Prior to native deep-stack software development, trained as an <strong className="text-[var(--text-primary)]">SAP Officer Trainee at Jai Balaji Industries</strong> (SAP S/4HANA), gaining rare operational domain insight into order-to-cash enterprise lifecycles.
+                  Before that, <strong className="text-[var(--text-primary)]">SAP Officer Trainee at Jai Balaji Industries</strong> (SAP S/4HANA, SD module), working the order-to-cash cycle. Before that, internships at <strong className="text-[var(--text-primary)]">SystemTron</strong> and <strong className="text-[var(--text-primary)]">Ardent Computech</strong> building front-end and full-stack systems.
                 </p>
+              </motion.div>
+
+              {/* ── The arc: where each stage of the work came from ── */}
+              {/* Each stop links to its chapter, so this doubles as a shortcut
+                  into the narrative rather than being a decorative timeline. */}
+              <motion.div variants={fadeInUp} className="mt-5">
+                <p
+                  className="mb-2 font-mono-code text-[0.6rem] uppercase tracking-widest"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  How it went, in {journeyChapters.length} documented chapters
+                </p>
+                <ul className="flex flex-wrap items-center gap-x-2 gap-y-2">
+                  {ARC.map((stop, i) => (
+                    <li key={stop.label} className="flex items-center gap-2">
+                      {i > 0 && (
+                        <span aria-hidden="true" style={{ color: 'var(--text-muted)' }}>
+                          →
+                        </span>
+                      )}
+                      <a
+                        href={stop.href}
+                        className="rounded-full border px-2.5 py-1 font-mono-code text-[0.66rem] transition-colors duration-200 hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
+                        style={{
+                          borderColor: 'var(--border)',
+                          background: 'var(--surface)',
+                          color: 'var(--text-secondary)',
+                        }}
+                      >
+                        {stop.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </motion.div>
 
               {/* ── Engineering mindset, demonstrated as a walkable path ── */}
