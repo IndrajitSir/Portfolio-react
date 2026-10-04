@@ -3,7 +3,7 @@ import type { Project } from '@/types'
 export const projects: Project[] = [
   {
     id: 'nest-auth-library',
-    number: '01',
+    number: '',
     title: 'NestJS Authorization Library',
     period: 'August 2026',
     category: 'Open Source · npm',
@@ -38,7 +38,7 @@ export const projects: Project[] = [
   },
   {
     id: 'whatsapp-alert',
-    number: '02',
+    number: '',
     title: 'WhatsApp Smart Alert App',
     period: 'January 2026 – February 2026',
     category: 'Android',
@@ -73,7 +73,7 @@ export const projects: Project[] = [
   },
   {
     id: 'campus-placement',
-    number: '03',
+    number: '',
     title: 'Campus Placement Recruitment System',
     period: 'February 2025 – June 2025',
     category: 'Full-Stack Web',
@@ -108,7 +108,7 @@ export const projects: Project[] = [
   },
   {
     id: 'omniscript',
-    number: '04',
+    number: '',
     title: 'OmniScript',
     period: 'September 2026',
     category: 'Open Source · Dev Platform',
@@ -144,7 +144,7 @@ export const projects: Project[] = [
   },
   {
     id: 'resq-go',
-    number: '05',
+    number: '',
     title: 'ResQ-Go',
     period: 'September 2026',
     category: 'Full-Stack · Care Platform',

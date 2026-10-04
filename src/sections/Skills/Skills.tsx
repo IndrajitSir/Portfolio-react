@@ -108,20 +108,8 @@ export default function Skills() {
               nine stacked blocks of chips. Same facts, a fraction of the
               vertical space, and far less DOM. */}
           <TechnologyRail domains={domains} />
-
-          {/* ── Explicit about what is not claimed ──────────────── */}
-          <p
-            className="mt-10 border-t pt-5 text-[0.78rem] leading-[1.7]"
-            style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}
-          >
-            <strong style={{ color: 'var(--text-secondary)' }}>A note on the numbers:</strong>{' '}
-            this portfolio used to show a percentage against every skill. Those were
-            self-assigned rather than measured, so they were removed. Each technology
-            above instead lists the work that demonstrates it — a shipped project, a role,
-            or a credential you can open and check.
-          </p>
         </motion.div>
       </div>
     </section>
   )
-}
+}
