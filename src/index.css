@@ -231,6 +231,35 @@ body {
   }
 }
 
+/* ─── How I build: the five stage frames ───────────────────────── */
+/* One diagram per workflow stage. The drawing itself is driven by the
+   section's shared scroll clock in JS; CSS only covers the state change when
+   a different stage is selected — which happens a handful of times per visit,
+   never per frame — and the reduced-motion block above collapses the
+   transitions to nothing. */
+.mindset-frame {
+  transition:
+    border-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mindset-frame svg {
+  transition: filter 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* The selected stage's frame is the only one lit: a teal edge, a contained
+   glow, and the diagram lifted just clear of the blueprint it was resting on. */
+.mindset-frame[data-lit='true'] {
+  border-color: var(--accent-teal);
+  box-shadow:
+    inset 0 0 16px var(--glow-teal),
+    0 0 12px var(--glow-teal);
+}
+.mindset-frame[data-lit='true'] svg {
+  /* `contrast` works in both themes: it lifts the faint blueprint strokes on a
+     near-black card and deepens them on the light one. `brightness` would just
+     blow the diagram out in light mode. */
+  filter: contrast(1.3);
+}
+
 /* ─── About: the portrait orbit ──────────────────────────────────── */
 /* The one ambient loop the About section owns. Slow enough not to compete
    with reading, and silenced by the reduced-motion block below. */
