@@ -561,6 +561,77 @@ body {
   animation-play-state: paused;
 }
 
+/* ─── Career milestone sketches ───────────────────────────────── */
+/* The drawing language of the npm scene, at the size a career milestone needs:
+   thin strokes in the role's own accent (passed in as `currentColor`), a
+   contained wash behind whatever is being explained, mono micro-labels, and one
+   indigo or orange accent only where something branches or is refused.
+
+   These rules carry the *vocabulary*. The drawing itself is scroll-driven from
+   the role's own progress value — strokes are `pathLength` fed by a motion
+   value, so nothing here animates on a timer. `non-scaling-stroke` keeps a line
+   one pixel wide however the panel scales. */
+.career-sketch {
+  overflow: visible;
+}
+.career-sketch path,
+.career-sketch line,
+.career-sketch rect,
+.career-sketch circle,
+.career-sketch polyline {
+  vector-effect: non-scaling-stroke;
+}
+/* The window the sketch sits in — the equivalent of the npm scene's floor. */
+.career-sketch__frame {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.career-sketch__node {
+  fill: color-mix(in srgb, currentColor 8%, transparent);
+  stroke: currentColor;
+  stroke-opacity: 0.55;
+  stroke-width: 1;
+}
+.career-sketch__node--core {
+  fill: color-mix(in srgb, currentColor 13%, transparent);
+  stroke-opacity: 0.8;
+}
+.career-sketch__edge {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.55;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* The system boundary. Deliberately NOT dashed: framer-motion writes the
+   scroll-driven draw to `stroke-dasharray` as an SVG presentation attribute,
+   and any author rule for the same property silently beats it, which would
+   freeze the boundary fully drawn instead of drawing it with the scroll. */
+.career-sketch__edge--boundary {
+  stroke-opacity: 0.28;
+}
+.career-sketch__edge--warn {
+  stroke: var(--accent-orange);
+  stroke-opacity: 0.85;
+}
+.career-sketch__dot {
+  fill: currentColor;
+  stroke: none;
+}
+.career-sketch__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6px;
+  letter-spacing: 0.1em;
+  fill: var(--text-muted);
+  text-transform: uppercase;
+  user-select: none;
+}
+.career-sketch__label--strong {
+  fill: currentColor;
+}
+
 /* ─── The story, beat by beat ───────────────────────────────────── */
 @keyframes npm-lifecycle {
   0%, 5%    { opacity: 0; }

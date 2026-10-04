@@ -13,6 +13,7 @@ import { clamp } from '@/utils'
 import { fadeInUp, staggerContainerFast } from '@/utils/animations'
 import type { Experience, FlowStage } from '@/types'
 import { TYPE_LABEL, accentFor, roleAnchor, roleIndex, roleKind } from './experienceMeta'
+import CareerDiagram from './CareerDiagram'
 
 /**
  * One role, read as a milestone instead of a card.
@@ -243,9 +244,13 @@ function CareerRole({ experience, index, active, progress }: CareerRoleProps) {
               <SystemsList milestones={milestones} accent={accent} />
             ) : (
               <>
+                {/* The shape of the work, drawn by the same scroll value that
+                    lights the ribbon below it. */}
+                <CareerDiagram roleId={experience.id} accent={accent} progress={progress} />
+
                 {/* The stage ribbon: every workflow and every stage on screen at
                     once. Only the lighting follows the scroll. */}
-                <div className="mt-2.5 space-y-1.5">
+                <div className="mt-1.5 space-y-1.5">
                   {flows.map((flow) => (
                     <div key={flow.id} className="flex items-center gap-2.5">
                       <span
