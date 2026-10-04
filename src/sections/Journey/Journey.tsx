@@ -1,68 +1,143 @@
-import { useCallback, useRef, useState } from 'react'
-import { motion, useMotionValueEvent, useReducedMotion, useScroll } from 'framer-motion'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { motion, motionValue, useMotionValueEvent, useScroll } from 'framer-motion'
 import { journeyChapters } from '@/data'
 import { accentColor } from '@/utils/accents'
+import { useMediaQuery } from '@/hooks'
+import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
+import { clamp } from '@/utils'
 import { SectionBackground, SectionLabel, ThreadTrack, THREAD_WIDTH } from '@/components/ui'
-import { scrollToSection } from '@/utils'
-import JourneyChapterCard from './JourneyChapterCard'
-import { chapterAnchor } from './journeyMeta'
+import JourneyCompass from './JourneyCompass'
+import JourneyStage from './JourneyStage'
+import JourneyChapterBlock from './JourneyChapter'
 
 /**
  * The Journey — the spine of the portfolio.
  *
- * Eight chapters, each one a documented milestone, strung along a single thread
- * that draws itself as you scroll. This is the section that turns a career into
- * a narrative without inventing anything: every claim in it carries a source.
+ * The shape is a stage and a column. On a wide screen one stage is pinned beside
+ * the text and it changes as you read: eight chapters, eight pictures, one at a
+ * time. Below `lg` there is no pinned column at all; every chapter carries its
+ * own stage inline, directly above the text it belongs to, because a pinned
+ * viewport is the wrong tool for a thumb.
  *
- * Interaction budget, deliberately small:
- *  - scroll draws the thread (the one animated thing),
- *  - the rail at the top jumps between chapters,
- *  - hovering or focusing a chapter lights its station.
+ * Scroll is the storytelling mechanism, and it is measured rather than
+ * observed. One `useScroll` spans the chapter column, and a single measurement
+ * pass records where each chapter starts and how tall it is. From those two
+ * facts the section derives:
  *
- * There is no autoplay, no scroll hijacking and nothing that must be clicked to
- * read the content, so a recruiter skimming with the page still gets the whole
- * story in order.
+ *   localProgress(i) = (progress × columnHeight − chapterTop(i)) / chapterHeight(i)
+ *
+ * which is exact because both scroll offsets use the viewport centre: the
+ * "where am I reading" line cancels out of the arithmetic. That one number per
+ * chapter drives the stage, the compass and the station rail, so they can never
+ * disagree about which chapter you are in. It also costs one scroll listener and
+ * no layout reads during scrolling.
+ *
+ * Reduced motion is handled at two levels. The stage pins its progress value at
+ * 1, so every picture renders finished; the section drops its entrance
+ * animations. Nothing about the content changes.
  */
 
 const count = journeyChapters.length
 
-/** Accent colours for the thread, sampled from the chapters themselves. */
+/** Accents sampled from the chapters, for the thread gradient. */
 const THREAD_STOPS = journeyChapters.map((c) => accentColor[c.accent])
 
+interface Band {
+  top: number
+  height: number
+}
+
 export default function Journey() {
-  const reduceMotion = useReducedMotion()
-  const containerRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  const chapterRefs = useRef<(HTMLElement | null)[]>([])
+
+  const [bands, setBands] = useState<Band[]>([])
+  const [columnHeight, setColumnHeight] = useState(0)
   const [activeIndex, setActiveIndex] = useState(0)
 
-  // The thread fills as the visitor moves through the chapters. Offset chosen so
-  // it starts filling when the first card reaches the upper third of the
-  // viewport, which is where reading actually begins.
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start 72%', 'end 65%'],
-  })
-
-  // Derive the active chapter from progress rather than observing each card:
-  // one scroll listener, no layout thrash, and the station always agrees with
-  // how much thread has been drawn.
-  const applyIndex = useCallback(
-    (value: number) => {
-      const next = Math.min(count - 1, Math.max(0, Math.floor(value * count)))
-      setActiveIndex((prev) => (prev === next ? prev : next))
-    },
+  // One motion value per chapter. Writing to these does not re-render; only the
+  // active index does, and only when it actually changes.
+  const progressValues = useMemo(
+    () => journeyChapters.map(() => motionValue(0)),
     [],
   )
 
-  useMotionValueEvent(scrollYProgress, 'change', applyIndex)
+  const isWide = useMediaQuery('(min-width: 1024px)')
+  const isSmall = useMediaQuery('(max-width: 640px)')
+
+  // Both ends meet the viewport centre, which is what makes the derived
+  // per-chapter progress below exact.
+  const { scrollYProgress } = useScroll({
+    target: listRef,
+    offset: ['start center', 'end center'],
+  })
+
+  /** One pass, all reads together, whenever the column's layout changes. */
+  const measure = useCallback(() => {
+    const list = listRef.current
+    if (!list) return
+    const listTop = list.getBoundingClientRect().top
+    const next = chapterRefs.current.map((el) => {
+      if (!el) return { top: 0, height: 1 }
+      const rect = el.getBoundingClientRect()
+      return { top: rect.top - listTop, height: Math.max(1, rect.height) }
+    })
+    setBands(next)
+    setColumnHeight(list.getBoundingClientRect().height)
+  }, [])
+
+  useLayoutEffect(() => {
+    measure()
+    const list = listRef.current
+    if (!list) return
+    const observer = new ResizeObserver(measure)
+    observer.observe(list)
+    // Chapter heights move when a stage's controls wrap, so watch them too.
+    chapterRefs.current.forEach((el) => el && observer.observe(el))
+    return () => observer.disconnect()
+  }, [measure])
+
+  // Derive every chapter's progress from the single scroll value.
+  const apply = useCallback(
+    (value: number) => {
+      if (!bands.length || !columnHeight) return
+      const travelled = value * columnHeight
+      let active = 0
+      bands.forEach((band, i) => {
+        const local = clamp((travelled - band.top) / band.height, 0, 1)
+        if (Math.abs(progressValues[i].get() - local) > 0.002) {
+          progressValues[i].set(local)
+        }
+        if (travelled >= band.top) active = i
+      })
+      setActiveIndex((prev) => (prev === active ? prev : active))
+    },
+    [bands, columnHeight, progressValues],
+  )
+
+  useMotionValueEvent(scrollYProgress, 'change', apply)
+
+  // Recompute once after the first measurement so the section opens in the right
+  // state if the visitor arrived part-way down the page.
+  useEffect(() => {
+    apply(scrollYProgress.get())
+  }, [apply, scrollYProgress])
+
+  const activeChapter = journeyChapters[activeIndex]
 
   return (
     <section
       id="journey"
       aria-label="Engineering journey"
-      className="relative overflow-hidden"
+      className="relative"
       style={{ background: 'var(--bg-primary)' }}
     >
-      <SectionBackground variant="journey" />
+      {/* The backdrop clips itself. The section deliberately does *not* set
+          `overflow-hidden`: that would make it a scroll container and silently
+          break every `position: sticky` inside it. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <SectionBackground variant="journey" />
+      </div>
 
       <div className="max-container section-padding relative z-10">
         <SectionLabel
@@ -72,119 +147,118 @@ export default function Journey() {
           titleAccent="engineering"
         />
 
-        {/* ── Chapter rail: direct access, no animation required ───── */}
-        <ChapterRail />
+        <p className="mt-4 max-w-[54ch] text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          Read it in order, or jump to the chapter you care about. Every milestone
+          links to the source that documents it.
+        </p>
 
-        {/* ── Thread + chapters ────────────────────────────────────── */}
-        <div ref={containerRef} className="relative mt-10">
-          {/* The rail lives in a fixed-width gutter so it never fights the
-              grid, and only the y axis is stretched (see ThreadTrack). */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 hidden lg:block"
-            style={{ width: THREAD_WIDTH }}
-          >
-            <ThreadTrack
-              progress={scrollYProgress}
-              gradientId="journey"
-              stops={THREAD_STOPS}
-              className="h-full"
-            />
+        <JourneyCompass activeIndex={activeIndex} />
+
+        <div className="mt-10 grid grid-cols-1 gap-10 lg:mt-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
+          {/* ── The stage, pinned beside the text on a wide screen ──── */}
+          <div className="hidden lg:block">
+            <div className="sticky top-[124px]">
+              <JourneyStage
+                chapter={activeChapter}
+                progress={progressValues[activeIndex]}
+                travelled={activeIndex}
+                compact={false}
+              />
+              <p
+                className="mt-3 text-[0.72rem] leading-relaxed"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                The stage follows the chapter you are reading. It illustrates the
+                milestones; it never replaces them.
+              </p>
+            </div>
           </div>
 
-          {/* The list carries no padding: stations are positioned from the container's
-              left edge, which is exactly where the rail is drawn. */}
-          <ol className="space-y-5">
-            {journeyChapters.map((chapter, i) => {
-              const accent = accentColor[chapter.accent]
-              const active = i === activeIndex
+          {/* ── The chapters ──────────────────────────────────────── */}
+          <div ref={listRef} className="relative">
+            {/* The thread. Fixed-width SVG stretched only vertically; the
+                stations are DOM, positioned from this container's own left edge,
+                so they cannot drift off the rail whatever the chapter height. */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-0 hidden lg:block"
+              style={{ width: THREAD_WIDTH }}
+            >
+              <ThreadTrack
+                progress={scrollYProgress}
+                gradientId="journey"
+                stops={THREAD_STOPS}
+                className="h-full"
+              />
+            </div>
 
-              return (
-                <li key={chapter.id} className="relative">
-                  {/* Station: aligned to the card it belongs to, not to a
-                      uniform grid, so it stays put whatever the card height. */}
+            <ol className="space-y-16 lg:space-y-28">
+              {journeyChapters.map((chapter, i) => (
+                <li
+                  key={chapter.id}
+                  className="relative"
+                  ref={(el) => {
+                    chapterRefs.current[i] = el
+                  }}
+                >
+                  {/* Station: anchored to the list's own left edge, which is
+                      exactly where the thread is drawn. It lives outside the
+                      indented column so the text never runs underneath it. */}
                   <span
                     aria-hidden="true"
-                    className="absolute -top-1 hidden -translate-x-1/2 lg:block"
+                    className="absolute -top-2 hidden -translate-x-1/2 lg:block"
                     style={{ left: THREAD_WIDTH / 2 }}
                   >
                     <span
-                      className="flex h-7 w-7 items-center justify-center rounded-full border-2 bg-[var(--bg-primary)] font-mono-code text-[0.6rem] transition-all duration-500"
+                      className="flex h-8 w-8 items-center justify-center rounded-full border-2 bg-[var(--bg-primary)] font-mono-code text-[0.6rem] transition-all duration-500"
                       style={{
-                        borderColor: accent,
-                        color: accent,
-                        boxShadow: active ? `0 0 14px ${accent}55` : 'none',
-                        transform: active ? 'scale(1.15)' : 'scale(1)',
+                        borderColor: accentColor[chapter.accent],
+                        color: accentColor[chapter.accent],
+                        boxShadow: i === activeIndex ? `0 0 16px ${accentColor[chapter.accent]}66` : 'none',
+                        transform: i === activeIndex ? 'scale(1.12)' : 'scale(1)',
                       }}
                     >
                       {chapter.index}
                     </span>
                   </span>
 
-                  {/* The card is offset from the rail; the station above stays anchored to the
-                      container's own left edge, which is where the rail is drawn. */}
+                  {/* The chapter itself is indented clear of the rail. */}
                   <div className="lg:ml-[72px]">
-                    <JourneyChapterCard chapter={chapter} active={active} />
+                    <JourneyChapterBlock
+                      chapter={chapter}
+                      active={i === activeIndex}
+                      travelled={i}
+                      showStage={!isWide}
+                      compactStage={isSmall}
+                    />
                   </div>
                 </li>
-              )
-            })}
-          </ol>
-        </div>
+              ))}
+            </ol>
 
-        {/* ── Closing line ─────────────────────────────────────────── */}
-        <motion.p
-          initial={reduceMotion ? undefined : { opacity: 0 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1 }}
-          viewport={{ once: true, margin: '-60px' }}
-          className="mt-10 border-t pt-6 font-mono-code text-[0.72rem]"
-          style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}
-        >
-          Every chapter above is backed by a public source. Follow any link to check it.
-        </motion.p>
+            {/* ── Conclusion ────────────────────────────────────────── */}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: DURATION.reveal, ease: EASE_OUT_EXPO }}
+              className="mt-16 border-t pt-6"
+              style={{ borderColor: 'var(--border)' }}
+            >
+              <p
+                className="max-w-[58ch] font-display text-[clamp(1.05rem,2vw,1.35rem)] font-light leading-[1.5]"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                {count} chapters, from a Java badge on HackerRank to two packages
+                published for other developers.
+              </p>
+              <p className="mt-3 font-mono-code text-[0.72rem]" style={{ color: 'var(--text-muted)' }}>
+                Every chapter above is backed by a public source. Follow any link to check it.
+              </p>
+            </motion.div>
+          </div>
+        </div>
       </div>
     </section>
-  )
-}
-
-/**
- * Horizontal chapter rail.
- *
- * A plain, always-visible list of chapters. It is the recruiter's shortcut:
- * jump straight to the part that matters without scrolling the whole thread.
- * Horizontally scrollable on small screens so it never wraps into a wall.
- */
-function ChapterRail() {
-  return (
-    <nav aria-label="Journey chapters" className="mb-2">
-      <ul className="no-scrollbar flex gap-2 overflow-x-auto pb-2">
-        {journeyChapters.map((chapter) => {
-          const accent = accentColor[chapter.accent]
-          return (
-            <li key={chapter.id} className="shrink-0">
-              <button
-                type="button"
-                onClick={() => scrollToSection(chapterAnchor(chapter.id))}
-                className="
-                  group flex items-center gap-2 rounded-full border px-3 py-1.5
-                  font-mono-code text-[0.68rem] transition-all duration-200
-                  hover:-translate-y-0.5
-                "
-                style={{
-                  borderColor: 'var(--border)',
-                  background: 'var(--surface)',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                <span style={{ color: accent }} aria-hidden="true">
-                  {chapter.index}
-                </span>
-                {chapter.title}
-              </button>
-            </li>
-          )
-        })}
-      </ul>
-    </nav>
   )
 }

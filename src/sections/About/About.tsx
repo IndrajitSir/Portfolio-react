@@ -1,8 +1,12 @@
-import { motion } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { FiMail, FiMapPin } from 'react-icons/fi'
 import { personalInfo, languages, journeyChapters } from '@/data'
-import { staggerContainer, fadeInUp } from '@/utils/animations'
+import { staggerContainer, fadeInUp, withDelay } from '@/utils/animations'
+import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
 import { SectionLabel, GlowCard, SectionBackground, MindsetTrace } from '@/components/ui'
+import AboutDepth from './AboutDepth'
+import RevealWords from './RevealWords'
 
 // The three facts that used to sit in the static shell block, kept as a compact
 // readout beside the mindset trace so no content is lost.
@@ -35,17 +39,34 @@ const contactLinks = [
 ]
 
 export default function About() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const reduceMotion = useReducedMotion()
+
+  // The section's own travel through the viewport. Used for the entry and exit:
+  // the block drifts a little as the section passes and softens at both ends, so
+  // it arrives and leaves instead of being switched on. It never fully fades —
+  // a deep link that lands mid-page must still find readable text.
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
+  const blockY = useTransform(scrollYProgress, [0, 1], [24, -24])
+  const blockOpacity = useTransform(scrollYProgress, [0, 0.12, 0.9, 1], [0.4, 1, 1, 0.4])
+
   return (
     <section
       id="about"
+      ref={sectionRef}
       aria-label="About section"
       className="relative overflow-hidden"
       style={{ background: 'var(--bg-secondary)' }}
     >
       <SectionBackground variant="code" />
+      {/* Depth planes behind everything: the section gets a room, not a panel. */}
+      <AboutDepth targetRef={sectionRef} />
       <div className="max-container section-padding relative z-10">
         <SectionLabel index="02" label="Background" title="The person behind the" titleAccent="code" />
 
+        <motion.div
+          style={{ y: reduceMotion ? 0 : blockY, opacity: reduceMotion ? 1 : blockOpacity }}
+        >
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -56,6 +77,14 @@ export default function About() {
             <div className="p-5 sm:p-7 lg:p-8">
               <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-4">
                 <div className="relative shrink-0">
+                  {/* A slow orbit around the portrait. It is the one piece of
+                      ambient motion in the section, and it stops dead under
+                      `prefers-reduced-motion` via the shared CSS block. */}
+                  <span
+                    aria-hidden="true"
+                    className="about-orbit absolute -inset-[9px] rounded-[18px] border border-dashed"
+                    style={{ borderColor: 'var(--accent-teal)', opacity: 0.32 }}
+                  />
                   <img
                     src="/indrajit-portrait.png"
                     alt="Portrait of Indrajit Mandal"
@@ -85,12 +114,20 @@ export default function About() {
                 </div>
               </motion.div>
 
+              {/* ── The biography, revealed word by word ─────────────── */}
+              {/* Same two paragraphs, same emphasis. The words ride up out of
+                  a mask on a stagger so the paragraph typesets itself into
+                  place instead of fading in as a block. */}
               <motion.div variants={fadeInUp} className="mt-5 space-y-2 text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>
                 <p>
-                  Currently engineering at <strong className="text-[var(--text-primary)]">Distronix</strong>, building backend foundations for a finance-focused NestJS application — an authorization system, a secure file-handling service, and an indexing pass across 150+ database models.
+                  <RevealWords>
+                    Currently engineering at <strong className="text-[var(--text-primary)]">Distronix</strong>, building backend foundations for a finance-focused NestJS application — an authorization system, a secure file-handling service, and an indexing pass across 150+ database models.
+                  </RevealWords>
                 </p>
                 <p>
-                  Before that, <strong className="text-[var(--text-primary)]">SAP Officer Trainee at Jai Balaji Industries</strong> (SAP S/4HANA, SD module), working the order-to-cash cycle. Before that, internships at <strong className="text-[var(--text-primary)]">SystemTron</strong> and <strong className="text-[var(--text-primary)]">Ardent Computech</strong> building front-end and full-stack systems.
+                  <RevealWords>
+                    Before that, <strong className="text-[var(--text-primary)]">SAP Officer Trainee at Jai Balaji Industries</strong> (SAP S/4HANA, SD module), working the order-to-cash cycle. Before that, internships at <strong className="text-[var(--text-primary)]">SystemTron</strong> and <strong className="text-[var(--text-primary)]">Ardent Computech</strong> building front-end and full-stack systems.
+                  </RevealWords>
                 </p>
               </motion.div>
 
@@ -104,16 +141,26 @@ export default function About() {
                 >
                   How it went, in {journeyChapters.length} documented chapters
                 </p>
-                <ul className="flex flex-wrap items-center gap-x-2 gap-y-2">
+                <ul className="relative flex flex-wrap items-center gap-x-2 gap-y-2">
                   {ARC.map((stop, i) => (
-                    <li key={stop.label} className="flex items-center gap-2">
+                    <motion.li
+                      key={stop.label}
+                      variants={withDelay(fadeInUp, 0.35 + i * 0.09)}
+                      className="flex items-center gap-2"
+                    >
                       {i > 0 && (
-                        <span aria-hidden="true" style={{ color: 'var(--text-muted)' }}>
+                        <motion.span
+                          aria-hidden="true"
+                          variants={withDelay(fadeInUp, 0.3 + i * 0.09)}
+                          style={{ color: 'var(--text-muted)' }}
+                        >
                           →
-                        </span>
+                        </motion.span>
                       )}
-                      <a
+                      <motion.a
                         href={stop.href}
+                        whileHover={reduceMotion ? undefined : { y: -2 }}
+                        transition={{ duration: DURATION.micro, ease: EASE_OUT_EXPO }}
                         className="rounded-full border px-2.5 py-1 font-mono-code text-[0.66rem] transition-colors duration-200 hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
                         style={{
                           borderColor: 'var(--border)',
@@ -122,8 +169,8 @@ export default function About() {
                         }}
                       >
                         {stop.label}
-                      </a>
-                    </li>
+                      </motion.a>
+                    </motion.li>
                   ))}
                 </ul>
               </motion.div>
@@ -154,12 +201,15 @@ export default function About() {
               </motion.div>
 
               <motion.div variants={fadeInUp} className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {contactLinks.map((link) => (
-                  <a
+                {contactLinks.map((link, i) => (
+                  <motion.a
                     key={link.label}
+                    variants={withDelay(fadeInUp, 0.45 + i * 0.07)}
                     href={link.href}
                     target={link.label === 'GitHub' || link.label === 'LinkedIn' ? '_blank' : undefined}
                     rel={link.label === 'GitHub' || link.label === 'LinkedIn' ? 'noopener noreferrer' : undefined}
+                    whileHover={reduceMotion ? undefined : { y: -2 }}
+                    transition={{ duration: DURATION.micro, ease: EASE_OUT_EXPO }}
                     className={`${link.wide ? 'sm:col-span-2' : ''} flex items-center gap-3 rounded-xl border border-[var(--border)] px-3 py-3 font-mono-code text-xs transition-colors hover:border-[var(--accent-teal)]`}
                     style={{ background: 'var(--surface)', color: 'var(--text-primary)' }}
                   >
@@ -168,7 +218,7 @@ export default function About() {
                     </span>
                     <span className="truncate">{link.label}</span>
                     <span className="ml-auto" style={{ color: 'var(--text-muted)' }}>→</span>
-                  </a>
+                  </motion.a>
                 ))}
               </motion.div>
             </div>
@@ -186,6 +236,7 @@ export default function About() {
               BCA · Kazi Nazrul University · CGPA 8.14
             </p>
           </div>
+        </motion.div>
         </motion.div>
       </div>
     </section>

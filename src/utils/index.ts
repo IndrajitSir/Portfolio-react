@@ -50,20 +50,27 @@ export const scrollBehavior = (preferred: ScrollBehavior = 'smooth'): ScrollBeha
  * through the instance is what makes in-page navigation actually move. Without
  * Lenis (reduced-motion visitors) this falls back to native scrolling.
  */
-const scrollElementIntoView = (el: HTMLElement): void => {
+const scrollElementIntoView = (el: HTMLElement, offset: number): void => {
   const lenis = getLenis()
   if (lenis) {
-    lenis.scrollTo(el, { offset: -96, duration: 1.1 })
+    lenis.scrollTo(el, { offset, duration: 1.1 })
     return
   }
   el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
 }
 
-/** Smoothly scroll to an element by ID, honouring reduced motion. */
-export const scrollToSection = (id: string): void => {
+/**
+ * Smoothly scroll to an element by ID, honouring reduced motion.
+ *
+ * `offset` is how far below the viewport top the element should land. The default
+ * clears the navbar; anything sitting under a sticky header of its own (the
+ * journey's chapter compass, for instance) passes a larger one so the jump lands
+ * below both.
+ */
+export const scrollToSection = (id: string, offset = -96): void => {
   const el = document.getElementById(id)
   if (el) {
-    scrollElementIntoView(el)
+    scrollElementIntoView(el, offset)
   }
 }
 
@@ -77,12 +84,12 @@ export const scrollToSection = (id: string): void => {
  * The retry is on a timer rather than rAF because it may be waiting on a
  * network-bound chunk to mount, and a rAF loop would burn frames for no reason.
  */
-export const scrollToSectionWhenReady = (id: string, attempts = 60): void => {
+export const scrollToSectionWhenReady = (id: string, attempts = 60, offset = -96): void => {
   let remaining = attempts
   const tryScroll = () => {
     const el = document.getElementById(id)
     if (el) {
-      scrollElementIntoView(el)
+      scrollElementIntoView(el, offset)
       return
     }
     if (remaining-- <= 0) return

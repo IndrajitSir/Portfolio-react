@@ -212,6 +212,7 @@ body {
   .role-caret,
   .editor-cursor,
   .text-sheen,
+  .about-orbit,
   .animate-blob-1,
   .animate-blob-2,
   .animate-pulse,
@@ -228,6 +229,16 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ─── About: the portrait orbit ──────────────────────────────────── */
+/* The one ambient loop the About section owns. Slow enough not to compete
+   with reading, and silenced by the reduced-motion block below. */
+@keyframes about-orbit {
+  to { transform: rotate(360deg); }
+}
+.about-orbit {
+  animation: about-orbit 26s linear infinite;
 }
 
 /* ─── Hero live effects ─────────────────────────────────────────── */
