@@ -260,6 +260,394 @@ body {
   filter: contrast(1.3);
 }
 
+/* ─── Project 01 · the npm publication scene ───────────────────── */
+/* Three depth layers, one story, no JavaScript per frame.
+   Layer 1  background — the NPM wordmark and its atmospheric light
+   Layer 2  middle     — modules, boundaries and the request path
+   Layer 3  foreground — the request, the package, the confirmation
+   Every animation shares one 19s cycle so the beats cannot drift apart, and
+   the whole subtree is declarative: `NpmPublishScene` renders once and only
+   toggles `data-paused` off-screen, which never re-renders React. */
+.npm-scene {
+  --npm-cycle: 19s;
+  /* The vignette has to flip with the theme, so it gets its own colour. */
+  --npm-vignette: 8, 9, 13;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Lets the wordmark size itself from the panel, not from the viewport. */
+  container-type: inline-size;
+}
+:root.light .npm-scene {
+  --npm-vignette: 244, 246, 251;
+}
+
+/* Layer 1 — background ------------------------------------------------- */
+.npm-scene__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 78% at 50% 44%, color-mix(in srgb, var(--accent-teal) 11%, transparent), transparent 62%),
+    radial-gradient(100% 100% at 50% 50%, transparent 38%, rgba(var(--npm-vignette), 0.55) 100%);
+}
+/* The wordmark. A second, offset copy sits behind it in indigo so the type
+   reads as an object with depth rather than a flat label. */
+.npm-scene__wordmark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 7rem;
+  font-size: 27cqw;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--accent-teal);
+  opacity: 0.17;
+  user-select: none;
+  margin-bottom: 8%;
+}
+.npm-scene__wordmark::before {
+  content: 'NPM';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-indigo);
+  opacity: 0.2;
+  transform: translate(5px, 4px);
+  pointer-events: none;
+}
+/* The floor the scene stands on. */
+.npm-scene__floor {
+  position: absolute;
+  left: 50%;
+  bottom: 21%;
+  width: 72%;
+  height: 34%;
+  transform: translateX(-50%);
+  background: radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--accent-teal) 9%, transparent), transparent 70%);
+  animation: npm-breathe 12s ease-in-out infinite;
+}
+
+/* Layer 2 + 3 — the story --------------------------------------------- */
+.npm-scene__stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.npm-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    npm-lifecycle var(--npm-cycle) linear infinite both,
+    npm-converge var(--npm-cycle) linear infinite both;
+}
+/* How far each module pulls toward the centre when the package is assembled. */
+.npm-node[data-pull='a'] { --npm-x: 74px; --npm-y: 46px; }
+.npm-node[data-pull='b'] { --npm-x: -74px; --npm-y: 46px; }
+.npm-node[data-pull='c'] { --npm-x: 74px; --npm-y: -64px; }
+.npm-node__edge {
+  fill: none;
+  stroke: var(--accent-teal);
+  stroke-opacity: 0.55;
+  stroke-width: 1;
+}
+.npm-node__edge--core {
+  stroke-opacity: 0.85;
+  stroke-width: 1.2;
+}
+.npm-node__wash {
+  fill: var(--accent-teal);
+  fill-opacity: 0.07;
+  stroke: none;
+}
+/* The core carries more weight than the pieces around it. */
+.npm-node__wash--core {
+  fill-opacity: 0.13;
+}
+.npm-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  fill: var(--text-secondary);
+  text-transform: uppercase;
+  animation: npm-label-in var(--npm-cycle) linear infinite both;
+}
+.npm-label--strong {
+  fill: var(--accent-teal);
+}
+.npm-label--dim {
+  font-size: 7.5px;
+  letter-spacing: 0.09em;
+  fill: var(--text-muted);
+}
+
+.npm-link {
+  stroke: var(--accent-teal);
+  stroke-opacity: 0.5;
+  stroke-width: 1;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  animation: npm-link var(--npm-cycle) linear infinite both;
+}
+.npm-linkpulse {
+  stroke: var(--accent-teal);
+  stroke-width: 1.6;
+  stroke-dasharray: 16 100;
+  stroke-dashoffset: 100;
+  animation: npm-linkpulse var(--npm-cycle) linear infinite both;
+}
+
+.npm-deny {
+  stroke: var(--accent-orange);
+  stroke-opacity: 0.85;
+  stroke-width: 1;
+}
+.npm-deny__mark {
+  stroke: var(--accent-orange);
+  stroke-width: 1;
+  fill: var(--bg-primary);
+}
+.npm-deny,
+.npm-deny__mark {
+  opacity: 0;
+  animation: npm-deny var(--npm-cycle) linear infinite both;
+}
+
+.npm-verdict {
+  fill: none;
+  stroke: var(--accent-teal);
+  stroke-width: 1.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: npm-verdict var(--npm-cycle) linear infinite both;
+}
+
+.npm-request {
+  fill: var(--accent-teal);
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent-teal) 70%, transparent));
+  animation: npm-request var(--npm-cycle) linear infinite both;
+}
+
+.npm-boundary {
+  fill: none;
+  stroke: var(--accent-teal);
+  stroke-opacity: 0.4;
+  stroke-width: 1;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  opacity: 0;
+  animation: npm-boundary var(--npm-cycle) linear infinite both;
+}
+
+.npm-package {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: npm-package var(--npm-cycle) linear infinite both;
+}
+.npm-package rect,
+.npm-package path {
+  fill: none;
+  stroke: var(--accent-teal);
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.npm-package rect {
+  fill: color-mix(in srgb, var(--accent-teal) 8%, transparent);
+}
+
+.npm-pulse {
+  fill: none;
+  stroke: var(--accent-teal);
+  stroke-width: 1.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: npm-pulse var(--npm-cycle) linear infinite both;
+}
+
+/* One story beat at a time. Each beat is the same keyframe, offset by a
+   negative delay, so they take turns instead of stacking up. */
+.npm-beat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  fill: var(--text-muted);
+  animation: npm-beat var(--npm-cycle) linear infinite both;
+}
+/* Reduced motion gets one honest summary line where the beats would sit. It is
+   toggled with `display`, never `opacity`, so it cannot fight the keyframes. */
+.npm-static-note {
+  display: none;
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 62px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+.npm-static-note span {
+  color: var(--accent-teal);
+}
+
+/* The package manifest — the real names, not invented registry output. */
+.npm-strip {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  display: flex;
+  gap: 9px;
+  align-items: stretch;
+}
+.npm-strip__bar {
+  width: 2px;
+  flex: none;
+  border-radius: 1px;
+  background: var(--border-glow);
+}
+.npm-strip ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+.npm-strip li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.56rem;
+  line-height: 1.4;
+}
+.npm-strip__pkg {
+  flex: none;
+  color: var(--accent-teal);
+  opacity: 0.65;
+}
+.npm-strip__name {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.npm-strip__tag {
+  margin-left: auto;
+  flex: none;
+  color: var(--text-muted);
+}
+
+/* Off-screen: pause the clock instead of tearing anything down, so the story
+   resumes exactly where the reader left it. */
+.npm-scene[data-paused='true'] * {
+  animation-play-state: paused;
+}
+
+/* ─── The story, beat by beat ───────────────────────────────────── */
+@keyframes npm-lifecycle {
+  0%, 5%    { opacity: 0; }
+  13%, 86%  { opacity: 1; }
+  93%, 100% { opacity: 0; }
+}
+@keyframes npm-label-in {
+  0%, 11%   { opacity: 0; }
+  19%, 86%  { opacity: 1; }
+  93%, 100% { opacity: 0; }
+}
+@keyframes npm-converge {
+  0%, 46%          { transform: translate3d(0, 0, 0); }
+  64%, 86%         { transform: translate3d(var(--npm-x, 0px), var(--npm-y, 0px), 0); }
+  93%, 100%        { transform: translate3d(0, 0, 0); }
+}
+@keyframes npm-link {
+  0%, 9%    { opacity: 0; stroke-dashoffset: 100; }
+  23%, 86%  { opacity: 1; stroke-dashoffset: 0; }
+  93%, 100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes npm-linkpulse {
+  0%, 50%   { opacity: 0; stroke-dashoffset: 100; }
+  53%       { opacity: 0.85; }
+  66%, 86%  { opacity: 0; stroke-dashoffset: -16; }
+  93%, 100% { opacity: 0; stroke-dashoffset: -16; }
+}
+@keyframes npm-deny {
+  0%, 33%      { opacity: 0; }
+  36%, 40%     { opacity: 1; }
+  43%, 100%    { opacity: 0; }
+}
+@keyframes npm-verdict {
+  0%, 42%      { opacity: 0; transform: scale(0.85); }
+  47%          { opacity: 0.9; transform: scale(1); }
+  60%, 100%    { opacity: 0; transform: scale(1.25); }
+}
+@keyframes npm-request {
+  0%, 23%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  25%       { transform: translate3d(0, 0, 0); opacity: 1; }
+  31%       { transform: translate3d(8px, 0, 0); opacity: 1; }
+  38%       { transform: translate3d(8px, 76px, 0); opacity: 1; }
+  44%       { transform: translate3d(16px, 76px, 0); opacity: 1; }
+  47%, 100% { transform: translate3d(16px, 76px, 0); opacity: 0; }
+}
+@keyframes npm-boundary {
+  0%, 48%   { opacity: 0; stroke-dashoffset: 100; }
+  53%       { opacity: 0.9; }
+  67%, 86%  { opacity: 0.9; stroke-dashoffset: 0; }
+  92%, 100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes npm-package {
+  0%, 64%      { opacity: 0; transform: scale(0.74); }
+  73%          { opacity: 1; transform: scale(1); }
+  89%, 100%    { opacity: 1; transform: scale(1); }
+  96%          { opacity: 0; transform: scale(0.95); }
+}
+@keyframes npm-pulse {
+  0%, 70%      { opacity: 0; transform: scale(0.74); }
+  73%          { opacity: 0.8; }
+  88%, 100%    { opacity: 0; transform: scale(1.5); }
+}
+@keyframes npm-beat {
+  0%, 4%     { opacity: 0; }
+  8%, 21%    { opacity: 1; }
+  25%, 100%  { opacity: 0; }
+}
+@keyframes npm-breathe {
+  0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 0.85; transform: translateX(-50%) scale(1.07); }
+}
+
+/* Reduced motion: the finished composition, held still. The architecture is
+   drawn, the package artifact sits over the wordmark, and one line says what
+   the scene is. */
+@media (prefers-reduced-motion: reduce) {
+  .npm-scene *,
+  .npm-scene *::before,
+  .npm-scene *::after {
+    animation: none !important;
+  }
+  .npm-boundary { opacity: 0.35; }
+  .npm-package { opacity: 1; }
+  .npm-static-note { display: block; }
+  .npm-scene__floor { opacity: 0.7; }
+}
+
 /* ─── About: the portrait orbit ──────────────────────────────────── */
 /* The one ambient loop the About section owns. Slow enough not to compete
    with reading, and silenced by the reduced-motion block below. */
@@ -325,4 +713,148 @@ body {
 }
 .animate-blob-2 {
   animation: blob-drift-2 24s ease-in-out infinite;
+}
+
+/* ─── Navbar: the centred rail ───────────────────────────── */
+/* Every desktop link shares one hover treatment, and it lives here rather than
+   in React so the pointer never travels through a state update: the label opens
+   its tracking and lifts a hair, a teal glow breathes in behind it, and the
+   shared `nav-indicator` springs across from whichever link was lit last. */
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.2rem 0.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  letter-spacing: var(--nav-track);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  transition: color 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* The lit resting state — the section you are actually reading. */
+.nav-link.is-active {
+  color: var(--accent-teal);
+}
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: var(--accent-teal);
+}
+.nav-link--route:hover,
+.nav-link--route:focus-visible {
+  color: var(--accent-indigo);
+}
+
+/* Atmospheric pill. A radial gradient rather than a blur filter: it reads the
+   same at these sizes and costs nothing to composite. */
+.nav-link::before {
+  content: '';
+  position: absolute;
+  inset: 0 -0.55rem;
+  border-radius: 999px;
+  background: radial-gradient(62% 130% at 50% 50%, var(--glow-teal), transparent 70%);
+  opacity: 0;
+  transform: scale(0.78);
+  transition:
+    opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.44s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.nav-link--route::before {
+  background: radial-gradient(62% 130% at 50% 50%, var(--glow-indigo), transparent 70%);
+}
+.nav-link:hover::before,
+.nav-link:focus-visible::before,
+.nav-link.is-active::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.nav-link__label,
+.nav-link svg {
+  position: relative;
+  z-index: 1;
+}
+.nav-link__label {
+  display: inline-block;
+  transition:
+    letter-spacing 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link:hover .nav-link__label,
+.nav-link:focus-visible .nav-link__label {
+  letter-spacing: var(--nav-track-hi);
+  transform: translateY(-1px);
+}
+
+/* The travelling marker. Faded ends keep it from looking like a solid tab. */
+.nav-indicator {
+  position: absolute;
+  left: 0.2rem;
+  right: 0.2rem;
+  bottom: 0;
+  height: 1.5px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-teal) 22%,
+    var(--accent-teal) 78%,
+    transparent
+  );
+  box-shadow: 0 0 8px var(--glow-teal);
+}
+.nav-indicator--route {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-indigo) 22%,
+    var(--accent-indigo) 78%,
+    transparent
+  );
+  box-shadow: 0 0 8px var(--glow-indigo);
+}
+
+/* The monogram gets the same courtesy as the rail: a hair of lift, and the dot
+   blinks brighter — the only thing on the bar that ever moves on its own. */
+.logo-link {
+  display: inline-block;
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.logo-link:hover {
+  transform: translateY(-1px);
+}
+.logo-link__dot {
+  display: inline-block;
+  color: var(--text-primary);
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.logo-link:hover .logo-link__dot {
+  transform: scale(1.4);
+  color: var(--accent-teal);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Colour still answers the pointer — that is feedback, not decoration — but
+     nothing travels, nothing expands, and the type never reflows under a
+     cursor that asked for stillness. */
+  .nav-link::before {
+    display: none;
+  }
+  .nav-link__label,
+  .nav-link:hover .nav-link__label,
+  .nav-link:focus-visible .nav-link__label {
+    letter-spacing: var(--nav-track) !important;
+    transform: none !important;
+  }
+  .logo-link,
+  .logo-link:hover,
+  .logo-link__dot,
+  .logo-link:hover .logo-link__dot {
+    transform: none !important;
+  }
 }

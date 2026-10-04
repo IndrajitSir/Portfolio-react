@@ -1,16 +1,18 @@
 import { useEffect, useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight, FiDownload } from 'react-icons/fi'
 import { navItems } from '@/data/navigation'
 import { personalInfo } from '@/data/personal'
 import { useTheme } from '@/hooks/useTheme'
 import { useRoute, useSectionNavigation, SIDE_MISSIONS_ROUTE, HOME_ROUTE } from '@/context/route'
 import MagneticButton from '@/components/ui/MagneticButton'
+import { DURATION, EASE_OUT_EXPO, EASE_STANDARD, SPRING_LAYOUT } from '@/utils/motion'
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme()
   const { path, isSideMissions, navigate } = useRoute()
   const goToSection = useSectionNavigation()
+  const reduceMotion = useReducedMotion()
   const [scrolled,    setScrolled]    = useState(false)
   const [activeSection, setActive]    = useState('')
   const [hoveredNav,  setHoveredNav]  = useState<string | null>(null)
@@ -23,29 +25,49 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  /* ── Active section via IntersectionObserver ──────────── */
+  /* ── Active section, resolved from the scroll position ── */
   // Only meaningful on the portfolio route — the Side Missions page has none of
-  // these anchors, so observing there would just leave a stale highlight.
+  // these anchors, so resolving there would just leave a stale highlight.
+  //
+  // Resolved on scroll rather than with IntersectionObserver: every section
+  // below the hero is a lazy chunk, the sections are far taller than the
+  // viewport, and a fast smooth scroll can carry one across a threshold without
+  // the observer ever reporting it. Asking "which section owns the middle of
+  // the screen?" answers correctly whatever has mounted by then, in one pass.
   useEffect(() => {
     if (path !== HOME_ROUTE) {
       setActive('')
       return
     }
-    const ids = navItems.map((n) => n.href.replace('#', ''))
-    const observers: IntersectionObserver[] = []
+    let frame = 0
 
-    ids.forEach((id) => {
-      const el = document.getElementById(id)
-      if (!el) return
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActive(id) },
-        { threshold: 0.35 },
-      )
-      obs.observe(el)
-      observers.push(obs)
-    })
+    const resolve = () => {
+      frame = 0
+      const line = window.innerHeight / 2
+      let current = ''
+      navItems.forEach(({ href }) => {
+        const id = href.replace('#', '')
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top <= line) current = id
+      })
+      // Same answer as last frame → no re-render.
+      setActive((prev) => (prev === current ? prev : current))
+    }
 
-    return () => observers.forEach((o) => o.disconnect())
+    const onScroll = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(resolve)
+    }
+
+    resolve()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
   }, [path])
 
   /* ── Mobile menu helpers ──────────────────────────────── */
@@ -73,16 +95,30 @@ export default function Navbar() {
     closeMenu()
   }
 
+  /* ── Rail entrance ────────────────────────────────────── */
+  // The bar drops in as one piece; the links then settle a beat apart so the
+  // rail reads as a sequence instead of a wall of type. Fires once per mount
+  // and holds no state afterwards, so hovering never re-renders the list.
+  const railItem = (i: number) => ({
+    initial: reduceMotion ? false : { opacity: 0, y: -10 },
+    animate: { opacity: 1, y: 0 },
+    transition: {
+      duration: DURATION.quick,
+      delay: reduceMotion ? 0 : 0.34 + i * 0.035,
+      ease: EASE_OUT_EXPO,
+    },
+  })
+
   return (
     <>
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0,   opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: DURATION.reveal, ease: EASE_STANDARD }}
         className={`
           fixed top-0 left-0 right-0 z-[100]
-          flex items-center justify-between
-          px-6 md:px-12 py-4
+          grid grid-cols-2 items-center gap-x-6
+          px-6 lg:px-8 xl:px-12 py-4
           transition-all duration-300
           ${scrolled
             ? 'backdrop-blur-2xl border-b border-[var(--border)]'
@@ -96,22 +132,36 @@ export default function Navbar() {
         <a
           href="#hero"
           onClick={(e) => { e.preventDefault(); goToSection('hero') }}
-          className="font-mono-code font-bold text-base tracking-wide"
+          className="logo-link justify-self-start font-mono-code font-bold text-base tracking-wide"
           style={{ color: 'var(--accent-teal)' }}
           aria-label="Go to top"
         >
-          IM<span style={{ color: 'var(--text-primary)' }}>.</span>
+          IM<span className="logo-link__dot">.</span>
         </a>
 
-        {/* Desktop links */}
-        <ul className="hidden md:flex items-center gap-8" role="list">
-          {navItems.map((item) => {
+        {/* Desktop links — the rail has to sit dead centre of the bar, and the
+            logo and the controls are never the same width, so the rail is
+            positioned against the viewport centre instead of being laid out
+            between them (a justify-between row leaves it wherever the controls
+            happen to end). The type scales at each breakpoint so the rail always
+            clears the flanks with room to spare. */}
+        <ul
+          className="
+            hidden lg:flex absolute left-1/2 top-0 h-full -translate-x-1/2
+            items-center justify-center gap-x-2.5 xl:gap-x-4 2xl:gap-x-6
+            text-[0.64rem] xl:text-[0.72rem] 2xl:text-[0.78rem]
+            [--nav-track:0.06em] [--nav-track-hi:0.1em]
+            xl:[--nav-track:0.09em] xl:[--nav-track-hi:0.14em]
+          "
+          role="list"
+        >
+          {navItems.map((item, i) => {
             const id = item.href.replace('#', '')
             const isActive = activeSection === id
             const indicatorId = hoveredNav ?? (activeSection || null)
             const showIndicator = indicatorId === id
             return (
-              <li key={item.href}>
+              <motion.li key={item.href} {...railItem(i)}>
                 <button
                   onClick={() => handleNavClick(item.href)}
                   onMouseEnter={() => setHoveredNav(id)}
@@ -119,63 +169,65 @@ export default function Navbar() {
                   onFocus={() => setHoveredNav(id)}
                   onBlur={() => setHoveredNav((h) => (h === id ? null : h))}
                   aria-current={isActive ? 'true' : undefined}
-                  className={`
-                    relative font-body text-[0.8rem] font-medium tracking-widest uppercase
-                    transition-colors duration-200
-                    ${isActive || hoveredNav === id
-                      ? 'text-[var(--accent-teal)]'
-                      : 'text-[var(--text-secondary)]'}
-                  `}
+                  className={`nav-link ${
+                    isActive ? 'is-active' : ''
+                  }`}
                 >
-                  {item.label}
+                  <span className="nav-link__label">{item.label}</span>
                   {showIndicator && (
                     <motion.span
                       layoutId="nav-indicator"
-                      className="absolute -bottom-1 left-0 right-0 h-px"
-                      style={{ background: 'var(--accent-teal)' }}
-                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                      className="nav-indicator"
+                      aria-hidden="true"
+                      transition={reduceMotion ? { duration: 0 } : SPRING_LAYOUT}
                     />
                   )}
                 </button>
-              </li>
+              </motion.li>
             )
           })}
 
-          {/* Side Missions — a route, not a section anchor, so it sits apart */}
-          <li>
+          {/* Side Missions — a route, not a section anchor, so it sits apart and
+              carries its own indigo marker. */}
+          <motion.li {...railItem(navItems.length)}>
             <button
               onClick={() => {
                 navigate(SIDE_MISSIONS_ROUTE)
                 closeMenu()
               }}
               aria-current={isSideMissions ? 'page' : undefined}
-              className={`
-                group inline-flex items-center gap-1 font-body text-[0.8rem] font-medium
-                tracking-widest uppercase transition-colors duration-200
-                ${isSideMissions ? 'text-[var(--accent-indigo)]' : 'text-[var(--text-secondary)] hover:text-[var(--accent-indigo)]'}
-              `}
+              className="nav-link nav-link--route group"
             >
-              Side Missions
+              <span className="nav-link__label">Side Missions</span>
               <FiArrowUpRight
                 size={12}
                 aria-hidden="true"
                 className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
               />
+              {isSideMissions && (
+                <motion.span
+                  layoutId="nav-route-indicator"
+                  className="nav-indicator nav-indicator--route"
+                  aria-hidden="true"
+                  transition={reduceMotion ? { duration: 0 } : SPRING_LAYOUT}
+                />
+              )}
             </button>
-          </li>
+          </motion.li>
         </ul>
 
         {/* Right controls */}
-        <div className="flex items-center gap-3">
-          {/* Resume — the one control a recruiter reaches for immediately, so
-              it stays on screen rather than living inside a section. */}
+        <div className="flex items-center justify-self-end gap-3">
+          {/* Resume — the one control a recruiter reaches for immediately. It
+              waits for the widest breakpoint the rail can still clear; below
+              that the hero, the drawer and Contact all carry their own copy. */}
           {personalInfo.resumeUrl && (
             <a
               href={personalInfo.resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="
-                hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5
+                hidden 2xl:inline-flex items-center gap-1.5 px-3.5 py-1.5
                 rounded-full border border-[var(--border)] bg-[var(--surface)]
                 font-mono-code text-[0.68rem] uppercase tracking-wider
                 text-[var(--text-secondary)]
@@ -206,7 +258,7 @@ export default function Navbar() {
                 initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
                 animate={{ rotate: 0, opacity: 1, scale: 1 }}
                 exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
-                transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+                transition={{ duration: DURATION.quick, ease: EASE_STANDARD }}
                 className="flex"
                 aria-hidden="true"
               >
@@ -216,17 +268,18 @@ export default function Navbar() {
           </button>
 
           {/* Hire Me CTA — desktop only, magnetic */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <MagneticButton
               href="#contact"
               strength={0.18}
               onClick={(e) => { e?.preventDefault(); goToSection('contact') }}
               className="
                 inline-flex items-center gap-2
-                px-5 py-2 rounded-full border border-[var(--accent-teal)]
-                text-[var(--accent-teal)] text-[0.8rem] font-semibold tracking-wide
+                px-4 py-1.5 rounded-full border border-[var(--accent-teal)]
+                text-[var(--accent-teal)] text-[0.72rem] font-semibold tracking-wide
                 hover:bg-[var(--accent-teal)] hover:text-[var(--bg-primary)]
                 transition-all duration-200
+                2xl:px-5 2xl:py-2 2xl:text-[0.8rem]
               "
             >
               Hire Me
@@ -239,7 +292,7 @@ export default function Navbar() {
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
             className="
-              md:hidden w-9 h-9 rounded-full flex items-center justify-center
+              lg:hidden w-9 h-9 rounded-full flex items-center justify-center
               border border-[var(--border)] bg-[var(--surface)]
               text-[var(--text-primary)] transition-all duration-200
             "
@@ -260,7 +313,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="fixed inset-0 z-[98] md:hidden"
+              className="fixed inset-0 z-[98] lg:hidden"
               style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
               onClick={closeMenu}
               aria-hidden="true"
@@ -274,7 +327,7 @@ export default function Navbar() {
               exit={{ x: '100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="
-                fixed top-0 right-0 bottom-0 z-[99] md:hidden
+                fixed top-0 right-0 bottom-0 z-[99] lg:hidden
                 w-[min(320px,85vw)] flex flex-col
                 pt-24 pb-10 px-8
               "
@@ -387,4 +440,4 @@ export default function Navbar() {
       </AnimatePresence>
     </>
   )
-}
+}

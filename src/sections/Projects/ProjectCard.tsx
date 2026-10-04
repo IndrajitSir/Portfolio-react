@@ -6,7 +6,7 @@ import {
   Tag,
   ProjectCanvas1,
   ProjectCanvas2,
-  NpmPackageCanvas,
+  NpmPublishScene,
   PlacementPipelineCanvas,
   WhatsAppAlertCanvas,
   OmniScriptCanvas,
@@ -22,7 +22,7 @@ interface ProjectCardProps {
 
 // Visual registry — a project points at its showcase through `project.visual`.
 const projectVisuals: Partial<Record<ProjectVisual, () => JSX.Element>> = {
-  'nest-auth': NpmPackageCanvas,
+  'nest-auth': NpmPublishScene,
   'whatsapp-alert': WhatsAppAlertCanvas,
   placement: PlacementPipelineCanvas,
   omniscript: OmniScriptCanvas,
