@@ -166,8 +166,10 @@ export default function StageWork({ progress, accent, rgb, travelled }: StagePro
 /**
  * One cell of the indexing grid.
  *
- * Cells light on a diagonal sweep, so the fill reads as a pass over the models
- * rather than a wipe across a screen.
+ * The grid only animates while the indexing pass is the selected service. In
+ * the default state it is a plain, static lattice: building 150 derived motion
+ * values (two each, in the original) that the shared scroll value had to update
+ * on every frame — for a view most readers never choose — was pure overhead.
  */
 function GridCell({
   index,
@@ -182,19 +184,47 @@ function GridCell({
 }) {
   const col = index % GRID_COLS
   const row = Math.floor(index / GRID_COLS)
+  const x = GRID_X + col * (CELL + CELL_GAP)
+  const y = GRID_Y + row * (CELL + CELL_GAP)
+
+  if (!lit) {
+    return <rect x={x} y={y} width={CELL} height={CELL} rx={1.5} fill={`rgb(${rgb})`} opacity={0.16} />
+  }
+  return <LitCell x={x} y={y} index={index} progress={progress} rgb={rgb} />
+}
+
+/**
+ * A cell that lights on a diagonal sweep, so the fill reads as a pass over the
+ * models rather than a wipe across a screen. One motion value per cell, and only
+ * while the pass is being shown.
+ */
+function LitCell({
+  x,
+  y,
+  index,
+  progress,
+  rgb,
+}: {
+  x: number
+  y: number
+  index: number
+  progress: StageProps['progress']
+  rgb: string
+}) {
+  const col = index % GRID_COLS
+  const row = Math.floor(index / GRID_COLS)
   const threshold = (row / GRID_ROWS) * 0.6 + (col / GRID_COLS) * 0.4
   const cell = useBeat(progress, 0.56 + threshold * 0.36, 0.58 + threshold * 0.36)
-  const resting = useTransform(cell, [0, 1], [0.12, 0.2])
 
   return (
     <motion.rect
-      x={GRID_X + col * (CELL + CELL_GAP)}
-      y={GRID_Y + row * (CELL + CELL_GAP)}
+      x={x}
+      y={y}
       width={CELL}
       height={CELL}
       rx={1.5}
       fill={`rgb(${rgb})`}
-      style={{ opacity: lit ? cell : resting }}
+      style={{ opacity: cell }}
     />
   )
 }

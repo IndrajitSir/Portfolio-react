@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { FiArrowUpRight } from 'react-icons/fi'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD } from '@/utils/motion'
 import type { SkillEvidence } from '@/types'
+import { EVIDENCE_STYLE } from './evidenceStyles'
 
 /**
  * The capability map — a graph, not a scoreboard.
@@ -333,13 +334,6 @@ export default function SkillConstellation({ domains }: { domains: SkillDomain[]
   )
 }
 
-const EVIDENCE_STYLE: Record<SkillEvidence['kind'], { glyph: string; color: string }> = {
-  project: { glyph: '▣', color: 'var(--accent-teal)' },
-  role: { glyph: '◆', color: 'var(--accent-indigo)' },
-  credential: { glyph: '✦', color: 'var(--accent-violet)' },
-  learning: { glyph: '◇', color: 'var(--accent-orange)' },
-}
-
 /**
  * One piece of evidence.
  *
@@ -347,7 +341,7 @@ const EVIDENCE_STYLE: Record<SkillEvidence['kind'], { glyph: string; color: stri
  * GitHub open externally. Both are labelled so the behaviour is never a
  * surprise.
  */
-function EvidenceChip({ evidence }: { evidence: SkillEvidence }) {
+export function EvidenceChip({ evidence }: { evidence: SkillEvidence }) {
   const style = EVIDENCE_STYLE[evidence.kind]
   const external = evidence.href ? !evidence.href.startsWith('#') : false
 

@@ -37,6 +37,18 @@ interface DrawCtx {
 
 const CODE_CHARS = '01NESTSQLTSAPI{}<>/=$'
 
+/**
+ * Ceiling on a single backdrop canvas' backing store, in device pixels.
+ *
+ * These canvases span their whole section, and the Journey is over 13,000px
+ * tall on a phone. Sizing that buffer 1:1 allocated ~20 megapixels and forced a
+ * full-canvas clear + gradient fill every frame, which is what made the tall
+ * sections stutter. The artwork is procedural and extremely low-alpha, so a
+ * lightly reduced resolution is imperceptible while the memory and raster cost
+ * drop by an order of magnitude.
+ */
+const MAX_PIXELS = 3_000_000
+
 interface Trace {
   pts: { x: number; y: number }[]
   len: number[]
@@ -474,6 +486,7 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
     let running = false
     let lastW = 0
     let lastH = 0
+    let lastShift = Number.NaN
     canvas.style.willChange = 'transform'
 
     const seed = (W: number, H: number) => {
@@ -509,12 +522,28 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
     const draw = () => {
       const W = canvas.offsetWidth || 300
       const H = canvas.offsetHeight || 150
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const vh = window.innerHeight || 1
+
+      // Only the slice of the canvas that can be on screen is ever rasterised.
+      // A backdrop far taller than the viewport would otherwise mark its entire
+      // texture dirty on every frame; clipping the damage to the visible band
+      // keeps the per-frame cost proportional to the viewport instead of the
+      // section's total height.
+      const canvasRect = canvas.getBoundingClientRect()
+      const bandTop = Math.max(0, -canvasRect.top)
+      const bandBottom = Math.min(H, vh - canvasRect.top)
+      const bandH = bandBottom - bandTop
+      if (bandH < 4) return
+
+      const baseDpr = Math.min(window.devicePixelRatio || 1, 2)
+      const budgetDpr = Math.sqrt(MAX_PIXELS / Math.max(1, W * H))
+      const dpr = Math.max(0.5, Math.min(baseDpr, budgetDpr))
       const targetW = Math.round(W * dpr)
       const targetH = Math.round(H * dpr)
       if (canvas.width !== targetW || canvas.height !== targetH) {
         canvas.width = targetW
         canvas.height = targetH
+        lastShift = Number.NaN
       }
       if (!seededRef.current || W !== lastW || H !== lastH) {
         seed(W, H)
@@ -522,7 +551,11 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
         lastH = H
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx.clearRect(0, 0, W, H)
+      ctx.save()
+      ctx.beginPath()
+      ctx.rect(0, bandTop, W, bandH)
+      ctx.clip()
+      ctx.clearRect(0, bandTop, W, bandH)
 
       const isLight = document.documentElement.classList.contains('light')
 
@@ -530,11 +563,15 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
       const section = canvas.parentElement
       if (section) {
         const rect = section.getBoundingClientRect()
-        const vh = window.innerHeight || 1
         const offset = rect.top + rect.height / 2 - vh / 2
         const maxShift = rect.height * 0.15
         const shift = Math.max(-maxShift, Math.min(maxShift, offset * 0.12))
-        canvas.style.transform = `translate3d(0, ${shift.toFixed(2)}px, 0)`
+        // Avoid a style write (and the compositor churn that follows) unless the
+        // shift has actually moved a visible amount.
+        if (!(Math.abs(shift - lastShift) <= 0.5)) {
+          canvas.style.transform = `translate3d(0, ${shift.toFixed(2)}px, 0)`
+          lastShift = shift
+        }
       }
 
       const d: DrawCtx = {
@@ -618,6 +655,8 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
         ctx.arc(cx0, cy0, 1.5, 0, Math.PI * 2)
         ctx.fill()
       }
+
+      ctx.restore()
     }
 
     const start = () => {

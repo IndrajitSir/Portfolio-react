@@ -92,10 +92,17 @@ export default function JourneyStage({
 
   if (!Draw) return null
 
+  // No `backdrop-blur` on the card on purpose: it sits over the section's
+  // animated backdrop, and a backdrop filter would force the browser to re-blur
+  // that moving layer every frame. A near-opaque fill reads the same but costs
+  // nothing to composite.
   return (
     <div
-      className="overflow-hidden rounded-2xl border p-3 backdrop-blur-md sm:p-4"
-      style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+      className="overflow-hidden rounded-2xl border p-3 sm:p-4"
+      style={{
+        borderColor: 'var(--border)',
+        background: 'color-mix(in srgb, var(--bg-secondary) 90%, transparent)',
+      }}
     >
       <div className="mb-2 flex items-center justify-between gap-3">
         <span

@@ -1,6 +1,12 @@
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { SectionLabel, SectionBackground, SkillConstellation, type SkillDomain } from '@/components/ui'
+import {
+  SectionLabel,
+  SectionBackground,
+  SkillConstellation,
+  TechnologyRail,
+  type SkillDomain,
+} from '@/components/ui'
 import { skillCategories } from '@/data'
 import { DURATION, EASE_OUT_EXPO, REVEAL_VIEWPORT } from '@/utils/motion'
 
@@ -98,57 +104,10 @@ export default function Skills() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-x-8 gap-y-7 md:grid-cols-2">
-            {domains.map((domain) => (
-              <div key={domain.id}>
-                <h3
-                  className="mb-3 flex items-center gap-2 font-mono-code text-[0.68rem] uppercase tracking-widest"
-                  style={{ color: 'var(--accent-teal)' }}
-                >
-                  <span aria-hidden="true">{domain.icon}</span>
-                  {domain.title}
-                </h3>
-                <p
-                  className="mb-3 text-[0.78rem] leading-[1.6]"
-                  style={{ color: 'var(--text-muted)' }}
-                >
-                  {domain.summary}
-                </p>
-                <ul className="flex flex-wrap gap-1.5">
-                  {domain.items.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        href={item.evidence[0]?.href ?? '#projects'}
-                        {...(item.evidence[0]?.href && !item.evidence[0].href.startsWith('#')
-                          ? { target: '_blank', rel: 'noopener noreferrer' }
-                          : {})}
-                        className="
-                          inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5
-                          font-mono-code text-[0.7rem] transition-colors duration-200
-                          hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]
-                        "
-                        style={{
-                          borderColor: 'var(--border)',
-                          background: 'var(--surface)',
-                          color: 'var(--text-secondary)',
-                        }}
-                        title={item.evidence.map((e) => e.label).join(' · ')}
-                      >
-                        {item.name}
-                        <span style={{ color: 'var(--text-muted)' }} aria-hidden="true">
-                          {item.evidence.length}
-                        </span>
-                        <span className="sr-only">
-                          , demonstrated in {item.evidence.length} place
-                          {item.evidence.length === 1 ? '' : 's'}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          {/* One card per technology on a single horizontal rail, instead of
+              nine stacked blocks of chips. Same facts, a fraction of the
+              vertical space, and far less DOM. */}
+          <TechnologyRail domains={domains} />
 
           {/* ── Explicit about what is not claimed ──────────────── */}
           <p

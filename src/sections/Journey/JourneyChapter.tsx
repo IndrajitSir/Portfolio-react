@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import { animate, motion, useInView, useMotionValue, type AnimationPlaybackControls } from 'framer-motion'
 import { FiArrowUpRight, FiCheck } from 'react-icons/fi'
 import { accentColor } from '@/utils/accents'
@@ -38,7 +38,7 @@ interface JourneyChapterBlockProps {
   compactStage: boolean
 }
 
-export default function JourneyChapterBlock({
+function JourneyChapterBlock({
   chapter,
   active,
   travelled,
@@ -173,6 +173,16 @@ export default function JourneyChapterBlock({
     </motion.article>
   )
 }
+
+/**
+ * Memoised so the eight chapters do not all re-render every time the active
+ * chapter changes. Chapter data is a stable module constant and only the two
+ * chapters at the boundary of a transition receive new props, so the other six
+ * skip rendering entirely while the reader scrolls — which is what keeps the
+ * section's React work proportional to the move, not to the section's length.
+ */
+export default memo(JourneyChapterBlock)
+
 /**
  * The stage when it belongs to this chapter rather than to the viewport.
  *
@@ -183,8 +193,15 @@ export default function JourneyChapterBlock({
  *
  * So inline stages run their own beats: once, as they come into view. The same
  * 0→1 value feeds the same choreography, which means the picture still assembles
- * itself in order — it just does it on arrival rather than on travel. Reduced
- * motion is unchanged: `JourneyStage` pins the value at 1.
+ * itself in order — it just does it on arrival rather than on travel.
+ *
+ * The drawing itself is only *mounted* while the chapter is near the viewport.
+ * Eight chapter drawings all resident at once — each an SVG of well over a
+ * hundred nodes, several of them with perpetual ambient loops — was a large part
+ * of why the section dragged on a phone. A reserved box keeps the mount and
+ * unmount from shifting the text beneath it, and the progress value is held in
+ * this wrapper so a remount never replays the entrance. Reduced motion is
+ * unchanged: `JourneyStage` pins the value at 1.
  */
 function InlineStage({
   chapter,
@@ -196,21 +213,25 @@ function InlineStage({
   compact: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '0px 0px -12% 0px' })
+  // Not `once`: the drawing is released again once it is well clear of the
+  // viewport, so at most a chapter or two is ever mounted.
+  const near = useInView(ref, { margin: '600px 0px 600px 0px' })
   const value = useMotionValue(0)
 
   useEffect(() => {
-    if (!inView) return
+    if (!near) return
     const controls: AnimationPlaybackControls = animate(value, 1, {
       duration: DURATION.cinematic * 1.5,
       ease: EASE_OUT_EXPO,
     })
     return () => controls.stop()
-  }, [inView, value])
+  }, [near, value])
 
   return (
-    <div ref={ref}>
-      <JourneyStage chapter={chapter} progress={value} travelled={travelled} compact={compact} />
+    <div ref={ref} className="min-h-[340px]">
+      {near && (
+        <JourneyStage chapter={chapter} progress={value} travelled={travelled} compact={compact} />
+      )}
     </div>
   )
 }

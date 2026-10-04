@@ -64,10 +64,14 @@ export default function JourneyCompass({ activeIndex }: { activeIndex: number })
     }
   }
 
+  // Deliberately no `backdrop-blur`: this bar is sticky for the whole section,
+  // directly over the animated backdrop, and re-blurring that layer every frame
+  // is one of the most expensive things the browser can be asked to do. At 93%
+  // opaque the fill already reads as a solid surface.
   return (
     <nav
       aria-label="Journey chapters"
-      className="sticky top-[72px] z-20 mt-6 -mx-1 rounded-xl border px-3 py-2 backdrop-blur-xl sm:px-4"
+      className="sticky top-[72px] z-20 mt-6 -mx-1 rounded-xl border px-3 py-2 sm:px-4"
       style={{
         borderColor: 'var(--border)',
         background: 'color-mix(in srgb, var(--bg-primary) 93%, transparent)',

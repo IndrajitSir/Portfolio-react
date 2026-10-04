@@ -156,23 +156,29 @@ export default function Journey() {
 
         <div className="mt-10 grid grid-cols-1 gap-10 lg:mt-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
           {/* ── The stage, pinned beside the text on a wide screen ──── */}
-          <div className="hidden lg:block">
-            <div className="sticky top-[124px]">
-              <JourneyStage
-                chapter={activeChapter}
-                progress={progressValues[activeIndex]}
-                travelled={activeIndex}
-                compact={false}
-              />
-              <p
-                className="mt-3 text-[0.72rem] leading-relaxed"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                The stage follows the chapter you are reading. It illustrates the
-                milestones; it never replaces them.
-              </p>
+          {/* Mounted only where it is actually shown. `useMediaQuery` reads the
+              breakpoint synchronously, so this costs no first-paint flash — and
+              a phone no longer keeps a second, CSS-hidden stage (and its
+              animation loops) alive behind the whole section. */}
+          {isWide && (
+            <div className="hidden lg:block">
+              <div className="sticky top-[124px]">
+                <JourneyStage
+                  chapter={activeChapter}
+                  progress={progressValues[activeIndex]}
+                  travelled={activeIndex}
+                  compact={false}
+                />
+                <p
+                  className="mt-3 text-[0.72rem] leading-relaxed"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  The stage follows the chapter you are reading. It illustrates the
+                  milestones; it never replaces them.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* ── The chapters ──────────────────────────────────────── */}
           <div ref={listRef} className="relative">

@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useTransform } from 'framer-motion'
+import { motion, useTransform } from 'framer-motion'
 import { Label, StageCanvas } from './stageKit'
 import { useBeat } from './useBeat'
 import { BACKEND_BADGES } from './stageData'
@@ -33,7 +33,6 @@ const REQUEST_PATH = `M ${CLIENT.x + CLIENT.w} 128 H 134 V 88 H ${SERVER_X}`
 const RESPONSE_PATH = `M ${SERVER_X} ${DB.y + 34} H 166 V 124 H ${CLIENT.x + CLIENT.w}`
 
 export default function StageBackend({ progress, rgb, travelled, compact }: StageProps) {
-  const reduceMotion = useReducedMotion()
   const client = useBeat(progress, 0.06, 0.3)
   const stack = useBeat(progress, 0.18, 0.6)
   const wires = useBeat(progress, 0.4, 0.78)
@@ -42,6 +41,11 @@ export default function StageBackend({ progress, rgb, travelled, compact }: Stag
   const clientX = useTransform(client, [0, 1], [-40, 0])
   const stackX = useTransform(stack, [0, 1], [46, 0])
   const boundaryOpacity = useTransform(stack, [0, 1], [0, 1])
+
+  // The two packets travel as the wires draw rather than on a `repeat: Infinity`
+  // loop, so the stage is genuinely still once the reader stops scrolling.
+  const packetOut = useTransform(wires, [0, 1], [130, 84])
+  const packetIn = useTransform(wires, [0, 1], [244, 120])
 
   return (
     <StageCanvas rgb={rgb} travelled={travelled}>
@@ -160,29 +164,9 @@ export default function StageBackend({ progress, rgb, travelled, compact }: Stag
         style={{ pathLength: wires }}
       />
 
-      {/* Packets crossing the line, in both directions. */}
-      {!reduceMotion && (
-        <>
-          <motion.rect
-            x={131}
-            width={6}
-            height={6}
-            rx={1.5}
-            fill={`rgb(${rgb})`}
-            animate={{ y: [130, 84] }}
-            transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.rect
-            x={163}
-            width={6}
-            height={6}
-            rx={1.5}
-            fill={`rgba(${rgb},0.7)`}
-            animate={{ y: [244, 120] }}
-            transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut', delay: 1.3 }}
-          />
-        </>
-      )}
+      {/* Packets crossing the line, in both directions, as the wires draw. */}
+      <motion.rect x={131} width={6} height={6} rx={1.5} fill={`rgb(${rgb})`} style={{ y: packetOut }} />
+      <motion.rect x={163} width={6} height={6} rx={1.5} fill={`rgba(${rgb},0.7)`} style={{ y: packetIn }} />
 
       {/* ── Badges from the same year, kept outside the stack ───────── */}
       {!compact && (

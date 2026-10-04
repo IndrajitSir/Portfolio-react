@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useTransform } from 'framer-motion'
+import { motion, useTransform } from 'framer-motion'
 import { Label, StageCanvas, VB_H } from './stageKit'
 import { useBeat } from './useBeat'
 import { COMPETE_ENTRIES } from './stageData'
@@ -33,7 +33,6 @@ const CROWD = Array.from({ length: 19 }, (_, i) => {
 })
 
 export default function StageCompete({ progress, rgb, travelled }: StageProps) {
-  const reduceMotion = useReducedMotion()
   const beacons = useBeat(progress, 0.08, 0.34)
   const arc = useBeat(progress, 0.38, 0.72)
   const crowd = useBeat(progress, 0.18, 0.86)
@@ -41,6 +40,11 @@ export default function StageCompete({ progress, rgb, travelled }: StageProps) {
   // The crowd is revealed with a clip that widens left to right, so the room
   // fills as a single gesture rather than 19 separate animations.
   const crowdWidth = useTransform(crowd, [0, 1], [0, 336])
+
+  // The spotlight sways as the chapter is read instead of on a `repeat: Infinity`
+  // loop, which would otherwise keep the stage re-rasterising forever. Reduced
+  // motion pins `progress` at 1, so this simply settles.
+  const sway = useTransform(progress, (v) => Math.sin(v * Math.PI * 2) * 3.5)
 
   return (
     <StageCanvas rgb={rgb} travelled={travelled}>
@@ -54,18 +58,10 @@ export default function StageCompete({ progress, rgb, travelled }: StageProps) {
         </clipPath>
       </defs>
 
-      {/* Spotlight — a slow breath, the only ambient motion in the section. */}
-      {!reduceMotion ? (
-        <motion.g
-          animate={{ rotate: [-3.5, 3.5, -3.5] }}
-          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ transformOrigin: '180px 0px' }}
-        >
-          <Cone rgb={rgb} />
-        </motion.g>
-      ) : (
+      {/* Spotlight — it sways as the chapter is read, not on a timer. */}
+      <motion.g style={{ rotate: sway, transformOrigin: '180px 0px' }}>
         <Cone rgb={rgb} />
-      )}
+      </motion.g>
 
       {/* Stage floor */}
       <line x1={64} y1={FLOOR_Y} x2={296} y2={FLOOR_Y} stroke="var(--border)" strokeWidth={1} />

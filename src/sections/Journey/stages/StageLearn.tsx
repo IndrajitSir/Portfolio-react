@@ -136,6 +136,13 @@ export default function StageLearn({ progress, rgb, travelled }: StageProps) {
   const tx = useTransform(walk, (v) => pointAt(v).x)
   const ty = useTransform(walk, (v) => pointAt(v).y)
 
+  // The seed ring breathes with the reader's travel rather than on a timer. A
+  // perpetual `repeat: Infinity` loop keeps the compositor busy every frame of
+  // the section's life, even after the reader has stopped — driving the same
+  // swell from scroll keeps the picture alive but still when the page is still.
+  const breath = useTransform(walk, (v) => 1 + Math.sin(v * Math.PI * 3) * 0.22)
+  const breathOpacity = useTransform(walk, (v) => 0.16 + (Math.sin(v * Math.PI * 3) * 0.5 + 0.5) * 0.32)
+
   return (
     <StageCanvas rgb={rgb} travelled={travelled}>
       {LEGS.map((leg, i) => (
@@ -146,20 +153,16 @@ export default function StageLearn({ progress, rgb, travelled }: StageProps) {
         <Proof key={`proof${i}`} node={node} index={i} progress={progress} rgb={rgb} />
       ))}
 
-      {/* The seed itself, breathing very slowly. */}
-      {!reduceMotion && (
-        <motion.circle
-          cx={SEED.x}
-          cy={SEED.y}
-          r={16}
-          fill="none"
-          stroke={`rgba(${rgb},0.35)`}
-          strokeWidth={1}
-          animate={{ scale: [1, 1.35, 1], opacity: [0.5, 0.12, 0.5] }}
-          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ transformOrigin: `${SEED.x}px ${SEED.y}px` }}
-        />
-      )}
+      {/* The seed itself, breathing with the chapter as it is read. */}
+      <motion.circle
+        cx={SEED.x}
+        cy={SEED.y}
+        r={16}
+        fill="none"
+        stroke={`rgba(${rgb},0.35)`}
+        strokeWidth={1}
+        style={{ scale: breath, opacity: breathOpacity, transformOrigin: `${SEED.x}px ${SEED.y}px` }}
+      />
       <rect x={SEED.x - 6} y={SEED.y - 6} width={12} height={12} rx={2} fill={`rgb(${rgb})`} />
       <Label x={SEED.x} y={SEED.y + 26} anchor="middle" size={9} fill={`rgba(${rgb},0.9)`}>
         chapter I
