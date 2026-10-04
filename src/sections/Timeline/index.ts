@@ -1,1 +1,2 @@
-// Timeline logic lives within sections/Experience/TimelineItem.tsx
+// Timeline logic lives within src/sections/Experience/ — CareerRole and the
+// thread in Experience.tsx are the timeline now.
