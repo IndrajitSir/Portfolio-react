@@ -241,12 +241,12 @@ export default function SystemsConstellation() {
       {/* ── Header bar ─────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <span style={{ color: 'var(--accent-teal)' }} aria-hidden="true">
+          <span style={{ color: "var(--accent-teal)" }} aria-hidden="true">
             <FiCpu size={16} />
           </span>
           <span
             className="font-mono-code text-[0.66rem] font-medium uppercase tracking-widest"
-            style={{ color: 'var(--text-primary)' }}
+            style={{ color: "var(--text-primary)" }}
           >
             Cluster Topology
           </span>
@@ -257,15 +257,15 @@ export default function SystemsConstellation() {
             type="button"
             onClick={() => setFlowing((v) => !v)}
             aria-pressed={!flowing}
-            aria-label={flowing ? 'Pause traffic flow' : 'Resume traffic flow'}
-            title={flowing ? 'Pause traffic flow' : 'Resume traffic flow'}
+            aria-label={flowing ? "Pause traffic flow" : "Resume traffic flow"}
+            title={flowing ? "Pause traffic flow" : "Resume traffic flow"}
             className="flex h-7 w-7 items-center justify-center rounded border border-[var(--border)] text-[var(--text-muted)] transition-colors hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
           >
             {flowing ? <FiPause size={12} /> : <FiPlay size={12} />}
           </button>
           <span
             className="hidden rounded border border-[var(--border-glow)] bg-[var(--glow-teal)] px-2 py-0.5 font-mono-code text-[0.58rem] uppercase tracking-widest sm:inline-block"
-            style={{ color: 'var(--accent-teal)' }}
+            style={{ color: "var(--accent-teal)" }}
           >
             Live interactive
           </span>
@@ -286,7 +286,7 @@ export default function SystemsConstellation() {
             right margin in Hero — not this cap — drives the size increase. */}
         <motion.div
           className="relative mx-auto aspect-square w-full max-w-[420px]"
-          style={{ rotateX, rotateY, scale, transformStyle: 'preserve-3d' }}
+          style={{ rotateX, rotateY, scale, transformStyle: "preserve-3d" }}
         >
           {/* Depth glow behind the core */}
           <div
@@ -294,7 +294,7 @@ export default function SystemsConstellation() {
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                'radial-gradient(circle at 50% 50%, var(--glow-teal), transparent 62%)',
+                "radial-gradient(circle at 50% 50%, var(--glow-teal), transparent 62%)",
             }}
           />
 
@@ -305,36 +305,46 @@ export default function SystemsConstellation() {
             fill="none"
             aria-hidden="true"
           >
-            <circle cx="200" cy="200" r="150" stroke="var(--border)" strokeDasharray="3 6" />
+            <circle
+              cx="200"
+              cy="200"
+              r="150"
+              stroke="var(--border)"
+              strokeDasharray="3 6"
+            />
             <circle cx="200" cy="200" r="86" stroke="var(--border)" />
 
             {MODULES.map((m) => {
-              const isActive = activeId === m.id
-              const isRelated = !related || related.has(m.id)
+              const isActive = activeId === m.id;
+              const isRelated = !related || related.has(m.id);
               return (
-                <g key={m.id} opacity={isRelated ? 1 : 0.28} style={{ transition: 'opacity 0.25s ease' }}>
+                <g
+                  key={m.id}
+                  opacity={isRelated ? 1 : 0.28}
+                  style={{ transition: "opacity 0.25s ease" }}
+                >
                   <line
                     x1={CORE.x}
                     y1={CORE.y}
                     x2={m.x}
                     y2={m.y}
-                    stroke={isActive ? m.accent : 'var(--border-glow)'}
+                    stroke={isActive ? m.accent : "var(--border-glow)"}
                     strokeWidth={isActive ? 2 : 1.2}
                     strokeDasharray="4 4"
                     strokeLinecap="round"
-                    className={isActive && flowing ? 'beam-flow' : undefined}
-                    style={{ transition: 'stroke-width 0.2s ease' }}
+                    className={isActive && flowing ? "beam-flow" : undefined}
+                    style={{ transition: "stroke-width 0.2s ease" }}
                   />
                   {/* Endpoint node at the module end of the beam */}
                   <circle
                     cx={m.x}
                     cy={m.y}
                     r={isActive ? 3 : 2}
-                    fill={isActive ? m.accent : 'var(--text-muted)'}
+                    fill={isActive ? m.accent : "var(--text-muted)"}
                     opacity={isActive ? 0.9 : 0.5}
                   />
                 </g>
-              )
+              );
             })}
 
             {/* Outward request packets — one per edge, evenly staggered */}
@@ -355,7 +365,7 @@ export default function SystemsConstellation() {
                     duration: 1.7,
                     repeat: Infinity,
                     repeatDelay: 2 + i * 0.25,
-                    ease: 'easeInOut',
+                    ease: "easeInOut",
                     delay: i * 0.55,
                   }}
                 />
@@ -373,7 +383,12 @@ export default function SystemsConstellation() {
                   cy: [activeModule.y, CORE.y],
                   opacity: [0, 0.8, 0.8, 0],
                 }}
-                transition={{ duration: 1.3, repeat: Infinity, repeatDelay: 1.1, ease: 'easeInOut' }}
+                transition={{
+                  duration: 1.3,
+                  repeat: Infinity,
+                  repeatDelay: 1.1,
+                  ease: "easeInOut",
+                }}
               />
             )}
           </svg>
@@ -389,12 +404,16 @@ export default function SystemsConstellation() {
                   key={k}
                   aria-hidden="true"
                   className="absolute rounded-full border"
-                  style={{ borderColor: 'var(--accent-teal)', width: 88, height: 88 }}
+                  style={{
+                    borderColor: "var(--accent-teal)",
+                    width: 88,
+                    height: 88,
+                  }}
                   animate={{ scale: [0.92, 1.95], opacity: [0.34, 0] }}
                   transition={{
                     duration: 3.6,
                     repeat: Infinity,
-                    ease: 'easeOut',
+                    ease: "easeOut",
                     delay: k * 1.8,
                     repeatDelay: 0.5,
                   }}
@@ -403,17 +422,21 @@ export default function SystemsConstellation() {
             <motion.div
               className="flex h-20 w-20 flex-col items-center justify-center rounded-full border text-center shadow-[0_0_30px_var(--glow-teal)]"
               style={{
-                borderColor: 'var(--border-glow)',
+                borderColor: "var(--border-glow)",
                 background:
-                  'radial-gradient(circle at 30% 25%, var(--bg-tertiary), var(--bg-primary))',
+                  "radial-gradient(circle at 30% 25%, var(--bg-tertiary), var(--bg-primary))",
               }}
               animate={reduceMotion ? undefined : { scale: [1, 1.04, 1] }}
-              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <FiCpu size={22} style={{ color: 'var(--accent-teal)' }} aria-hidden="true" />
+              <FiCpu
+                size={22}
+                style={{ color: "var(--accent-teal)" }}
+                aria-hidden="true"
+              />
               <span
                 className="mt-1 font-mono-code text-[0.5rem] font-semibold uppercase tracking-tight"
-                style={{ color: 'var(--accent-teal)' }}
+                style={{ color: "var(--accent-teal)" }}
               >
                 Core
               </span>
@@ -422,76 +445,107 @@ export default function SystemsConstellation() {
 
           {/* Orbiting module nodes */}
           {MODULES.map((m, i) => {
-            const Icon = m.icon
-            const isActive = activeId === m.id
-            const isPinned = pinned === m.id
-            const dimmed = !!related && !related.has(m.id)
-            const nodeScale = 0.94 + m.depth * 0.1
+            const Icon = m.icon;
+            const isActive = activeId === m.id;
+            const isPinned = pinned === m.id;
+            const dimmed = !!related && !related.has(m.id);
+            const nodeScale = 0.94 + m.depth * 0.1;
 
             return (
-              <motion.button
+              // Plain div: owns position + centering (44px box, so -22px margins).
+              // No transform here, so nothing can overwrite it.
+              <div
                 key={m.id}
-                type="button"
-                onClick={() => setPinned((prev) => (prev === m.id ? null : m.id))}
-                onMouseEnter={() => setHovered(m.id)}
-                onMouseLeave={() => setHovered((h) => (h === m.id ? null : h))}
-                onFocus={() => setHovered(m.id)}
-                onBlur={() => setHovered((h) => (h === m.id ? null : h))}
-                aria-label={`${m.name} — ${m.role}. ${m.metric}. ${
-                  isPinned ? 'Selected' : 'Select for details'
-                }`}
-                aria-pressed={isPinned}
-                animate={
-                  reduceMotion
-                    ? { scale: nodeScale, opacity: dimmed ? 0.4 : 1 }
-                    : {
-                        y: [0, -6, 0],
-                        scale: nodeScale,
-                        opacity: dimmed ? 0.4 : 1,
-                      }
-                }
-                transition={
-                  reduceMotion
-                    ? { duration: 0.25 }
-                    : {
-                        y: { duration: 4.5 + i * 0.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.35 },
-                        opacity: { duration: 0.25 },
-                        scale: { duration: 0.3 },
-                      }
-                }
-                className="group absolute z-30 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 outline-offset-4"
-                style={{ left: pct(m.x), top: pct(m.y) }}
+                className="absolute z-30"
+                style={{
+                  left: pct(m.x),
+                  top: pct(m.y),
+                  width: 44,
+                  height: 44,
+                  marginLeft: -22,
+                  marginTop: -22,
+                }}
               >
-                <span
-                  className="relative flex h-11 w-11 items-center justify-center rounded-lg border transition-colors duration-200"
-                  style={{
-                    borderColor: isActive ? m.accent : 'var(--border)',
-                    background: isActive ? 'var(--glow-teal)' : 'var(--bg-secondary)',
-                    color: isActive ? m.accent : 'var(--text-secondary)',
-                    boxShadow: isActive ? `0 0 18px ${m.accent}` : 'none',
-                  }}
+                <motion.button
+                  type="button"
+                  onClick={() =>
+                    setPinned((prev) => (prev === m.id ? null : m.id))
+                  }
+                  onMouseEnter={() => setHovered(m.id)}
+                  onMouseLeave={() =>
+                    setHovered((h) => (h === m.id ? null : h))
+                  }
+                  onFocus={() => setHovered(m.id)}
+                  onBlur={() => setHovered((h) => (h === m.id ? null : h))}
+                  aria-label={`${m.name} — ${m.role}. ${m.metric}. ${
+                    isPinned ? "Selected" : "Select for details"
+                  }`}
+                  aria-pressed={isPinned}
+                  animate={
+                    reduceMotion
+                      ? { scale: nodeScale, opacity: dimmed ? 0.4 : 1 }
+                      : {
+                          y: [0, -6, 0],
+                          scale: nodeScale,
+                          opacity: dimmed ? 0.4 : 1,
+                        }
+                  }
+                  transition={
+                    reduceMotion
+                      ? { duration: 0.25 }
+                      : {
+                          y: {
+                            duration: 4.5 + i * 0.5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: i * 0.35,
+                          },
+                          opacity: { duration: 0.25 },
+                          scale: { duration: 0.3 },
+                        }
+                  }
+                  className="group relative block h-full w-full outline-offset-4"
                 >
-                  {/* One-shot scan ring on activation */}
-                  {isActive && !reduceMotion && (
-                    <motion.span
-                      aria-hidden="true"
-                      className="absolute inset-0 rounded-lg"
-                      style={{ border: `1px solid ${m.accent}` }}
-                      initial={{ scale: 0.9, opacity: 0.7 }}
-                      animate={{ scale: 2, opacity: 0 }}
-                      transition={{ duration: 1.1, ease: 'easeOut' }}
-                    />
-                  )}
-                  <Icon size={19} />
-                </span>
-                <span
-                  className="whitespace-nowrap font-mono-code text-[0.58rem] font-medium uppercase tracking-tight transition-colors duration-200"
-                  style={{ color: isActive ? 'var(--accent-teal)' : 'var(--text-muted)' }}
-                >
-                  {m.short}
-                </span>
-              </motion.button>
-            )
+                  <span
+                    className="relative flex h-full w-full items-center justify-center rounded-lg border transition-colors duration-200"
+                    style={{
+                      borderColor: isActive ? m.accent : "var(--border)",
+                      background: isActive
+                        ? "var(--glow-teal)"
+                        : "var(--bg-secondary)",
+                      color: isActive ? m.accent : "var(--text-secondary)",
+                      boxShadow: isActive ? `0 0 18px ${m.accent}` : "none",
+                    }}
+                  >
+                    {/* One-shot scan ring on activation */}
+                    {isActive && !reduceMotion && (
+                      <motion.span
+                        aria-hidden="true"
+                        className="absolute inset-0 rounded-lg"
+                        style={{ border: `1px solid ${m.accent}` }}
+                        initial={{ scale: 0.9, opacity: 0.7 }}
+                        animate={{ scale: 2, opacity: 0 }}
+                        transition={{ duration: 1.1, ease: "easeOut" }}
+                      />
+                    )}
+                    <Icon size={19} />
+                  </span>
+
+                  {/* Label hangs below the box, out of the layout flow, so the
+            square alone defines the node's centre */}
+                  <span
+                    className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap font-mono-code text-[0.58rem] font-medium uppercase tracking-tight transition-colors duration-200"
+                    style={{
+                      color: isActive
+                        ? "var(--accent-teal)"
+                        : "var(--text-muted)",
+                    }}
+                  >
+                    {m.short}
+                  </span>
+                </motion.button>
+              </div>
+            );
           })}
         </motion.div>
       </div>
@@ -501,14 +555,16 @@ export default function SystemsConstellation() {
         <div
           role="status"
           className="flex items-center gap-3 rounded-xl border bg-[var(--bg-primary)] px-3 py-3 backdrop-blur transition-colors duration-300"
-          style={{ borderColor: activeId ? 'var(--border-glow)' : 'var(--border)' }}
+          style={{
+            borderColor: activeId ? "var(--border-glow)" : "var(--border)",
+          }}
         >
           <span
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border"
             style={{
-              borderColor: 'var(--border-glow)',
-              background: 'var(--glow-teal)',
-              color: 'var(--accent-teal)',
+              borderColor: "var(--border-glow)",
+              background: "var(--glow-teal)",
+              color: "var(--accent-teal)",
             }}
             aria-hidden="true"
           >
@@ -517,22 +573,28 @@ export default function SystemsConstellation() {
           <div className="min-w-0 flex-1">
             <p
               className="truncate font-mono-code text-[0.7rem] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--text-primary)' }}
+              style={{ color: "var(--text-primary)" }}
             >
               {info.name}
             </p>
-            <p className="truncate text-[0.72rem]" style={{ color: 'var(--text-secondary)' }}>
+            <p
+              className="truncate text-[0.72rem]"
+              style={{ color: "var(--text-secondary)" }}
+            >
               {info.role}
             </p>
           </div>
           <div className="shrink-0 text-right">
             <p
               className="font-mono-code text-[0.72rem] font-semibold"
-              style={{ color: 'var(--accent-teal)' }}
+              style={{ color: "var(--accent-teal)" }}
             >
               {info.metric}
             </p>
-            <p className="font-mono-code text-[0.56rem] uppercase" style={{ color: 'var(--text-muted)' }}>
+            <p
+              className="font-mono-code text-[0.56rem] uppercase"
+              style={{ color: "var(--text-muted)" }}
+            >
               {info.spec}
             </p>
           </div>
@@ -554,9 +616,12 @@ export default function SystemsConstellation() {
             <motion.div
               key="details"
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.4, 0, 0.2, 1] }}
+              transition={{
+                duration: reduceMotion ? 0 : 0.3,
+                ease: [0.4, 0, 0.2, 1],
+              }}
               className="overflow-hidden"
             >
               <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-3">
@@ -565,13 +630,13 @@ export default function SystemsConstellation() {
                     <div key={fact.label}>
                       <dt
                         className="font-mono-code text-[0.55rem] uppercase tracking-widest"
-                        style={{ color: 'var(--text-muted)' }}
+                        style={{ color: "var(--text-muted)" }}
                       >
                         {fact.label}
                       </dt>
                       <dd
                         className="mt-0.5 font-mono-code text-[0.68rem]"
-                        style={{ color: 'var(--text-primary)' }}
+                        style={{ color: "var(--text-primary)" }}
                       >
                         {fact.value}
                       </dd>
@@ -583,7 +648,7 @@ export default function SystemsConstellation() {
                   <div className="mt-3 border-t border-[var(--border)] pt-2.5">
                     <p
                       className="font-mono-code text-[0.55rem] uppercase tracking-widest"
-                      style={{ color: 'var(--text-muted)' }}
+                      style={{ color: "var(--text-muted)" }}
                     >
                       Connects to
                     </p>
@@ -594,7 +659,7 @@ export default function SystemsConstellation() {
                           type="button"
                           onClick={() => setPinned(n.id)}
                           className="rounded border border-[var(--border)] px-2 py-0.5 font-mono-code text-[0.6rem] uppercase tracking-tight transition-colors hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
-                          style={{ color: 'var(--text-secondary)' }}
+                          style={{ color: "var(--text-secondary)" }}
                         >
                           {n.short}
                         </button>
@@ -609,11 +674,13 @@ export default function SystemsConstellation() {
 
         <p
           className="mt-2 text-center font-mono-code text-[0.6rem] uppercase tracking-widest"
-          style={{ color: 'var(--text-muted)' }}
+          style={{ color: "var(--text-muted)" }}
         >
-          {pinsOpen ? 'Pinned — press Esc or the ✕ to release' : 'Hover or tap a node to inspect'}
+          {pinsOpen
+            ? "Pinned — press Esc or the ✕ to release"
+            : "Hover or tap a node to inspect"}
         </p>
       </div>
     </div>
-  )
+  );
 }
