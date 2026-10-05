@@ -111,14 +111,14 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:h-[400px] lg:min-h-0">
         {/* ── The archive ──────────────────────────────────────────── */}
         <div
           role="listbox"
           aria-label="Credentials"
           aria-orientation="vertical"
           onKeyDown={onKeyDown}
-          className="flex max-h-[560px] flex-col gap-2.5 overflow-y-auto pr-1"
+          className="flex max-h-[400px] flex-col gap-2.5 overflow-y-auto pr-1"
         >
           <AnimatePresence initial={false} mode="popLayout">
             {visible.map((cert, i) => (
@@ -146,7 +146,7 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
 
         {/* ── Detail ───────────────────────────────────────────────── */}
         {active && (
-          <div className="lg:sticky lg:top-28 lg:self-start">
+          <div className="mt-5 min-h-0 min-w-0 lg:sticky lg:top-28 lg:mt-0 lg:h-full lg:self-stretch">
             <AnimatePresence mode="wait">
               <motion.div
                 key={active.id}
@@ -157,7 +157,7 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
                 id="credential-detail"
                 role="tabpanel"
                 aria-label={`${active.title} details`}
-                className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 backdrop-blur-md outline-offset-4 sm:p-8"
+                className="relative h-full min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 backdrop-blur-md outline-offset-4 sm:p-8"
               >
                 <div
                   aria-hidden="true"
@@ -445,4 +445,4 @@ function CredentialRow({
       )}
     </motion.button>
   )
-}
+}
