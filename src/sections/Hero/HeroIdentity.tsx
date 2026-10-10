@@ -208,7 +208,7 @@ export default function HeroIdentity() {
           className="font-mono-code text-[0.62rem] uppercase tracking-[0.22em]"
           style={{ color: 'var(--text-muted)' }}
         >
-          Systems Architecture / Dossier
+          Systems Architecture / Backend Engineering
         </motion.span>
 
         <h1
