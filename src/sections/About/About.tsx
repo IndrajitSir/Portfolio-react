@@ -4,7 +4,7 @@ import { FiMail, FiMapPin } from 'react-icons/fi'
 import { personalInfo, languages, journeyChapters } from '@/data'
 import { staggerContainer, fadeInUp, withDelay } from '@/utils/animations'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
-import { SectionLabel, GlowCard, SectionBackground, MindsetTrace } from '@/components/ui'
+import { SectionLabel, GlowCard, SectionBackground, MindsetTrace, TerminalGoo } from '@/components/ui'
 import AboutDepth from './AboutDepth'
 import RevealWords from './RevealWords'
 
@@ -112,6 +112,7 @@ export default function About() {
                     {personalInfo.location}
                   </p>
                 </div>
+                <TerminalGoo />
               </motion.div>
 
               {/* ── The biography, revealed word by word ─────────────── */}

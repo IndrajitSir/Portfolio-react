@@ -982,3 +982,39 @@ body {
     transform: none !important;
   }
 }
+
+.tg-level  { animation: tg-fill 6s ease-in-out infinite; }
+.tg-wave   { animation: tg-slide 1.8s linear infinite; }
+.tg-drip   { transform-origin: 50% 0; animation: tg-drip 6s ease-in infinite; }
+.tg-icon   { animation: tg-icon 6s ease-in-out infinite; }
+
+/* Rises past the top edge (overfills), holds, then drains */
+@keyframes tg-fill {
+  0%   { transform: translateY(108%); }
+  35%  { transform: translateY(-10%); }
+  78%  { transform: translateY(-10%); }
+  100% { transform: translateY(108%); }
+}
+@keyframes tg-slide {
+  to { transform: translateX(-50%); }
+}
+/* Bulge at the bottom edge, stretch into a teardrop, pinch off, vanish */
+@keyframes tg-drip {
+  0%, 36%  { transform: translateY(-6px) scale(0); }
+  46%      { transform: translateY(2px)  scale(1, 1.1); }
+  66%      { transform: translateY(22px) scale(0.9, 1.7); }
+  82%      { transform: translateY(40px) scale(0.6, 1.2); }
+  90%,100% { transform: translateY(52px) scale(0); }
+}
+@keyframes tg-icon {
+  0%, 20%  { color: var(--accent-teal); }
+  38%, 76% { color: var(--bg-primary); }
+  92%,100% { color: var(--accent-teal); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-level, .tg-wave, .tg-drip, .tg-icon { animation: none; }
+  .tg-level { transform: translateY(108%); }
+  .tg-drip  { transform: scale(0); }
+  .tg-icon  { color: var(--accent-teal); }
+}
