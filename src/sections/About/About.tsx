@@ -7,7 +7,7 @@ import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
 import { SectionLabel, GlowCard, SectionBackground, MindsetTrace } from '@/components/ui'
 import AboutDepth from './AboutDepth'
 import RevealWords from './RevealWords'
-import TerminalLauncher from '@/components/terminal/terminalLauncher'
+import TerminalLauncher from '@/components/terminal/TerminalLauncher'
 
 // The three facts that used to sit in the static shell block, kept as a compact
 // readout beside the mindset trace so no content is lost.

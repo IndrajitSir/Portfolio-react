@@ -6,9 +6,9 @@ import { personalInfo } from '@/data/personal'
 import { useTheme } from '@/hooks/useTheme'
 import { useActiveSection } from '@/hooks/useActiveSection'
 import { useRoute, useSectionNavigation, SIDE_MISSIONS_ROUTE, HOME_ROUTE } from '@/context/route'
-// import MagneticButton from '@/components/ui/MagneticButton'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD, SPRING_LAYOUT } from '@/utils/motion'
-import HireMeButton from '../ui/hireMeButton'
+import HireMeButton from '../ui/HireMeButton'
+import ResumeButton from '../ui/ResumeButton'
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme()
@@ -184,24 +184,7 @@ export default function Navbar() {
           {/* Resume — the one control a recruiter reaches for immediately. It
               waits for the widest breakpoint the rail can still clear; below
               that the hero, the drawer and Contact all carry their own copy. */}
-          {personalInfo.resumeUrl && (
-            <a
-              href={personalInfo.resumeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                hidden 2xl:inline-flex items-center gap-1.5 px-3.5 py-1.5
-                rounded-full border border-[var(--border)] bg-[var(--surface)]
-                font-mono-code text-[0.68rem] uppercase tracking-wider
-                text-[var(--text-secondary)]
-                hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]
-                transition-all duration-200
-              "
-            >
-              <FiDownload size={12} aria-hidden="true" />
-              Resume
-            </a>
-          )}
+          {personalInfo.resumeUrl && <ResumeButton href={personalInfo.resumeUrl} />}
 
           {/* Theme toggle */}
           <button
@@ -231,23 +214,6 @@ export default function Navbar() {
           </button>
 
           {/* Hire Me CTA — desktop only, magnetic */}
-          {/* <div className="hidden lg:block">
-            <MagneticButton
-              href="#contact"
-              strength={0.18}
-              onClick={(e) => { e?.preventDefault(); goToSection('contact') }}
-              className="
-                inline-flex items-center gap-2
-                px-4 py-1.5 rounded-full border border-[var(--accent-teal)]
-                text-[var(--accent-teal)] text-[0.72rem] font-semibold tracking-wide
-                hover:bg-[var(--accent-teal)] hover:text-[var(--bg-primary)]
-                transition-all duration-200
-                2xl:px-5 2xl:py-2 2xl:text-[0.8rem]
-              "
-            >
-              Hire Me
-            </MagneticButton>
-          </div> */}
           <HireMeButton onClick={(e) => { e?.preventDefault(); goToSection('contact') }} />
           {/* Hamburger — mobile only */}
           <button

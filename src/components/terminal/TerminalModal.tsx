@@ -5,7 +5,7 @@ import {
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { FiX } from 'react-icons/fi';
-import { ACCENT, MUTED, commandNames, execute, FILE_NAMES, type CommandContext } from './commands';
+import { ACCENT, MUTED, commandNames, execute, FILE_NAMES, type CommandContext } from './Commands';
 import { terminalData as d } from '../../data/terminal';
 
 interface Entry { id: number; cmd: string | null; out: ReactNode }

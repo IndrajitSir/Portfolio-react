@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import TerminalGoo from '../ui/TerminalGoo';
 
-const loadModal = () => import('./terminalModal');
+const loadModal = () => import('./TerminalModal');
 const TerminalModal = lazy(loadModal);
 
 export default function TerminalLauncher() {

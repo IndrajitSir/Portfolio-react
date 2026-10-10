@@ -1083,3 +1083,77 @@ body {
   .hb-fill, .hb-wipe, .hb-unwipe { transition: none; }
   .hb-drop, .hb-crest > span { animation: none !important; }
 }
+
+/* Feather icons are drawn on a 24-unit grid, so 1px here is half a screen pixel */
+.rs-dl * { transform-box: fill-box; transform-origin: center; }
+.rs-dl { transition: transform 0.28s cubic-bezier(0.5, -0.4, 0.4, 1.4), opacity 0.2s ease; }
+
+/* HOVER / FOCUS: the arrow dips into the tray, which squashes to catch it */
+.rs-btn[data-state='idle']:hover .rs-dl polyline,
+.rs-btn[data-state='idle']:hover .rs-dl line,
+.rs-btn[data-state='idle']:focus-visible .rs-dl polyline,
+.rs-btn[data-state='idle']:focus-visible .rs-dl line {
+  animation: rs-dip 1.1s ease-in-out infinite;
+}
+.rs-btn[data-state='idle']:hover .rs-dl path,
+.rs-btn[data-state='idle']:focus-visible .rs-dl path {
+  animation: rs-tray 1.1s ease-in-out infinite;
+}
+@keyframes rs-dip {
+  0%, 100% { transform: translateY(0); }
+  35%, 50% { transform: translateY(4px); }
+  70%      { transform: translateY(-1.5px); }
+}
+@keyframes rs-tray {
+  0%, 100% { transform: scale(1, 1); }
+  35%, 50% { transform: scale(1.07, 0.86); }
+  70%      { transform: scale(1, 1); }
+}
+
+/* PRESS: the arrow is slammed into the tray */
+.rs-btn[data-state='idle']:active .rs-dl polyline,
+.rs-btn[data-state='idle']:active .rs-dl line {
+  animation: none;
+  transform: translateY(5px);
+}
+
+/* CLICK: the download glyph shrinks away, a checkmark draws in, a ring bursts out */
+.rs-btn[data-state='done'] .rs-dl {
+  transform: scale(0.3) rotate(-25deg);
+  opacity: 0;
+}
+
+.rs-check {
+  position: absolute;
+  inset: 0;
+  color: var(--accent-teal);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1), opacity 0.15s ease;
+}
+.rs-check polyline { stroke-dasharray: 24; stroke-dashoffset: 24; }
+.rs-btn[data-state='done'] .rs-check { opacity: 1; transform: scale(1); }
+.rs-btn[data-state='done'] .rs-check polyline {
+  animation: rs-draw 0.35s 0.1s ease-out forwards;
+}
+@keyframes rs-draw { to { stroke-dashoffset: 0; } }
+
+.rs-burst {
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--accent-teal);
+  opacity: 0;
+  pointer-events: none;
+}
+.rs-btn[data-state='done'] .rs-burst { animation: rs-burst 0.6s ease-out; }
+@keyframes rs-burst {
+  from { transform: scale(0.4); opacity: 0.8; }
+  to   { transform: scale(2.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-dl, .rs-check { transition: none; }
+  .rs-btn .rs-dl *, .rs-btn .rs-burst, .rs-btn .rs-check polyline { animation: none !important; }
+  .rs-btn[data-state='done'] .rs-check polyline { stroke-dashoffset: 0; }
+}
