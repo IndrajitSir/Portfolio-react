@@ -32,7 +32,7 @@ const METRICS: Metric[] = [
   {
     value: 150,
     suffix: '+',
-    label: 'Database Models Analysed',
+    label: 'DB Models Indexed',
     detail: 'Reviewed at Distronix to find and fix the indexing strategy.',
   },
   {

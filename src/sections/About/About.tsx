@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { FiMail, FiMapPin } from 'react-icons/fi'
+import { FiMail, FiMapPin, FiGithub, FiLinkedin } from 'react-icons/fi'
 import { personalInfo, languages, journeyChapters } from '@/data'
 import { staggerContainer, fadeInUp, withDelay } from '@/utils/animations'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
@@ -34,11 +34,13 @@ const ARC = [
   { label: 'Open source on npm', href: '#chapter-publish' },
 ]
 
+
 const contactLinks = [
-  { icon: <FiMail size={15} />, label: personalInfo.email, href: `mailto:${personalInfo.email}`, wide: true },
-  { icon: <span className="font-bold text-xs">&lt;&gt;</span>, label: 'GitHub', href: personalInfo.github },
-  { icon: <span className="font-bold text-xs">⌘</span>, label: 'LinkedIn', href: personalInfo.linkedin ?? '#' },
+  { icon: <FiGithub size={15} />,   label: 'GitHub',   sub: 'IndrajitSir',        href: personalInfo.github },
+  { icon: <FiLinkedin size={15} />, label: 'LinkedIn', sub: 'indrajit-mandal',    href: personalInfo.linkedin ?? '#' },
+  { icon: <FiMail size={15} />,     label: 'Gmail',    sub: 'indrajitmandal779',  href: `mailto:${personalInfo.email}` },
 ]
+
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -206,24 +208,34 @@ export default function About() {
                 </dl>
               </motion.div>
 
-              <motion.div variants={fadeInUp} className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <motion.div variants={fadeInUp} className="mt-4 flex flex-wrap gap-2">
                 {contactLinks.map((link, i) => (
                   <motion.a
                     key={link.label}
                     variants={withDelay(fadeInUp, 0.45 + i * 0.07)}
                     href={link.href}
-                    target={link.label === 'GitHub' || link.label === 'LinkedIn' ? '_blank' : undefined}
-                    rel={link.label === 'GitHub' || link.label === 'LinkedIn' ? 'noopener noreferrer' : undefined}
+                    target={link.label !== 'Gmail' ? '_blank' : undefined}
+                    rel={link.label !== 'Gmail' ? 'noopener noreferrer' : undefined}
                     whileHover={reduceMotion ? undefined : { y: -2 }}
                     transition={{ duration: DURATION.micro, ease: EASE_OUT_EXPO }}
-                    className={`${link.wide ? 'sm:col-span-2' : ''} flex items-center gap-3 rounded-xl border border-[var(--border)] px-3 py-3 font-mono-code text-xs transition-colors hover:border-[var(--accent-teal)]`}
+                    className="flex flex-1 min-w-[120px] items-center gap-2.5 rounded-xl border border-[var(--border)] px-3 py-2.5 font-mono-code transition-colors duration-200 hover:border-[var(--accent-teal)]"
                     style={{ background: 'var(--surface)', color: 'var(--text-primary)' }}
                   >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: 'var(--glow-teal)', color: 'var(--accent-teal)' }}>
+                    <span
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                      style={{ background: 'var(--glow-teal)', color: 'var(--accent-teal)' }}
+                    >
                       {link.icon}
                     </span>
-                    <span className="truncate">{link.label}</span>
-                    <span className="ml-auto" style={{ color: 'var(--text-muted)' }}>→</span>
+                    <span className="flex min-w-0 flex-col">
+                      <span className="text-[0.72rem] font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
+                        {link.label}
+                      </span>
+                      <span className="truncate text-[0.6rem] leading-tight" style={{ color: 'var(--text-muted)' }}>
+                        {link.sub}
+                      </span>
+                    </span>
+                    <span className="ml-auto shrink-0 text-[0.65rem]" style={{ color: 'var(--text-muted)' }}>↗</span>
                   </motion.a>
                 ))}
               </motion.div>

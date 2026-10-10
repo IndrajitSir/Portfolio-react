@@ -210,11 +210,11 @@ export default function Hero() {
 
             {/* ── Integrated engineering metrics ───────────────── */}
             <motion.div
-              initial={reduceMotion ? undefined : { opacity: 0, y: 24 }}
+              initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.7, ease: EASE }}
-              className="mt-10"
+              transition={{ duration: 0.65, ease: EASE }}
+              className="mt-8 space-y-2"
             >
               <AnimatedMetrics />
             </motion.div>
