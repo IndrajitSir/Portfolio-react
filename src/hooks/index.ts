@@ -1,6 +1,7 @@
 export { useScrollReveal } from './useScrollReveal'
 export { useActiveSection } from './useActiveSection'
 export { useCompanionState } from './useCompanion'
+export { useStrobiPlayback, type StrobiController } from './useStrobiPlayback'
 export { useMouse, useElementMouse } from './useMouse'
 export { useLenis } from './useLenis'
 export { useTheme } from './useTheme'

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiSend, FiCheck, FiBriefcase, FiCode, FiMessageCircle } from 'react-icons/fi'
+import { FiSend, FiCheck, FiBriefcase, FiCode, FiMessageCircle, FiAlertCircle } from 'react-icons/fi'
 import { personalInfo } from '@/data'
+import { notifyCompanionCue } from '@/utils/companionCues'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD } from '@/utils/motion'
 
 interface FormState {
@@ -44,6 +45,13 @@ const INTENTS = [
 
 type IntentId = (typeof INTENTS)[number]['id']
 
+/**
+ * Deliberately loose — a shape check, not a claim about deliverability. The form is
+ * `noValidate`, so the browser's own validation never runs, and this is what keeps a
+ * typo'd address from being the only failure mode with no feedback at all.
+ */
+const EMAIL_PATTERN = /^\S+@\S+\.\S+$/
+
 export default function ContactForm() {
   const [form, setForm]     = useState<FormState>({ name: '', email: '', message: '' })
   const [status, setStatus] = useState<Status>('idle')
@@ -51,6 +59,9 @@ export default function ContactForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+    // The error is Strobi's cue as much as the button's label, so it should end the
+    // moment the visitor starts fixing what was wrong.
+    setStatus((prev) => (prev === 'error' ? 'idle' : prev))
   }
 
   const chooseIntent = (id: IntentId) => {
@@ -63,7 +74,16 @@ export default function ContactForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name || !form.email || !form.message) return
+
+    const missing = !form.name.trim() || !form.email.trim() || !form.message.trim()
+    if (missing || !EMAIL_PATTERN.test(form.email.trim())) {
+      // There is no server behind this form, so an incomplete message is the one
+      // error it can actually hit — worth saying out loud rather than returning
+      // silently, and worth a face: the companion hears about it through the cue.
+      setStatus('error')
+      notifyCompanionCue('confused')
+      return
+    }
 
     setStatus('sending')
 
@@ -79,6 +99,7 @@ export default function ContactForm() {
     setTimeout(() => {
       window.location.href = `mailto:${personalInfo.email}?subject=${subject}&body=${body}`
       setStatus('sent')
+      notifyCompanionCue('celebrate')
     }, 600)
   }
 
@@ -220,6 +241,18 @@ export default function ContactForm() {
             ) : status === 'sending' ? (
               <motion.span key="sending" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 Opening…
+              </motion.span>
+            ) : status === 'error' ? (
+              // The same slot the label already occupies, so reporting a problem
+              // costs no layout and pushes nothing down the page.
+              <motion.span
+                key="error"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: DURATION.quick, ease: EASE_STANDARD }}
+                className="flex items-center gap-2"
+              >
+                <FiAlertCircle size={16} /> Add a name, a valid email and a message
               </motion.span>
             ) : (
               <motion.span

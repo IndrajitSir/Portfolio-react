@@ -1,5 +1,7 @@
 // ─── Resume / Data Types ────────────────────────────────────────────────────
 
+export * from './avatar'
+
 export interface PersonalInfo {
   name: string
   title: string
