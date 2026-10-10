@@ -8,6 +8,7 @@ import {
   type SkillDomain,
 } from '@/components/ui'
 import { skillCategories } from '@/data'
+import { Parallax } from '@/components/animations'
 import { DURATION, EASE_OUT_EXPO, REVEAL_VIEWPORT } from '@/utils/motion'
 
 /**
@@ -74,14 +75,16 @@ export default function Skills() {
         <SectionLabel index="03" label="Expertise" title="The engineering" titleAccent="toolkit" />
 
         {/* ── Capability map: domains, connections, evidence ─────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={REVEAL_VIEWPORT}
-          transition={{ duration: DURATION.reveal, ease: EASE_OUT_EXPO }}
-        >
-          <SkillConstellation domains={domains} />
-        </motion.div>
+        <Parallax distance={16}>
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={REVEAL_VIEWPORT}
+            transition={{ duration: DURATION.reveal, ease: EASE_OUT_EXPO }}
+          >
+            <SkillConstellation domains={domains} />
+          </motion.div>
+        </Parallax>
 
         {/* ── Full toolkit, grouped and scannable ────────────────── */}
         <motion.div

@@ -1,4 +1,5 @@
 export { useScrollReveal } from './useScrollReveal'
+export { useActiveSection } from './useActiveSection'
 export { useMouse, useElementMouse } from './useMouse'
 export { useLenis } from './useLenis'
 export { useTheme } from './useTheme'

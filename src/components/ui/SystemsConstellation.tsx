@@ -179,7 +179,18 @@ const CORE_INFO = {
 
 const pct = (v: number) => `${(v / 400) * 100}%`
 
-export default function SystemsConstellation() {
+interface SystemsConstellationProps {
+  /**
+   * Reports which node the reader is currently inspecting (hovered or pinned),
+   * or null when none. The companion above the panel reads this so Strobi
+   * traces the cluster the moment the reader does.
+   */
+  onActiveChange?: (id: string | null) => void
+}
+
+export default function SystemsConstellation({
+  onActiveChange,
+}: SystemsConstellationProps) {
   const reduceMotion = useReducedMotion()
   const [hovered, setHovered] = useState<string | null>(null)
   const [pinned, setPinned] = useState<string | null>(null)
@@ -194,6 +205,13 @@ export default function SystemsConstellation() {
 
   const activeId = pinned ?? hovered
   const activeModule = MODULES.find((m) => m.id === activeId)
+
+  // Strobi follows this: an inspected node is a question worth thinking about,
+  // so the avatar changes expression the moment the reader does. The setter is
+  // a stable setState, and React bails out when the id is unchanged.
+  useEffect(() => {
+    onActiveChange?.(activeId)
+  }, [activeId, onActiveChange])
 
   // Focus + context: when a node is active, its neighbours stay lit and the
   // rest recede, so the topology reads like a real dependency graph.

@@ -1,4 +1,5 @@
 import { SectionLabel, SectionBackground } from '@/components/ui'
+import { Parallax } from '@/components/animations'
 import { sortedCredentials } from '@/data'
 import CredentialExplorer from './CertExplorer'
 
@@ -19,7 +20,11 @@ export default function Certifications() {
           titleAccent="badges & awards"
         />
 
-        <CredentialExplorer credentials={sortedCredentials} />
+        {/* The explorer drifts on its own layer, so the credential wall feels
+            like a surface sliding behind the heading rather than a flat block. */}
+        <Parallax distance={18}>
+          <CredentialExplorer credentials={sortedCredentials} />
+        </Parallax>
       </div>
     </section>
   )

@@ -11,6 +11,7 @@ import { FiArrowUpRight, FiCheck } from 'react-icons/fi'
 import { MaskReveal } from '@/components/animations'
 import { accentColor } from '@/utils/accents'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
+import { fadeInUp, staggerContainerFast } from '@/utils/animations'
 import type { JourneyChapter as JourneyChapterData } from '@/types'
 import { ChapterKindMeta, chapterAnchor } from './journeyMeta'
 import JourneyStage from './JourneyStage'
@@ -122,9 +123,21 @@ function JourneyChapterBlock({
         <p className="font-mono-code text-[0.62rem] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
           {chapter.milestones.length} documented milestone{chapter.milestones.length === 1 ? '' : 's'}
         </p>
-        <ul className="mt-2.5 space-y-2">
+        {/* Milestones accumulate in one at a time as the chapter arrives, so the
+            evidence reads as a list being written rather than a block appearing. */}
+        <motion.ul
+          variants={staggerContainerFast}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+          className="mt-2.5 space-y-2"
+        >
           {chapter.milestones.map((milestone) => (
-            <li key={milestone.id} className="flex gap-2.5 text-[0.85rem]">
+            <motion.li
+              key={milestone.id}
+              variants={reduceMotion ? undefined : fadeInUp}
+              className="flex gap-2.5 text-[0.85rem]"
+            >
               <span className="mt-[0.55rem] h-1 w-1 shrink-0 rounded-full" style={{ background: accent }} aria-hidden="true" />
               {milestone.href ? (
                 <a
@@ -161,9 +174,9 @@ function JourneyChapterBlock({
                   </span>
                 </span>
               )}
-            </li>
+            </motion.li>
           ))}
-        </ul>
+        </motion.ul>
       </div>
 
       {/* ── Doorway into the related section ──────────────────────── */}

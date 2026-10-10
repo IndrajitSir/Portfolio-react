@@ -304,13 +304,20 @@ function CareerRole({ experience, index, active, progress }: CareerRoleProps) {
             )}
 
             {/* ── Stack and evidence ────────────────────────────────────── */}
-            <div
+            {/* The stack accumulates as the role arrives — the last thing to
+                settle, so the reader meets the work before the tooling. */}
+            <motion.div
+              variants={staggerContainerFast}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
               className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 border-t pt-2.5"
               style={{ borderColor: 'var(--border)' }}
             >
               {experience.technologies?.map((tech) => (
-                <span
+                <motion.span
                   key={tech}
+                  variants={reduceMotion ? undefined : fadeInUp}
                   className="rounded-full px-2 py-[0.1rem] font-mono-code text-[0.6rem]"
                   style={{
                     border: `1px solid ${accent}33`,
@@ -319,7 +326,7 @@ function CareerRole({ experience, index, active, progress }: CareerRoleProps) {
                   }}
                 >
                   {tech}
-                </span>
+                </motion.span>
               ))}
               {experience.sourceUrl && (
                 <a
@@ -333,7 +340,7 @@ function CareerRole({ experience, index, active, progress }: CareerRoleProps) {
                   <FiArrowUpRight size={10} aria-hidden="true" />
                 </a>
               )}
-            </div>
+            </motion.div>
           </div>
         )}
       </div>

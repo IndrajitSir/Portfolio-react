@@ -127,12 +127,16 @@ export default function Experience() {
       <div className="max-container section-padding relative z-10">
         <SectionLabel index="04" label="Career" title="Work" titleAccent="experience" className="!mb-9" />
 
-        <SlideIn from="left" distance={30}>
-          <p className="mt-4 max-w-[62ch] text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            Four roles in order, from a four-week front-end internship to the
-            backend foundations a finance-focused NestJS application runs on.
-          </p>
-        </SlideIn>
+        {/* Slides from the *opposite* side to the journey's lede: the two
+            sections share a language but do not say the same sentence twice. */}
+        <Parallax distance={14}>
+          <SlideIn from="right" distance={30}>
+            <p className="mt-4 max-w-[62ch] text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Four roles in order, from a four-week front-end internship to the
+              backend foundations a finance-focused NestJS application runs on.
+            </p>
+          </SlideIn>
+        </Parallax>
 
         <CareerCompass activeIndex={activeIndex} />
 

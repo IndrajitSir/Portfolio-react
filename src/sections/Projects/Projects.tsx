@@ -3,6 +3,7 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi'
 import { projects } from '@/data'
 import { SectionBackground, SideMissionsCTA, CaseStudyDialog } from '@/components/ui'
+import { MaskReveal, SlideIn } from '@/components/animations'
 import { accentKey } from './accent'
 import type { Project } from '@/types'
 import ProjectCard from './ProjectCard'
@@ -97,7 +98,7 @@ export default function Projects() {
         {/* ── Header + controls ─────────────────────────────── */}
         <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
           <div>
-            <div className="flex items-center gap-3 mb-3">
+            <SlideIn from="left" distance={22} className="flex items-center gap-3 mb-3">
               <span className="block w-6 h-px" style={{ background: 'var(--accent-teal)' }} />
               <span
                 className="font-mono-code text-xs tracking-widest uppercase"
@@ -105,15 +106,17 @@ export default function Projects() {
               >
                 05 — Work
               </span>
-            </div>
+            </SlideIn>
             <h2
               className="font-display font-light leading-tight text-[clamp(2rem,4vw,3.2rem)] tracking-tight"
               style={{ color: 'var(--text-primary)' }}
             >
-              Projects &{' '}
-              <em className="not-italic" style={{ color: 'var(--accent-teal)' }}>
-                Open Source
-              </em>
+              <MaskReveal>
+                Projects &{' '}
+                <em className="not-italic" style={{ color: 'var(--accent-teal)' }}>
+                  Open Source
+                </em>
+              </MaskReveal>
             </h2>
           </div>
 

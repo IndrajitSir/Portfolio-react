@@ -148,12 +148,17 @@ export default function Journey() {
           titleAccent="engineering"
         />
 
-        <SlideIn from="left" distance={30}>
-          <p className="mt-4 max-w-[54ch] text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            Read it in order, or jump to the chapter you care about. Every milestone
-            links to the source that documents it.
-          </p>
-        </SlideIn>
+        {/* The lede enters from the rail's own side and drifts on its own
+            layer, so the section opens with depth rather than a flat line of
+            copy. */}
+        <Parallax distance={14}>
+          <SlideIn from="left" distance={30}>
+            <p className="mt-4 max-w-[54ch] text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Read it in order, or jump to the chapter you care about. Every milestone
+              links to the source that documents it.
+            </p>
+          </SlideIn>
+        </Parallax>
 
         <JourneyCompass activeIndex={activeIndex} />
 

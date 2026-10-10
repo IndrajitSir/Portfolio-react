@@ -4,6 +4,7 @@ import { FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight, FiDownload } from 'react-ic
 import { navItems } from '@/data/navigation'
 import { personalInfo } from '@/data/personal'
 import { useTheme } from '@/hooks/useTheme'
+import { useActiveSection } from '@/hooks/useActiveSection'
 import { useRoute, useSectionNavigation, SIDE_MISSIONS_ROUTE, HOME_ROUTE } from '@/context/route'
 import MagneticButton from '@/components/ui/MagneticButton'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD, SPRING_LAYOUT } from '@/utils/motion'
@@ -13,8 +14,10 @@ export default function Navbar() {
   const { path, isSideMissions, navigate } = useRoute()
   const goToSection = useSectionNavigation()
   const reduceMotion = useReducedMotion()
+  // Resolved by the shared hook rather than locally, because Strobi reads the
+  // same value to choose its expression — one resolver, two readers.
+  const activeSection = useActiveSection(path === HOME_ROUTE)
   const [scrolled,    setScrolled]    = useState(false)
-  const [activeSection, setActive]    = useState('')
   const [hoveredNav,  setHoveredNav]  = useState<string | null>(null)
   const [menuOpen,    setMenuOpen]    = useState(false)
 
@@ -25,50 +28,9 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  /* ── Active section, resolved from the scroll position ── */
-  // Only meaningful on the portfolio route — the Side Missions page has none of
-  // these anchors, so resolving there would just leave a stale highlight.
-  //
-  // Resolved on scroll rather than with IntersectionObserver: every section
-  // below the hero is a lazy chunk, the sections are far taller than the
-  // viewport, and a fast smooth scroll can carry one across a threshold without
-  // the observer ever reporting it. Asking "which section owns the middle of
-  // the screen?" answers correctly whatever has mounted by then, in one pass.
-  useEffect(() => {
-    if (path !== HOME_ROUTE) {
-      setActive('')
-      return
-    }
-    let frame = 0
-
-    const resolve = () => {
-      frame = 0
-      const line = window.innerHeight / 2
-      let current = ''
-      navItems.forEach(({ href }) => {
-        const id = href.replace('#', '')
-        const el = document.getElementById(id)
-        if (el && el.getBoundingClientRect().top <= line) current = id
-      })
-      // Same answer as last frame → no re-render.
-      setActive((prev) => (prev === current ? prev : current))
-    }
-
-    const onScroll = () => {
-      if (frame) return
-      frame = window.requestAnimationFrame(resolve)
-    }
-
-    resolve()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll, { passive: true })
-
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-      if (frame) window.cancelAnimationFrame(frame)
-    }
-  }, [path])
+  /* ── Active section ─────────────────────────────────── */
+  // Owned by `useActiveSection` now — see the comment there for why the
+  // scroll position is resolved rather than observed.
 
   /* ── Mobile menu helpers ──────────────────────────────── */
   const openMenu  = useCallback(() => {

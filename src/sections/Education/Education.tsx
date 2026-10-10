@@ -1,4 +1,5 @@
 import { SectionLabel, SectionBackground } from '@/components/ui'
+import { Parallax } from '@/components/animations'
 import { educationList } from '@/data'
 import AcademicJourney from './AcademicJourney'
 
@@ -20,8 +21,11 @@ export default function Education() {
         />
 
         {/* The journey is ordered earliest → latest and fills in as you scroll,
-            so the progression itself is the story. */}
-        <AcademicJourney items={educationList} />
+            so the progression itself is the story. Carried on its own layer so
+            the timeline lags the text above it as the reader travels down. */}
+        <Parallax distance={18}>
+          <AcademicJourney items={educationList} />
+        </Parallax>
       </div>
     </section>
   )

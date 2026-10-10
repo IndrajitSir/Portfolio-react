@@ -4,13 +4,12 @@ import { FiArrowDown, FiArrowRight, FiArrowUpRight } from 'react-icons/fi'
 import { personalInfo, journeyChapters } from '@/data'
 import { scrollToSection } from '@/utils'
 import InteractiveBackground from '@/components/ui/InteractiveBackground'
-import SystemsConstellation from '@/components/ui/SystemsConstellation'
-import StrobiAssistant from '@/components/ui/StrobiAssistant'
 import InteractiveCodePanel from '@/components/ui/InteractiveCodePanel'
 import AnimatedMetrics from '@/components/ui/AnimatedMetrics'
 import ScrollIndicator from '@/components/ui/ScrollIndicator'
 import MagneticButton from '@/components/ui/MagneticButton'
 import HeroIdentity from './HeroIdentity'
+import HeroTopology from './HeroTopology'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -221,9 +220,10 @@ export default function Hero() {
               >
                 {/* Strobi belongs to the cluster: the companion row sits just
                     above the topology so the operator and the system it keeps
-                    an eye on read as one unit. */}
-                <StrobiAssistant className="mb-3" />
-                <SystemsConstellation />
+                    an eye on read as one unit. `HeroTopology` owns the link
+                    between them, so inspecting a node changes Strobi's
+                    expression without re-rendering the whole hero. */}
+                <HeroTopology />
               </motion.div>
             </motion.div>
           </div>
