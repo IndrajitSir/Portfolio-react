@@ -220,11 +220,14 @@ export default function InteractiveCodePanel({ className = '' }: { className?: s
 
   return (
     <figure
-      className={`overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-primary)]/95 shadow-[0_24px_64px_-20px_rgba(0,0,0,0.75)] backdrop-blur-xl ${className}`}
+      className={`overflow-hidden rounded-2xl border border-[var(--border-strong)] bg-[var(--panel)] shadow-[var(--shadow-panel)] ${className}`}
       aria-label="Interactive code panel — run a local simulation"
     >
       {/* ── Title bar ───────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-3 py-2.5">
+      <div
+        className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-3 py-2.5"
+        style={{ background: 'var(--panel-raised)' }}
+      >
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex items-center gap-1.5" aria-hidden="true">
             <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
@@ -371,7 +374,7 @@ export default function InteractiveCodePanel({ className = '' }: { className?: s
       </AnimatePresence>
 
       {/* ── Simulation console ──────────────────────────── */}
-      <div className="border-t border-[var(--border)]">
+      <div className="border-t border-[var(--border)]" style={{ background: 'var(--panel-raised)' }}>
         <button
           type="button"
           onClick={() => setConsoleOpen((v) => !v)}

@@ -7,6 +7,7 @@ import {
   type MotionValue,
 } from 'framer-motion'
 import { FiArrowUpRight } from 'react-icons/fi'
+import { MaskReveal } from '@/components/animations'
 import { accentColor } from '@/utils/accents'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
 import { clamp } from '@/utils'
@@ -113,8 +114,8 @@ function CareerRole({ experience, index, active, progress }: CareerRoleProps) {
     <motion.article
       id={roleAnchor(experience.id)}
       aria-labelledby={`${experience.id}-role`}
-      initial={reduceMotion ? false : { opacity: 0, y: 26 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={reduceMotion ? false : { opacity: 0, x: index % 2 === 1 ? 44 : -44 }}
+      whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: DURATION.reveal, ease: EASE_OUT_EXPO }}
       className="relative scroll-mt-44"
@@ -179,7 +180,7 @@ function CareerRole({ experience, index, active, progress }: CareerRoleProps) {
         className="mt-1.5 font-display text-[clamp(1.3rem,2.6vw,1.7rem)] font-light leading-[1.15] tracking-tight"
         style={{ color: 'var(--text-primary)' }}
       >
-        {experience.role}
+        <MaskReveal delay={0.08}>{experience.role}</MaskReveal>
       </h3>
 
       {/* ── Narrative and systems, side by side on a wide screen ────────── */}

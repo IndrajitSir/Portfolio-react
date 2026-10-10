@@ -5,6 +5,7 @@ import { personalInfo, journeyChapters } from '@/data'
 import { scrollToSection } from '@/utils'
 import InteractiveBackground from '@/components/ui/InteractiveBackground'
 import SystemsConstellation from '@/components/ui/SystemsConstellation'
+import StrobiAssistant from '@/components/ui/StrobiAssistant'
 import InteractiveCodePanel from '@/components/ui/InteractiveCodePanel'
 import AnimatedMetrics from '@/components/ui/AnimatedMetrics'
 import ScrollIndicator from '@/components/ui/ScrollIndicator'
@@ -218,6 +219,10 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 1, delay: 0.5, ease: EASE }}
               >
+                {/* Strobi belongs to the cluster: the companion row sits just
+                    above the topology so the operator and the system it keeps
+                    an eye on read as one unit. */}
+                <StrobiAssistant className="mb-3" />
                 <SystemsConstellation />
               </motion.div>
             </motion.div>

@@ -5,6 +5,7 @@ import { accentColor } from '@/utils/accents'
 import { useMediaQuery } from '@/hooks'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
 import { clamp } from '@/utils'
+import { MaskReveal, Parallax, SlideIn } from '@/components/animations'
 import { SectionBackground, SectionLabel, ThreadTrack, THREAD_WIDTH } from '@/components/ui'
 import JourneyCompass from './JourneyCompass'
 import JourneyStage from './JourneyStage'
@@ -147,10 +148,12 @@ export default function Journey() {
           titleAccent="engineering"
         />
 
-        <p className="mt-4 max-w-[54ch] text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          Read it in order, or jump to the chapter you care about. Every milestone
-          links to the source that documents it.
-        </p>
+        <SlideIn from="left" distance={30}>
+          <p className="mt-4 max-w-[54ch] text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            Read it in order, or jump to the chapter you care about. Every milestone
+            links to the source that documents it.
+          </p>
+        </SlideIn>
 
         <JourneyCompass activeIndex={activeIndex} />
 
@@ -251,16 +254,19 @@ export default function Journey() {
               className="mt-16 border-t pt-6"
               style={{ borderColor: 'var(--border)' }}
             >
-              <p
-                className="max-w-[58ch] font-display text-[clamp(1.05rem,2vw,1.35rem)] font-light leading-[1.5]"
-                style={{ color: 'var(--text-primary)' }}
-              >
-                {count} chapters, from a Java badge on HackerRank to two packages
-                published for other developers.
-              </p>
-              <p className="mt-3 font-mono-code text-[0.72rem]" style={{ color: 'var(--text-muted)' }}>
-                Every chapter above is backed by a public source. Follow any link to check it.
-              </p>
+              {/* The section close drifts on its own layer, so the page settles
+                  beneath it rather than the whole block arriving at once. */}
+              <Parallax distance={22}>
+                <MaskReveal className="max-w-[58ch] font-display text-[clamp(1.05rem,2vw,1.35rem)] font-light leading-[1.5]">
+                  <span style={{ color: 'var(--text-primary)' }}>
+                    {count} chapters, from a Java badge on HackerRank to two packages
+                    published for other developers.
+                  </span>
+                </MaskReveal>
+                <p className="mt-3 font-mono-code text-[0.72rem]" style={{ color: 'var(--text-muted)' }}>
+                  Every chapter above is backed by a public source. Follow any link to check it.
+                </p>
+              </Parallax>
             </motion.div>
           </div>
         </div>

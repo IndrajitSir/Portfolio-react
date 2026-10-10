@@ -6,16 +6,30 @@
 
 /* ─── CSS Custom Properties ─────────────────────────────────────────────────  */
 :root {
+  /* ── Surfaces ────────────────────────────────────────────────────────
+     Two layers of panel surface sit above the page background so the code
+     editor, the topology card and their downstreams read as distinct objects
+     rather than as translucent cut-outs of the page. */
   --bg-primary: #08090d;
   --bg-secondary: #0d0f17;
   --bg-tertiary: #12141f;
+  --panel: #0d0f17;
+  --panel-raised: #12141f;
   --surface: rgba(255, 255, 255, 0.04);
   --surface-hover: rgba(255, 255, 255, 0.07);
+
+  /* ── Lines ─────────────────────────────────────────────────────────── */
   --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.18);
   --border-glow: rgba(94, 234, 212, 0.2);
+  --grid-line: rgba(94, 234, 212, 0.045);
+
+  /* ── Type ──────────────────────────────────────────────────────────── */
   --text-primary: #e8eaf0;
-  --text-secondary: rgba(232, 234, 240, 0.55);
-  --text-muted: rgba(232, 234, 240, 0.3);
+  --text-secondary: rgba(232, 234, 240, 0.62);
+  --text-muted: rgba(232, 234, 240, 0.38);
+
+  /* ── Accents ───────────────────────────────────────────────────────── */
   --accent-teal: #5eead4;
   --accent-indigo: #818cf8;
   --accent-orange: #fb923c;
@@ -23,27 +37,49 @@
   --accent-green: #22c55e;
   --glow-teal: rgba(94, 234, 212, 0.15);
   --glow-indigo: rgba(129, 140, 248, 0.12);
+
+  /* ── Depth ─────────────────────────────────────────────────────────── */
+  --shadow-panel: 0 24px 64px -24px rgba(0, 0, 0, 0.75);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
   --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ── Light theme ──────────────────────────────────────────────────────────
+   A warm ivory foundation with white panels, deep charcoal type and a
+   deliberately restrained decorative layer. Accents stay semantic: teal is the
+   primary accent (links, active states, the core), indigo the secondary. */
 .light {
-  --bg-primary: #f4f6fb;
-  --bg-secondary: #edf0f8;
-  --bg-tertiary: #e4e8f4;
-  --surface: rgba(0, 0, 0, 0.04);
-  --surface-hover: rgba(0, 0, 0, 0.07);
-  --border: rgba(0, 0, 0, 0.1);
-  --border-glow: rgba(8, 145, 178, 0.25);
-  --text-primary: #0f1117;
-  --text-secondary: rgba(15, 17, 23, 0.6);
-  --text-muted: rgba(15, 17, 23, 0.35);
-  --accent-teal: #0891b2;
-  --accent-indigo: #6366f1;
-  --accent-orange: #ea580c;
-  --accent-violet: #7c3aed;
-  --accent-green: #16a34a;
-  --glow-teal: rgba(8, 145, 178, 0.1);
-  --glow-indigo: rgba(99, 102, 241, 0.07);
+  --bg-primary: #f7f6f3;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #efede8;
+  --panel: #ffffff;
+  --panel-raised: #f4f2ee;
+  --surface: rgba(23, 31, 46, 0.04);
+  --surface-hover: rgba(23, 31, 46, 0.07);
+
+  --border: rgba(23, 31, 46, 0.14);
+  --border-strong: rgba(23, 31, 46, 0.24);
+  --border-glow: rgba(14, 116, 144, 0.4);
+  --grid-line: rgba(23, 31, 46, 0.05);
+
+  --text-primary: #151922;
+  --text-secondary: #48505d;
+  /* Deliberately darker than a typical "muted" grey: these labels are set in
+     0.55–0.62rem mono, and a pale grey at that size fails AA. */
+  --text-muted: #5d6572;
+
+  --accent-teal: #0e7490;
+  --accent-indigo: #4f46e5;
+  --accent-orange: #c2410c;
+  --accent-violet: #6d28d9;
+  --accent-green: #15803d;
+  --glow-teal: rgba(14, 116, 144, 0.12);
+  --glow-indigo: rgba(79, 70, 229, 0.1);
+
+  --shadow-panel:
+    0 1px 2px rgba(23, 31, 46, 0.05),
+    0 18px 40px -22px rgba(23, 31, 46, 0.28);
+  --shadow-soft: 0 1px 2px rgba(23, 31, 46, 0.06);
 }
 
 /* ─── Base Reset ─────────────────────────────────────────────────────────── */
@@ -149,6 +185,18 @@ body {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border);
+  }
+
+  /* A real interface surface — used by the code editor and the topology card so
+     they read as objects sitting on the page rather than translucent cut-outs. */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .panel-raised {
+    background: var(--panel-raised);
   }
 
   .section-padding {

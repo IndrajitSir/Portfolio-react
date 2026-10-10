@@ -1,6 +1,14 @@
 import { memo, useEffect, useRef } from 'react'
-import { animate, motion, useInView, useMotionValue, type AnimationPlaybackControls } from 'framer-motion'
+import {
+  animate,
+  motion,
+  useInView,
+  useMotionValue,
+  useReducedMotion,
+  type AnimationPlaybackControls,
+} from 'framer-motion'
 import { FiArrowUpRight, FiCheck } from 'react-icons/fi'
+import { MaskReveal } from '@/components/animations'
 import { accentColor } from '@/utils/accents'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
 import type { JourneyChapter as JourneyChapterData } from '@/types'
@@ -45,15 +53,19 @@ function JourneyChapterBlock({
   showStage,
   compactStage,
 }: JourneyChapterBlockProps) {
+  const reduceMotion = useReducedMotion()
   const accent = accentColor[chapter.accent]
   const meta = ChapterKindMeta[chapter.kind]
+  // Alternate the direction so consecutive chapters slide in from opposite
+  // edges and the column reads as a zig-zag rather than a stack.
+  const fromRight = travelled % 2 === 1
 
   return (
     <motion.article
       id={chapterAnchor(chapter.id)}
       aria-labelledby={`${chapter.id}-title`}
-      initial={{ opacity: 0, y: 26 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={reduceMotion ? false : { opacity: 0, x: fromRight ? 44 : -44 }}
+      whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: DURATION.reveal, ease: EASE_OUT_EXPO }}
       className="relative scroll-mt-44"
@@ -79,7 +91,7 @@ function JourneyChapterBlock({
           className="mt-1.5 font-display text-[clamp(1.45rem,3.2vw,2rem)] font-light leading-[1.15] tracking-tight"
           style={{ color: 'var(--text-primary)' }}
         >
-          {chapter.title}
+          <MaskReveal delay={0.08}>{chapter.title}</MaskReveal>
         </h3>
         <p className="mt-1 font-mono-code text-[0.72rem]" style={{ color: 'var(--text-muted)' }}>
           {chapter.kicker}

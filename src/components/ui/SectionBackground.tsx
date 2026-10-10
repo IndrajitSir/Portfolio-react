@@ -701,7 +701,7 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-x-0 -top-[15%] w-full h-[130%] pointer-events-none z-0"
+      className="absolute inset-x-0 -top-[15%] w-full h-[130%] pointer-events-none z-0 [.light_&]:opacity-55"
       aria-hidden="true"
     />
   )

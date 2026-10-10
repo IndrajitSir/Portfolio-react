@@ -237,9 +237,12 @@ export default function SystemsConstellation() {
     : []
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] backdrop-blur-xl">
+    <div className="relative w-full overflow-hidden rounded-2xl border border-[var(--border-strong)] bg-[var(--panel)] shadow-[var(--shadow-panel)]">
       {/* ── Header bar ─────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-2.5">
+      <div
+        className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-2.5"
+        style={{ background: 'var(--panel-raised)' }}
+      >
         <div className="flex items-center gap-2">
           <span style={{ color: "var(--accent-teal)" }} aria-hidden="true">
             <FiCpu size={16} />
@@ -554,8 +557,9 @@ export default function SystemsConstellation() {
       <div className="px-4 pb-4">
         <div
           role="status"
-          className="flex items-center gap-3 rounded-xl border bg-[var(--bg-primary)] px-3 py-3 backdrop-blur transition-colors duration-300"
+          className="flex items-center gap-3 rounded-xl border px-3 py-3 transition-colors duration-300"
           style={{
+            background: 'var(--panel-raised)',
             borderColor: activeId ? "var(--border-glow)" : "var(--border)",
           }}
         >
@@ -624,7 +628,7 @@ export default function SystemsConstellation() {
               }}
               className="overflow-hidden"
             >
-              <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-3">
+              <div className="mt-2 rounded-xl border border-[var(--border)] px-3 py-3" style={{ background: 'var(--panel-raised)' }}>
                 <dl className="grid grid-cols-3 gap-x-3 gap-y-2">
                   {activeModule.facts.map((fact) => (
                     <div key={fact.label}>

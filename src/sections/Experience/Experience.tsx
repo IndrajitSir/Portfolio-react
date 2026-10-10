@@ -3,6 +3,7 @@ import { motion, motionValue, useMotionValueEvent, useScroll } from 'framer-moti
 import { accentColor } from '@/utils/accents'
 import { clamp } from '@/utils'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
+import { MaskReveal, Parallax, SlideIn } from '@/components/animations'
 import { SectionBackground, SectionLabel, ThreadTrack, THREAD_WIDTH } from '@/components/ui'
 import { TOTAL_SYSTEMS, accentFor, careerRoles, roleIndex } from './experienceMeta'
 import CareerCompass from './CareerCompass'
@@ -126,10 +127,12 @@ export default function Experience() {
       <div className="max-container section-padding relative z-10">
         <SectionLabel index="04" label="Career" title="Work" titleAccent="experience" className="!mb-9" />
 
-        <p className="mt-4 max-w-[62ch] text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          Four roles in order, from a four-week front-end internship to the
-          backend foundations a finance-focused NestJS application runs on.
-        </p>
+        <SlideIn from="left" distance={30}>
+          <p className="mt-4 max-w-[62ch] text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            Four roles in order, from a four-week front-end internship to the
+            backend foundations a finance-focused NestJS application runs on.
+          </p>
+        </SlideIn>
 
         <CareerCompass activeIndex={activeIndex} />
 
@@ -205,17 +208,20 @@ export default function Experience() {
             className="mt-12 border-t pt-5"
             style={{ borderColor: 'var(--border)' }}
           >
-            <p
-              className="max-w-[60ch] font-display text-[clamp(1rem,1.7vw,1.2rem)] font-light leading-[1.45]"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              {count} roles, from a four-week front-end internship to an
-              authorization engine running in production.
-            </p>
-            <p className="mt-2 font-mono-code text-[0.68rem]" style={{ color: 'var(--text-muted)' }}>
-              {TOTAL_SYSTEMS} documented workflows traced above · every
-              responsibility and period kept as documented
-            </p>
+            {/* The close drifts on its own layer, so the section settles beneath
+                it rather than the whole block arriving at once. */}
+            <Parallax distance={22}>
+              <MaskReveal className="max-w-[60ch] font-display text-[clamp(1rem,1.7vw,1.2rem)] font-light leading-[1.45]">
+                <span style={{ color: 'var(--text-primary)' }}>
+                  {count} roles, from a four-week front-end internship to an
+                  authorization engine running in production.
+                </span>
+              </MaskReveal>
+              <p className="mt-2 font-mono-code text-[0.68rem]" style={{ color: 'var(--text-muted)' }}>
+                {TOTAL_SYSTEMS} documented workflows traced above · every
+                responsibility and period kept as documented
+              </p>
+            </Parallax>
           </motion.div>
         </div>
       </div>

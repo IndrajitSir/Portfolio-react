@@ -90,9 +90,13 @@ export default function InteractiveBackground({
 
     const seed = () => {
       const area = width * height
+      // In light mode the decorative field is thinned as well as dimmed: a cyan
+      // particle haze that reads as atmosphere on near-black reads as noise on
+      // ivory, so there are simply fewer points and routes to begin with.
+      const isLight = document.documentElement.classList.contains('light')
       // Device-appropriate density: fewer points on small / touch screens.
       const density = coarse ? 1 / 26000 : 1 / 14000
-      const count = Math.max(28, Math.min(140, Math.round(area * density)))
+      const count = Math.max(24, Math.min(140, Math.round(area * density * (isLight ? 0.65 : 1))))
       particles = Array.from({ length: count }, (_, i) => {
         const z = Math.random()
         return {
@@ -108,7 +112,7 @@ export default function InteractiveBackground({
       })
 
       // Generate a handful of Manhattan circuit routes across the viewport.
-      const routeCount = coarse ? 5 : 8
+      const routeCount = (coarse ? 5 : 8) - (isLight ? 2 : 0)
       routes = Array.from({ length: routeCount }, () => {
         let x = Math.random() * width
         let y = Math.random() * height
@@ -155,7 +159,9 @@ export default function InteractiveBackground({
 
     const drawGrid = (ox: number, oy: number, isLight: boolean) => {
       const step = 54
-      const alpha = isLight ? 0.05 : 0.045
+      // The grid stays in light mode as a technical substrate, but at roughly
+      // half the weight so it never competes with the hero content.
+      const alpha = isLight ? 0.028 : 0.045
       ctx.strokeStyle = `rgba(${isLight ? '8,145,178' : '94,234,212'},${alpha})`
       ctx.lineWidth = 1
       ctx.beginPath()
@@ -177,7 +183,7 @@ export default function InteractiveBackground({
       ctx.save()
       ctx.translate(ox, oy)
       for (const route of routes) {
-        ctx.strokeStyle = `rgba(${teal},${isLight ? 0.1 : 0.11})`
+        ctx.strokeStyle = `rgba(${teal},${isLight ? 0.06 : 0.11})`
         ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(route.pts[0].x, route.pts[0].y)
@@ -231,7 +237,7 @@ export default function InteractiveBackground({
           const dy = py - qy
           const d2 = dx * dx + dy * dy
           if (d2 < maxLink * maxLink) {
-            const a = (1 - Math.sqrt(d2) / maxLink) * 0.16
+            const a = (1 - Math.sqrt(d2) / maxLink) * (isLight ? 0.09 : 0.16)
             ctx.strokeStyle = `rgba(${teal},${a})`
             ctx.lineWidth = 0.6
             ctx.beginPath()
@@ -297,7 +303,9 @@ export default function InteractiveBackground({
       const oy = -smooth.current.py * 46 + scrollP * 90
 
       ctx.clearRect(0, 0, width, height)
-      ctx.globalAlpha = dim
+      // In light mode the whole decorative field sits back: a continuous cyan
+      // haze is exactly what made the old light theme read as washed out.
+      ctx.globalAlpha = dim * (isLight ? 0.55 : 1)
       drawGrid(ox * 0.35, oy * 0.35, isLight)
       drawRoutes(ox * 0.6, oy * 0.6, t, isLight)
       drawParticles(ox, oy, isLight)
