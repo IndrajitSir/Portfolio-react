@@ -9,7 +9,6 @@ import { FiArrowDown, FiArrowRight, FiArrowUpRight } from "react-icons/fi";
 import { personalInfo, journeyChapters } from "@/data";
 import { scrollToSection } from "@/utils";
 import InteractiveBackground from "@/components/ui/InteractiveBackground";
-import InteractiveCodePanel from "@/components/ui/InteractiveCodePanel";
 import AnimatedMetrics from "@/components/ui/AnimatedMetrics";
 import ScrollIndicator from "@/components/ui/ScrollIndicator";
 import MagneticButton from "@/components/ui/MagneticButton";
@@ -208,6 +207,7 @@ export default function Hero() {
                 />
               </MagneticButton>
             </motion.div>
+
             {/* ── Integrated engineering metrics ───────────────── */}
             <motion.div
               initial={reduceMotion ? undefined : { opacity: 0, y: 24 }}

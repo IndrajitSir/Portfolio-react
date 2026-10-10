@@ -8,6 +8,7 @@ import { SectionLabel, GlowCard, SectionBackground, MindsetTrace } from '@/compo
 import AboutDepth from './AboutDepth'
 import RevealWords from './RevealWords'
 import TerminalLauncher from '@/components/terminal/TerminalLauncher'
+import CodePanelLauncher from '@/components/ui/CodePanelLauncher'
 
 // The three facts that used to sit in the static shell block, kept as a compact
 // readout beside the mindset trace so no content is lost.
@@ -113,7 +114,10 @@ export default function About() {
                     {personalInfo.location}
                   </p>
                 </div>
-                <TerminalLauncher />
+                <div className="ml-auto flex shrink-0 items-center gap-2">
+                  <TerminalLauncher />
+                  <CodePanelLauncher />
+                </div>
               </motion.div>
 
               {/* ── The biography, revealed word by word ─────────────── */}
