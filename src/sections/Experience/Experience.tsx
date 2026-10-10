@@ -5,6 +5,7 @@ import { clamp } from '@/utils'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
 import { MaskReveal, Parallax, SlideIn } from '@/components/animations'
 import { SectionBackground, SectionLabel, ThreadTrack, THREAD_WIDTH } from '@/components/ui'
+import { publishCareerFocus } from '@/utils/companionFocus'
 import { TOTAL_SYSTEMS, accentFor, careerRoles, roleIndex } from './experienceMeta'
 import CareerCompass from './CareerCompass'
 import CareerRole from './CareerRole'
@@ -114,6 +115,20 @@ export default function Experience() {
   useEffect(() => {
     apply(scrollYProgress.get())
   }, [apply, scrollYProgress])
+
+  // Tell the docked companion which role the career has reached, so its
+  // expression changes as each role becomes active.
+  const activeRole = careerRoles[activeIndex]
+  useEffect(() => {
+    publishCareerFocus({
+      thread: 'experience',
+      id: activeRole.id,
+      label: activeRole.role,
+      accent: accentFor(activeRole.id),
+      type: activeRole.type,
+      current: activeRole.current,
+    })
+  }, [activeRole])
 
   return (
     <section id="experience" aria-label="Work experience" className="relative">

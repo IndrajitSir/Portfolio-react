@@ -7,6 +7,7 @@ import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
 import { clamp } from '@/utils'
 import { MaskReveal, Parallax, SlideIn } from '@/components/animations'
 import { SectionBackground, SectionLabel, ThreadTrack, THREAD_WIDTH } from '@/components/ui'
+import { publishJourneyFocus } from '@/utils/companionFocus'
 import JourneyCompass from './JourneyCompass'
 import JourneyStage from './JourneyStage'
 import JourneyChapterBlock from './JourneyChapter'
@@ -125,6 +126,18 @@ export default function Journey() {
   }, [apply, scrollYProgress])
 
   const activeChapter = journeyChapters[activeIndex]
+
+  // Tell the docked companion which chapter the reader has reached, so its
+  // expression tracks the journey itself rather than only the section.
+  useEffect(() => {
+    publishJourneyFocus({
+      thread: 'journey',
+      id: activeChapter.id,
+      label: `${activeChapter.index} · ${activeChapter.title}`,
+      accent: activeChapter.accent,
+      kind: activeChapter.kind,
+    })
+  }, [activeChapter])
 
   return (
     <section

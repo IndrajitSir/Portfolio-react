@@ -218,11 +218,11 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 1, delay: 0.5, ease: EASE }}
               >
-                {/* Strobi belongs to the cluster: the companion row sits just
-                    above the topology so the operator and the system it keeps
-                    an eye on read as one unit. `HeroTopology` owns the link
-                    between them, so inspecting a node changes Strobi's
-                    expression without re-rendering the whole hero. */}
+                {/* The topology is the hero's one live instrument. Strobi now
+                    travels with the reader as a docked companion, so
+                    `HeroTopology` only reports which node is inspected —
+                    inspecting one still changes the companion's expression,
+                    without re-rendering the whole hero. */}
                 <HeroTopology />
               </motion.div>
             </motion.div>

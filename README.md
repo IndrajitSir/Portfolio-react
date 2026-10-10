@@ -166,6 +166,29 @@ backdrop is wrapped in its own clipping `div` so the section itself stays
 - Reduced motion pins the progress value at 1, so a stage renders its finished
   state and needs no second code path.
 
+## Strobi, the companion
+
+Strobi is the portfolio's runtime companion — one avatar
+(`src/assets/strobi.avatar.json`, built once through `createAvatar`) docked to the
+bottom-right of the viewport, following the reader down the page so the expression
+it wears is actually visible while scrolling. Below `sm` it drops its label and is
+just the avatar, so it never covers the text it sits beside.
+
+Its expression is resolved most specific first: a node being inspected in the hero
+topology → `thinking`, the pointer resting on the companion → `working`, the active
+journey chapter or career role → that chapter/role's own mood, and finally the
+section the reader is standing in.
+
+The chapter and role moods are **not** re-derived from scroll position. `Journey`
+and `Experience` already measure which chapter or role the reader has reached, and
+they publish it to `src/utils/companionFocus.ts`. That module is deliberately a tiny
+external store rather than a context: a context value changing on every chapter
+would re-render the provider's whole subtree — the entire page — whereas only the
+companion subscribes. It reads the store with `useSyncExternalStore`
+(`useCompanionState`), so a scroll that does not cross a chapter or role boundary
+re-renders nothing. Threads are kept in per-section slots, so a stale value in one
+section can never shadow the other.
+
 ## Scroll behaviour
 
 Lenis owns the scroll position, so programmatic scrolls must go *through* it —

@@ -9,6 +9,7 @@ import CustomCursor from '@/components/ui/CustomCursor'
 import Preloader from '@/components/ui/Preloader'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import NoiseOverlay from '@/components/ui/NoiseOverlay'
+import StrobiCompanion from '@/components/ui/StrobiCompanion'
 import Hero from '@/sections/Hero/Hero'
 
 // Lazy-load below-fold sections for performance
@@ -71,6 +72,7 @@ function AppInner() {
       <CustomCursor />
       <Preloader />
       <Navbar />
+      {!isSideMissions && <StrobiCompanion />}
 
       {isSideMissions ? (
         <Suspense fallback={<SectionFallback />}>
