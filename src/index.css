@@ -1157,3 +1157,86 @@ body {
   .rs-btn .rs-dl *, .rs-btn .rs-burst, .rs-btn .rs-check polyline { animation: none !important; }
   .rs-btn[data-state='done'] .rs-check polyline { stroke-dashoffset: 0; }
 }
+
+.mt-card {
+  --mt-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --mt-panel: var(--bg-primary);
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+  .mt-card { --mt-panel: color-mix(in srgb, var(--accent-teal) 15%, var(--bg-primary)); }
+}
+
+/* Resting content gets pushed left and faded as the panel overtakes it */
+.mt-main {
+  transition: transform 0.55s var(--mt-ease), opacity 0.35s ease;
+}
+.mt-card[data-open='true'] .mt-main {
+  transform: translateX(-22px);
+  opacity: 0;
+}
+
+/* Panel: parked off to the right (plus the wave's width), slides in on open */
+.mt-panel {
+  background: var(--mt-panel);
+  transform: translateX(calc(100% + 20px));
+  transition: transform 0.6s var(--mt-ease);
+}
+.mt-card[data-open='true'] .mt-panel { transform: translateX(0); }
+
+/* Flowing edge: the wave path is two full periods tall, so -50% loops seamlessly.
+   Paused while closed so it holds its phase instead of snapping on exit. */
+.mt-wave {
+  animation: mt-wave 1.4s linear infinite;
+  animation-play-state: paused;
+  filter: drop-shadow(-2px 0 5px var(--glow-teal, rgba(45, 212, 191, 0.45)));
+}
+.mt-card[data-open='true'] .mt-wave { animation-play-state: running; }
+@keyframes mt-wave {
+  to { transform: translateY(-50%); }
+}
+
+/* Text staggers in from the right once the panel is on its way */
+.mt-in {
+  opacity: 0;
+  transform: translateX(18px);
+  transition: transform 0.45s var(--mt-ease), opacity 0.3s ease;
+}
+.mt-card[data-open='true'] .mt-in {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: calc(0.2s + var(--i, 0) * 0.08s);
+}
+
+/* CGPA meter fills after the text lands */
+.mt-meter {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.9s var(--mt-ease);
+}
+.mt-card[data-open='true'] .mt-meter {
+  transform: scaleX(var(--ratio, 0));
+  transition-delay: 0.45s;
+}
+
+/* Top line draws left to right */
+.mt-line {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s var(--mt-ease);
+}
+.mt-card[data-open='true'] .mt-line { transform: scaleX(1); }
+
+/* Corner hint: + becomes × */
+.mt-hint {
+  color: var(--text-muted);
+  transition: transform 0.4s var(--mt-ease), color 0.3s ease;
+}
+.mt-card[data-open='true'] .mt-hint {
+  transform: rotate(135deg);
+  color: var(--accent-teal);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mt-main, .mt-panel, .mt-in, .mt-meter, .mt-line, .mt-hint { transition: none; }
+  .mt-wave { animation: none; }
+}
