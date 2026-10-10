@@ -6,8 +6,9 @@ import { personalInfo } from '@/data/personal'
 import { useTheme } from '@/hooks/useTheme'
 import { useActiveSection } from '@/hooks/useActiveSection'
 import { useRoute, useSectionNavigation, SIDE_MISSIONS_ROUTE, HOME_ROUTE } from '@/context/route'
-import MagneticButton from '@/components/ui/MagneticButton'
+// import MagneticButton from '@/components/ui/MagneticButton'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD, SPRING_LAYOUT } from '@/utils/motion'
+import HireMeButton from '../ui/hireMeButton'
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme()
@@ -230,7 +231,7 @@ export default function Navbar() {
           </button>
 
           {/* Hire Me CTA — desktop only, magnetic */}
-          <div className="hidden lg:block">
+          {/* <div className="hidden lg:block">
             <MagneticButton
               href="#contact"
               strength={0.18}
@@ -246,8 +247,8 @@ export default function Navbar() {
             >
               Hire Me
             </MagneticButton>
-          </div>
-
+          </div> */}
+          <HireMeButton onClick={(e) => { e?.preventDefault(); goToSection('contact') }} />
           {/* Hamburger — mobile only */}
           <button
             onClick={menuOpen ? closeMenu : openMenu}
@@ -402,4 +403,4 @@ export default function Navbar() {
       </AnimatePresence>
     </>
   )
-}
+}
