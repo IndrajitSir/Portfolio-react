@@ -1468,3 +1468,80 @@ body {
   .sk-tile { transition: none; }
   .tc:hover .tc-layer--live:hover { transform: none; }
 }
+
+/* ─── Technology rail ──────────────────────────────────────── */
+/* Registered so the glow behind the rail can fade between accent colours */
+@property --rail-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #5eead4;
+}
+.tr-stage {
+  --rail-accent: var(--accent-teal);
+  isolation: isolate;
+  transition: --rail-accent 0.7s ease;
+}
+.tr-stage::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 46%;
+  width: min(760px, 92%);
+  height: 440px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--rail-accent) 16%, transparent),
+    transparent
+  );
+}
+
+.tr-rail { cursor: grab; }
+.tr-rail[data-dragging='true'] {
+  cursor: grabbing;
+  user-select: none;
+  scroll-snap-type: none !important;
+  scroll-behavior: auto !important;
+}
+
+/* Focus: --f is 1 at the rail's centre, 0 far away (set per card by JS) */
+.tr-focus {
+  transform: scale(calc(0.92 + 0.08 * var(--f, 1)));
+  opacity: calc(0.45 + 0.55 * var(--f, 1));
+}
+.tr-focus .tc-card {
+  border-color: color-mix(in srgb, var(--tc-accent) calc(var(--f, 1) * 40%), var(--border));
+}
+
+/* Shared noise tile instead of a per-card SVG filter */
+.tc-grain--bitmap {
+  background-image: var(--tc-noise);
+  background-size: 128px 128px;
+}
+
+/* ~50 cards: keep depth layers flat (no compositing layer) until hovered */
+.tr-rail .tc-layer { transform: none; }
+.tr-rail .tc:hover .tc-layer,
+.tr-rail .tc:focus-within .tc-layer { transform: translateZ(var(--z, 0px)); }
+
+/* Layers ignore the pointer, so the list inside has to opt back in */
+.tr-live { pointer-events: auto; }
+
+.tr-ev {
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+a.tr-ev:hover,
+a.tr-ev:focus-visible {
+  border-color: var(--tc-accent);
+  background: color-mix(in srgb, var(--tc-accent) 9%, transparent);
+  transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tr-focus { transform: none; opacity: 1; }
+  .tr-stage { transition: none; }
+  .tr-ev { transition: none; }
+  a.tr-ev:hover, a.tr-ev:focus-visible { transform: none; }
+}

@@ -39,8 +39,8 @@ export function TiltLayer({
 
 interface TiltSurfaceProps {
   accent?: string
-  /** Degrees at the card edge. Keep it small for big panels. */
   maxTilt?: number
+  grain?: 'svg' | 'bitmap'
   className?: string
   cardClassName?: string
   children: ReactNode
@@ -49,6 +49,7 @@ interface TiltSurfaceProps {
 export function TiltSurface({
   accent = 'var(--accent-teal)',
   maxTilt = 6,
+  grain = 'svg',
   className = '',
   cardClassName = '',
   children,
@@ -84,42 +85,53 @@ export function TiltSurface({
     <div
       ref={rootRef}
       className={`tc tc--fill ${className}`}
-      style={{ '--tc-accent': accent } as CSSProperties}
+      style={{ "--tc-accent": accent } as CSSProperties}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
     >
       <motion.div
         className={`tc-card relative w-full rounded-xl ${cardClassName}`}
-        style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       >
-        <svg
-          aria-hidden="true"
-          className="tc-grain pointer-events-none absolute inset-0 h-full w-full rounded-xl"
-        >
-          <filter id={grainId}>
-            <feTurbulence type="fractalNoise" baseFrequency="1.3" numOctaves="4" stitchTiles="stitch" />
-            <feColorMatrix type="saturate" values="0" />
-            <feComponentTransfer>
-              <feFuncR type="linear" slope="0.46" />
-              <feFuncG type="linear" slope="0.46" />
-              <feFuncB type="linear" slope="0.46" />
-              <feFuncA type="linear" slope="0.56" />
-            </feComponentTransfer>
-            <feComponentTransfer>
-              <feFuncR type="linear" slope="1.47" intercept="-0.23" />
-              <feFuncG type="linear" slope="1.47" intercept="-0.23" />
-              <feFuncB type="linear" slope="1.47" intercept="-0.23" />
-            </feComponentTransfer>
-          </filter>
-          <rect width="100%" height="100%" filter={`url(#${grainId})`} />
-        </svg>
-
+        {grain === "bitmap" ? (
+          <div
+            aria-hidden="true"
+            className="tc-grain tc-grain--bitmap pointer-events-none absolute inset-0 rounded-xl"
+          />
+        ) : (
+          <svg
+            aria-hidden="true"
+            className="tc-grain pointer-events-none absolute inset-0 h-full w-full rounded-xl"
+          >
+            <filter id={grainId}>
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="1.3"
+                numOctaves="4"
+                stitchTiles="stitch"
+              />
+              <feColorMatrix type="saturate" values="0" />
+              <feComponentTransfer>
+                <feFuncR type="linear" slope="0.46" />
+                <feFuncG type="linear" slope="0.46" />
+                <feFuncB type="linear" slope="0.46" />
+                <feFuncA type="linear" slope="0.56" />
+              </feComponentTransfer>
+              <feComponentTransfer>
+                <feFuncR type="linear" slope="1.47" intercept="-0.23" />
+                <feFuncG type="linear" slope="1.47" intercept="-0.23" />
+                <feFuncB type="linear" slope="1.47" intercept="-0.23" />
+              </feComponentTransfer>
+            </filter>
+            <rect width="100%" height="100%" filter={`url(#${grainId})`} />
+          </svg>
+        )}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 rounded-xl"
           style={{
             background:
-              'radial-gradient(70% 45% at 30% 0%, color-mix(in srgb, var(--tc-accent) 12%, transparent), transparent 70%)',
+              "radial-gradient(70% 45% at 30% 0%, color-mix(in srgb, var(--tc-accent) 12%, transparent), transparent 70%)",
           }}
         />
         <motion.div
@@ -131,5 +143,5 @@ export function TiltSurface({
         {children}
       </motion.div>
     </div>
-  )
+  );
 }

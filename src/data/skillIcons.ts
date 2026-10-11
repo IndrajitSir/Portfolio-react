@@ -26,6 +26,19 @@ export const CATEGORY_ICONS: Record<string, IconType> = {
   learning: FiCpu,
 }
 
+/** Each domain gets its own accent, which colours its cards and the glow behind the rail. */
+export const DOMAIN_ACCENT: Record<string, string> = {
+  backend: 'var(--accent-teal)',
+  databases: 'var(--accent-indigo)',
+  frontend: 'var(--accent-violet)',
+  languages: 'var(--accent-orange)',
+  architecture: 'var(--accent-teal)',
+  'open-source': 'var(--accent-green)',
+  infrastructure: 'var(--accent-orange)',
+  security: 'var(--accent-indigo)',
+  learning: 'var(--accent-violet)',
+}
+
 /** Keyed by the exact `name` in skillCategories. */
 const ITEM_ICONS: Record<string, IconType> = {
   // Backend
