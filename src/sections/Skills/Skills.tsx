@@ -10,7 +10,8 @@ import {
 import { skillCategories } from '@/data'
 import { Parallax } from '@/components/animations'
 import { DURATION, EASE_OUT_EXPO, REVEAL_VIEWPORT } from '@/utils/motion'
-
+import { CATEGORY_ICONS, iconFor } from '@/data/skillIcons'
+import { FiCode } from 'react-icons/fi'
 /**
  * Short map labels.
  *
@@ -45,11 +46,14 @@ export default function Skills() {
         title: cat.title,
         short: SHORT_LABEL[cat.id] ?? cat.title,
         icon: cat.icon,
+        Icon: CATEGORY_ICONS[cat.id] ?? FiCode,
         summary: cat.summary,
-        items: cat.items.map((item) => ({ name: item.name, evidence: item.evidence })),
+        items: cat.items.map((item) => ({
+          name: item.name,
+          evidence: item.evidence,
+          Icon: iconFor(item.name),
+        })),
         connects: cat.connects,
-        // Distinct evidence points: a technology used in two places counts once
-        // per place, but the same repeated record is not double-counted.
         evidenceCount: new Set(cat.items.flatMap((item) => item.evidence.map((e) => e.label))).size,
       })),
     [],

@@ -4,6 +4,8 @@ import { FiArrowUpRight } from "react-icons/fi";
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD } from "@/utils/motion";
 import type { SkillEvidence } from "@/types";
 import { EVIDENCE_STYLE } from "./evidenceStyles";
+import DomainCard from "../skills/DomainCard";
+import { IconType } from "react-icons";
 
 /**
  * The capability map — a graph, not a scoreboard.
@@ -29,8 +31,9 @@ export interface SkillDomain {
   icon: string;
   /** One line on what the domain is actually used for. */
   summary: string;
+  Icon: IconType;
   /** Technologies in this domain, each carrying its evidence. */
-  items: { name: string; evidence: SkillEvidence[] }[];
+  items: { name: string; evidence: SkillEvidence[]; Icon: IconType }[];
   /** Ids of domains this one flows into. */
   connects: string[];
   /** Distinct evidence points across every technology in the domain. */
@@ -285,82 +288,13 @@ export default function SkillConstellation({
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? undefined : { opacity: 0, y: -10 }}
               transition={{ duration: DURATION.quick, ease: EASE_STANDARD }}
-              className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
+              className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain p-1.5"
             >
-              <div className="mb-1 flex items-center gap-3">
-                <span className="text-2xl" aria-hidden="true">
-                  {active.icon}
-                </span>
-                <div>
-                  <h3
-                    className="font-mono-code text-[0.72rem] uppercase tracking-widest"
-                    style={{ color: "var(--accent-teal)" }}
-                  >
-                    {active.title}
-                  </h3>
-                  <p
-                    className="font-mono-code text-[0.62rem]"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    {active.evidenceCount} pieces of evidence
-                  </p>
-                </div>
-              </div>
-              <p
-                className="mb-4 text-[0.78rem] leading-[1.6]"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                {active.summary}
-              </p>
-
-              {/* Technologies with the thing that demonstrates each one. */}
-              <ul className="space-y-3">
-                {active.items.map((item) => (
-                  <li key={item.name}>
-                    <p
-                      className="text-sm font-medium"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      {item.name}
-                    </p>
-                    <ul className="mt-1 flex flex-wrap gap-1.5">
-                      {item.evidence.map((evidence, i) => (
-                        <li key={`${item.name}-${evidence.label}-${i}`}>
-                          <EvidenceChip evidence={evidence} />
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-
-              {active.connects.length > 0 && (
-                <div className="mt-auto border-t border-[var(--border)] pt-4">
-                  <p
-                    className="mb-2 font-mono-code text-[0.56rem] uppercase tracking-widest"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    Feeds into
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {active.connects.map((id) => {
-                      const target = domains.find((d) => d.id === id);
-                      if (!target) return null;
-                      return (
-                        <button
-                          key={id}
-                          type="button"
-                          onClick={() => setPinnedId(id)}
-                          className="rounded border border-[var(--border)] px-2 py-0.5 font-mono-code text-[0.6rem] uppercase transition-colors hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
-                          style={{ color: "var(--text-secondary)" }}
-                        >
-                          {target.short}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+              <DomainCard
+                domain={active}
+                domains={domains}
+                onJump={setPinnedId}
+              />
             </motion.div>
           ) : (
             <motion.div
