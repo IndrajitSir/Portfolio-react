@@ -31,6 +31,8 @@ export interface TiltCardProps {
   children: ReactNode
   /** Extra classes for the tilting surface — radius, border, background, padding. */
   className?: string
+  /** Extra classes for the outer perspective wrapper — sizing, spacing, grid placement. */
+  wrapperClassName?: string
   /** Maximum rotation, in degrees, reached at the card's edge. */
   maxTilt?: number
   /** CSS perspective in px. Smaller values exaggerate the depth. */
@@ -53,6 +55,7 @@ const DEFAULT_SPRING: SpringOptions = { stiffness: 170, damping: 20, mass: 0.5 }
 export default function TiltCard({
   children,
   className = '',
+  wrapperClassName = '',
   maxTilt = 8,
   perspective = 1000,
   hoverScale = 1.01,
@@ -97,7 +100,7 @@ export default function TiltCard({
   return (
     <div
       ref={rootRef}
-      className="tc group"
+      className={`tc group ${wrapperClassName}`}
       style={{ '--tc-accent': accent, perspective: `${perspective}px` } as CSSProperties}
       onPointerMove={onMove}
       onPointerLeave={onLeave}

@@ -173,17 +173,29 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
                 id="credential-detail"
                 role="tabpanel"
                 aria-label={`${active.title} details`}
-                className="relative h-full min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 backdrop-blur-md outline-offset-4 sm:p-8"
+                className="h-full min-h-0"
               >
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0"
-                  style={{
-                    background: `radial-gradient(600px circle at 80% 0%, var(--glow-teal), transparent 65%)`,
-                  }}
-                />
+                {/* Same restrained depth as the archive, dialled back for a
+                    panel you read: a shallower tilt, no scale shock and no
+                    grain overlay. The panel itself is the scroll surface. */}
+                <TiltCard
+                  accent={accentColor[active.accent]}
+                  maxTilt={3}
+                  perspective={1500}
+                  hoverScale={1.004}
+                  effects={false}
+                  wrapperClassName="h-full min-h-0"
+                  className="h-full min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 backdrop-blur-md sm:p-8"
+                >
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                      background: `radial-gradient(600px circle at 80% 0%, var(--glow-teal), transparent 65%)`,
+                    }}
+                  />
 
-                <div className="relative">
+                  <div className="relative">
                   <div className="mb-5 flex items-start gap-4">
                     <span
                       className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border text-2xl"
@@ -325,7 +337,8 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
                       </p>
                     )}
                   </div>
-                </div>
+                  </div>
+                </TiltCard>
               </motion.div>
             </AnimatePresence>
           </div>

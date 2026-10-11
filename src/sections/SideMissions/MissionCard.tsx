@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { FiArrowUpRight, FiPlay } from 'react-icons/fi'
-import { GrapifyCanvas, TryOnixCanvas, BubbleGameCanvas } from '@/components/ui'
+import { GrapifyCanvas, TryOnixCanvas, BubbleGameCanvas, TiltCard } from '@/components/ui'
 import { accentColor, accentRgb } from '@/utils/accents'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
 import type { ProjectVisual, SideProject } from '@/types'
@@ -40,17 +40,16 @@ export default function MissionCard({ project, index, selected, onOpen }: Missio
       transition={{ duration: DURATION.base, ease: EASE_OUT_EXPO, delay: index * 0.08 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="group relative h-full"
+      className="group relative flex h-full"
     >
-      <motion.div
-        animate={
-          reduceMotion
-            ? undefined
-            : { y: active ? -5 : 0, borderColor: active ? accentHex : 'var(--border)' }
-        }
-        transition={{ duration: DURATION.quick, ease: EASE_OUT_EXPO }}
-        className="relative flex h-full flex-col overflow-hidden rounded-2xl border bg-[var(--surface)] backdrop-blur-md"
-        style={{ borderColor: 'var(--border)' }}
+      <TiltCard
+        accent={accentHex}
+        maxTilt={5}
+        hoverScale={1.008}
+        wrapperClassName="h-full"
+        className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-[var(--surface)] backdrop-blur-md ${
+          active ? 'border-[color:var(--tc-accent)]' : 'border-[color:var(--border)]'
+        }`}
       >
         {/* Glow that reacts to hover/selection, tying the card to its accent */}
         <div
@@ -137,7 +136,7 @@ export default function MissionCard({ project, index, selected, onOpen }: Missio
             </button>
           </div>
         </div>
-      </motion.div>
+      </TiltCard>
     </motion.article>
   )
 }

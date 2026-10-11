@@ -1289,7 +1289,7 @@ body {
 .tc-card {
   position: relative;
   transform-style: preserve-3d;
-  transition: box-shadow 0.4s ease;
+  transition: box-shadow 0.4s ease, border-color 0.3s ease;
 }
 .tc:hover .tc-card,
 .tc:focus-within .tc-card {
