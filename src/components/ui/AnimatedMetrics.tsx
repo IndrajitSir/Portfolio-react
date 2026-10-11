@@ -131,7 +131,7 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
       onKeyDown={onKeyDown}
       onBlur={() => setOpen(false)}
       className="
-        mt-card relative min-h-[132px] overflow-hidden px-5 py-5 sm:px-6
+        mt-card relative flex min-h-[104px] flex-col justify-center overflow-hidden px-5 py-3 sm:px-6
         border-b border-[var(--border)] last:border-b-0
         sm:border-b-0 sm:border-r sm:last:border-r-0
         transition-colors duration-300
@@ -157,14 +157,14 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
       <div className="mt-main">
         <div className="flex items-baseline gap-1">
           <span
-            className="font-display text-3xl font-light leading-none sm:text-4xl"
+            className="font-display text-2xl font-light leading-none sm:text-3xl"
             style={{ color: 'var(--text-primary)' }}
           >
             <MetricValue metric={metric} />
           </span>
           {metric.suffix && (
             <span
-              className="font-display text-2xl font-light leading-none"
+              className="font-display text-xl font-light leading-none"
               style={{ color: 'var(--accent-teal)' }}
             >
               {metric.suffix}
@@ -183,7 +183,7 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
         {/* Accent rule that draws into place */}
         <motion.span
           aria-hidden="true"
-          className="mt-2 block h-px w-10"
+          className="mt-1.5 block h-px w-10"
           style={{ background: 'var(--accent-teal)', transformOrigin: 'left' }}
           initial={reduceMotion ? { scaleX: 1 } : { scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
@@ -192,7 +192,7 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
         />
 
         <p
-          className="mt-2 font-mono-code text-[0.68rem] uppercase tracking-widest"
+          className="mt-1.5 font-mono-code text-[0.68rem] uppercase tracking-widest"
           style={{ color: 'var(--text-muted)' }}
         >
           {metric.label}
@@ -200,7 +200,7 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
       </div>
 
       {/* Detail panel: slides in from the right behind a flowing wavy edge */}
-      <div className="mt-panel absolute inset-0 z-[1] flex flex-col justify-center gap-1.5 px-5 py-4 sm:px-6">
+      <div className="mt-panel absolute inset-0 z-[1] flex flex-col justify-center gap-1 px-5 py-2.5 sm:px-6">
         <span
           aria-hidden="true"
           className="mt-edge absolute bottom-0 right-full top-0 w-[18px] overflow-hidden"
@@ -218,21 +218,21 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
         </span>
 
         <p
-          className="mt-in font-mono-code text-[0.62rem] uppercase tracking-widest"
+          className="mt-in font-mono-code text-[0.62rem] uppercase leading-none tracking-widest"
           style={{ ...stagger(0), color: 'var(--accent-teal)' }}
         >
           {metric.label}
         </p>
 
         <p
-          className="mt-in text-[0.74rem] leading-5"
+          className="mt-in text-[0.7rem] leading-[1.05rem]"
           style={{ ...stagger(1), color: 'var(--text-primary)' }}
         >
           {metric.detail}
         </p>
 
         {metric.max && (
-          <div className="mt-in mt-1" style={stagger(2)}>
+          <div className="mt-in mt-0.5" style={stagger(2)}>
             <span
               className="relative block h-[3px] w-full overflow-hidden rounded-full"
               style={{ background: 'var(--border)' }}
@@ -263,7 +263,7 @@ export default function AnimatedMetrics() {
       {/* Fine connecting line that threads the metrics together */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-6 right-6 top-[46px] hidden h-px sm:block"
+        className="pointer-events-none absolute left-6 right-6 top-[38px] hidden h-px sm:block"
         style={{
           background:
             'linear-gradient(90deg, transparent, var(--border-glow), var(--border-glow), transparent)',

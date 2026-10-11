@@ -106,7 +106,7 @@ export default function Hero() {
             the same as before. The topology gains its extra size and rightward
             shift from a negative right margin, which lets the track extend into
             the page gutter instead of relying on hardcoded coordinates. */}
-        <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] xl:gap-12">
+        <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-end xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] xl:gap-12">
           {/* Left: identity, actions, metrics */}
           <div className="flex flex-col gap-4">
             <HeroIdentity />
