@@ -131,7 +131,7 @@ export default function TiltCard({
               </filter>
               <rect width="100%" height="100%" filter={`url(#${grainId})`} />
             </svg>
-            <div aria-hidden="true" className="tc-wash pointer-events-none absolute inset-0" />
+            <div aria-hidden="true" className="tc-wash pointer-events-none absolute inset-0 rounded-2xl" />
           </>
         )}
 

@@ -189,7 +189,7 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
                 >
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0"
+                    className="pointer-events-none absolute inset-0 rounded-2xl"
                     style={{
                       background: `radial-gradient(600px circle at 80% 0%, var(--glow-teal), transparent 65%)`,
                     }}
