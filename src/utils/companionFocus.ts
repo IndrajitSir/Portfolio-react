@@ -17,8 +17,6 @@ import type { AccentKey, ChapterKind, Experience } from '@/types'
  * shape mirrors `lenisRef.ts`: a module singleton with a setter and getter.
  */
 
-export type CompanionThread = 'journey' | 'experience'
-
 interface CompanionFocusBase {
   /** Chapter id (journey) or role id (career). */
   id: string
@@ -39,8 +37,6 @@ export interface CareerFocus extends CompanionFocusBase {
   /** True for the role the reader is in now — the end of the thread. */
   current: boolean
 }
-
-export type CompanionFocus = JourneyFocus | CareerFocus
 
 export interface CompanionState {
   /**

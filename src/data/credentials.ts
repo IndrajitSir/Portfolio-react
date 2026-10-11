@@ -33,7 +33,7 @@ export const CREDENTIAL_KIND_NOTE: Record<CredentialKind, string> = {
   learning: 'Self-directed study with publicly documented progress.',
 }
 
-export const credentials: Credential[] = [
+const credentials: Credential[] = [
   // ── Certifications ───────────────────────────────────────────────────────
   {
     id: 'efset',
@@ -275,11 +275,6 @@ export const credentials: Credential[] = [
     accent: 'indigo',
   },
 ]
-
-/** Credentials grouped by kind, for the filter rail. */
-export const credentialKinds = (
-  Object.keys(CREDENTIAL_KIND_LABEL) as CredentialKind[]
-).filter((kind) => credentials.some((c) => c.kind === kind))
 
 /** The earliest period string that looks like a year, for chronological sorting. */
 const yearOf = (credential: Credential): number | null => {

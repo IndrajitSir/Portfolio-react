@@ -314,7 +314,3 @@ export const journeyChapters: JourneyChapter[] = [
     explore: { label: 'Open the case study', href: '#projects' },
   },
 ]
-
-/** Chapters keyed by id, for cross-section lookups. */
-export const chapterById = (id: string): JourneyChapter | undefined =>
-  journeyChapters.find((c) => c.id === id)

@@ -369,20 +369,3 @@ export const skillCategories: SkillCategory[] = [
     ],
   },
 ]
-
-/** Flat list of every technology, for the chip rail and search. */
-export const allSkills = skillCategories.flatMap((category) =>
-  category.items.map((skill) => ({ ...skill, domain: category.id, domainTitle: category.title })),
-)
-
-/** Look up a technology by name, case-insensitively. */
-export const findSkill = (name: string) =>
-  allSkills.find((s) => s.name.toLowerCase() === name.toLowerCase())
-
-/**
- * Domains with no incoming links, so the map can draw an anchor.
- * Computed from the data rather than hard-coded.
- */
-export const orphanDomains = skillCategories
-  .filter((c) => !skillCategories.some((other) => other.connects.includes(c.id)))
-  .map((c) => c.id)
