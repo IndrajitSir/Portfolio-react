@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { motion, AnimatePresence, type Variants } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi'
 import { projects } from '@/data'
 import { SectionBackground, SideMissionsCTA, CaseStudyDialog } from '@/components/ui'
@@ -10,32 +10,15 @@ import ProjectCard from './ProjectCard'
 
 const AUTOPLAY_MS = 6000
 
-const slideVariants: Variants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 90 : -90,
-    opacity: 0,
-    scale: 0.985,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction > 0 ? -90 : 90,
-    opacity: 0,
-    scale: 0.985,
-  }),
-}
-
-const slideTransition = {
-  duration: 0.45,
-  ease: [0.4, 0, 0.2, 1] as const,
-}
+/** How far a leaving/entering slide travels, in px. */
+const SLIDE_DISTANCE = 90
+/** Slide transition — matches the site's standard interactive curve. */
+const SLIDE_DURATION = 0.45
+const SLIDE_EASE = [0.4, 0, 0.2, 1] as const
 
 export default function Projects() {
   const count = projects.length
-  const [[activeIndex, direction], setIndex] = useState<[number, number]>([0, 0])
+  const [activeIndex, setActiveIndex] = useState(0)
   const [paused, setPaused] = useState(false)
 
   /**
@@ -56,17 +39,12 @@ export default function Projects() {
 
   const paginate = useCallback(
     (dir: number) => {
-      setIndex(([i]) => [(i + dir + count) % count, dir])
+      setActiveIndex((i) => (i + dir + count) % count)
     },
     [count],
   )
 
-  const goTo = useCallback((target: number) => {
-    setIndex(([i]) => {
-      const dir = target > i ? 1 : target < i ? -1 : 0
-      return [target, dir]
-    })
-  }, [])
+  const goTo = useCallback((target: number) => setActiveIndex(target), [])
 
   // Autoplay (pauses on hover / focus, and for as long as a case study is open —
   // the carousel must not change the slide out from under someone reading).
@@ -175,31 +153,68 @@ export default function Projects() {
           onBlur={() => setPaused(false)}
           className="outline-none"
         >
-          <div className="relative">
-            <AnimatePresence mode="wait" custom={direction} initial={false}>
-              <motion.div
-                key={projects[activeIndex].id}
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={slideTransition}
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.18}
-                onDragEnd={(_, info) => {
-                  if (info.offset.x < -70) paginate(1)
-                  else if (info.offset.x > 70) paginate(-1)
-                }}
-              >
-                <ProjectCard
-                  project={projects[activeIndex]}
-                  index={activeIndex}
-                  onOpenCaseStudy={openCaseStudy}
-                />
-              </motion.div>
-            </AnimatePresence>
+          {/**
+           * Every slide shares one grid cell, so the row is always as tall as
+           * the tallest project and switching can never resize the section.
+           * That replaces the old `AnimatePresence mode="wait"` carousel,
+           * which collapsed the slide out and back in between mounts and
+           * jumped every section below it.
+           */}
+          <div className="relative grid">
+            {projects.map((project, i) => {
+              const isActive = i === activeIndex
+              const offLeft = i < activeIndex
+              return (
+                <div
+                  key={project.id}
+                  className="col-start-1 row-start-1"
+                  aria-hidden={!isActive}
+                  // Hidden only once the outgoing slide has finished, so the
+                  // cross-slide is never cut short; hidden slides drop out of
+                  // the tab order and the accessibility tree with it.
+                  style={{
+                    zIndex: isActive ? 1 : 0,
+                    visibility: isActive ? 'visible' : 'hidden',
+                    pointerEvents: isActive ? 'auto' : 'none',
+                    transition: `visibility 0s linear ${isActive ? 0 : SLIDE_DURATION}s`,
+                  }}
+                >
+                  <motion.div
+                    className="h-full"
+                    initial={false}
+                    animate={{
+                      x: isActive ? 0 : offLeft ? -SLIDE_DISTANCE : SLIDE_DISTANCE,
+                      opacity: isActive ? 1 : 0,
+                      scale: isActive ? 1 : 0.985,
+                    }}
+                    transition={{
+                      // The incoming slide waits a beat while the outgoing one
+                      // leaves, and the outgoing text fades out faster — so the
+                      // two never read on top of each other mid-switch.
+                      x: { duration: SLIDE_DURATION, ease: SLIDE_EASE, delay: isActive ? 0.15 : 0 },
+                      scale: { duration: SLIDE_DURATION, ease: SLIDE_EASE, delay: isActive ? 0.15 : 0 },
+                      opacity: isActive
+                        ? { duration: SLIDE_DURATION, ease: SLIDE_EASE, delay: 0.15 }
+                        : { duration: 0.3, ease: 'easeOut' },
+                    }}
+                    drag={isActive ? 'x' : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.18}
+                    onDragEnd={(_, info) => {
+                      if (info.offset.x < -70) paginate(1)
+                      else if (info.offset.x > 70) paginate(-1)
+                    }}
+                  >
+                    <ProjectCard
+                      project={project}
+                      index={i}
+                      active={isActive}
+                      onOpenCaseStudy={openCaseStudy}
+                    />
+                  </motion.div>
+                </div>
+              )
+            })}
           </div>
 
           {/* Dots */}

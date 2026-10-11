@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { FiExternalLink, FiAward, FiCheck, FiAlertCircle } from 'react-icons/fi'
 import { CREDENTIAL_KIND_LABEL, CREDENTIAL_KIND_NOTE } from '@/data'
+import { TiltCard } from '@/components/ui'
 import { accentColor } from '@/utils/accents'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD } from '@/utils/motion'
 import type { Credential, CredentialKind } from '@/types'
@@ -118,17 +119,32 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
           aria-label="Credentials"
           aria-orientation="vertical"
           onKeyDown={onKeyDown}
-          className="flex max-h-[400px] flex-col gap-2.5 overflow-y-auto pr-1"
+          className="flex max-h-[400px] flex-col gap-2.5 overflow-x-hidden overflow-y-auto pr-1"
         >
           <AnimatePresence initial={false} mode="popLayout">
             {visible.map((cert, i) => (
-              <CredentialRow
+              <motion.div
                 key={cert.id}
-                credential={cert}
-                index={i}
-                selected={!!active && cert.id === active.id}
-                onSelect={() => setActiveId(cert.id)}
-              />
+                role="presentation"
+                initial={reduceMotion ? undefined : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
+                transition={{ duration: DURATION.base, ease: EASE_OUT_EXPO, delay: Math.min(i, 6) * 0.05 }}
+                className="shrink-0"
+              >
+                <TiltCard
+                  accent={accentColor[cert.accent]}
+                  maxTilt={5}
+                  hoverScale={1.012}
+                  className="rounded-2xl"
+                >
+                  <CredentialRow
+                    credential={cert}
+                    selected={!!active && cert.id === active.id}
+                    onSelect={() => setActiveId(cert.id)}
+                  />
+                </TiltCard>
+              </motion.div>
             ))}
           </AnimatePresence>
 
@@ -352,15 +368,15 @@ function FilterChip({
   )
 }
 
-/** One row in the archive. */
+/** One row in the archive. A plain button: the entrance animation and the
+    tilt live on the wrappers around it, so the row itself stays a clean,
+    focusable control inside the listbox. */
 function CredentialRow({
   credential,
-  index,
   selected,
   onSelect,
 }: {
   credential: Credential
-  index: number
   selected: boolean
   onSelect: () => void
 }) {
@@ -368,24 +384,23 @@ function CredentialRow({
   const accent = accentColor[credential.accent]
 
   return (
-    <motion.button
+    <button
       type="button"
       role="option"
       aria-selected={selected}
       id={`credential-${credential.id}`}
       tabIndex={selected ? 0 : -1}
       onClick={onSelect}
-      initial={reduceMotion ? undefined : { opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
-      transition={{ duration: DURATION.base, ease: EASE_OUT_EXPO, delay: Math.min(index, 6) * 0.05 }}
       className="
-        group relative flex shrink-0 items-center gap-4 overflow-hidden rounded-2xl
-        border p-4 text-left backdrop-blur-md transition-colors duration-300 sm:p-5
+        relative flex w-full items-center gap-4 overflow-hidden rounded-2xl
+        border border-[color:var(--border)] p-4 text-left backdrop-blur-md
+        transition-colors duration-300 group-hover:border-[color:var(--tc-accent)] sm:p-5
       "
       style={{
-        borderColor: selected ? 'var(--border-glow)' : 'var(--border)',
         background: selected ? 'var(--glow-teal)' : 'var(--surface)',
+        // Only the selected row overrides the base border; unselected rows keep
+        // the class border so the group-hover accent can still apply.
+        ...(selected ? { borderColor: 'var(--border-glow)' } : null),
       }}
     >
       {/* Selection marker reads without relying on colour. */}
@@ -443,6 +458,6 @@ function CredentialRow({
           <FiCheck size={12} />
         </motion.span>
       )}
-    </motion.button>
+    </button>
   )
 }

@@ -18,6 +18,12 @@ interface ProjectCardProps {
   project: Project
   index: number
   /**
+   * Whether this card is the visible slide. Only the active card runs its
+   * animated showcase, and every card stretches to the tallest slide's height
+   * so the carousel never resizes as projects change.
+   */
+  active?: boolean
+  /**
    * Opens the case study. The study lives in a panel over the page rather than
    * inside the card: expanding it here grew the card by ~700px, which moved
    * every section below the carousel and lost the reader's place outright.
@@ -34,7 +40,7 @@ const projectVisuals: Partial<Record<ProjectVisual, () => JSX.Element>> = {
   resqgo: ResQGoCanvas,
 }
 
-export default function ProjectCard({ project, index, onOpenCaseStudy }: ProjectCardProps) {
+export default function ProjectCard({ project, index, active = true, onOpenCaseStudy }: ProjectCardProps) {
   const even = index % 2 === 0
   const accent = accentKey(project, index)
   const accentHex = accentColor[accent]
@@ -42,8 +48,8 @@ export default function ProjectCard({ project, index, onOpenCaseStudy }: Project
   const Visual = (project.visual && projectVisuals[project.visual]) ?? (even ? ProjectCanvas1 : ProjectCanvas2)
 
   return (
-    <GlowCard glowColor={`rgba(${rgb},0.16)`}>
-      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+    <GlowCard glowColor={`rgba(${rgb},0.16)`} className="h-full">
+      <div className="grid h-full grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         {/* ── Visual panel ──────────────────────────────────── */}
         <div
           className="
@@ -56,7 +62,7 @@ export default function ProjectCard({ project, index, onOpenCaseStudy }: Project
           }}
           aria-hidden="true"
         >
-          <Visual />
+          {active && <Visual />}
 
           {/* Project number watermark */}
           <span
