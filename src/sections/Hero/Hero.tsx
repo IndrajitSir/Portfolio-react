@@ -98,7 +98,7 @@ export default function Hero() {
         />
       </div>
 
-      <div className="max-container section-padding relative z-10 w-full py-24">
+      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-6 py-24 md:px-12 xl:px-16">
         <TelemetryStrip />
 
         {/* ── Asymmetric hero grid ───────────────────────── */}
@@ -106,9 +106,9 @@ export default function Hero() {
             the same as before. The topology gains its extra size and rightward
             shift from a negative right margin, which lets the track extend into
             the page gutter instead of relying on hardcoded coordinates. */}
-        <div className="mt-8 grid grid-cols-1 items-start gap-10 lg:grid-cols-12 xl:gap-14">
-          {/* Left — identity, actions, code */}
-          <div className="flex flex-col gap-7 lg:col-span-7">
+        <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] xl:gap-12">
+          {/* Left: identity, actions, metrics */}
+          <div className="flex flex-col gap-4">
             <HeroIdentity />
 
             {/* Action cluster */}
@@ -116,7 +116,7 @@ export default function Hero() {
               initial={reduceMotion ? undefined : { opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 1.05, ease: EASE }}
-              className="flex flex-wrap items-center gap-3"
+              className="flex flex-wrap items-center gap-2 sm:gap-3 xl:flex-nowrap"
             >
               {/* Primary CTA */}
               <MagneticButton
@@ -128,7 +128,7 @@ export default function Hero() {
                 className="
                   group relative inline-flex items-center gap-2 overflow-hidden rounded-lg
                   bg-[linear-gradient(110deg,var(--accent-teal),var(--accent-indigo),var(--accent-teal))]
-                  bg-[length:200%_100%] bg-left px-6 py-3
+                  bg-[length:200%_100%] bg-left px-5 py-3
                   font-mono-code text-[0.72rem] font-semibold uppercase tracking-wider
                   text-[var(--bg-primary)] shadow-[0_0_24px_var(--glow-teal)]
                   transition-[background-position,transform,box-shadow] duration-500
@@ -158,7 +158,7 @@ export default function Hero() {
                   aria-label="Download resume PDF"
                   className="
                     group inline-flex items-center gap-2 rounded-lg border border-[var(--border)]
-                    bg-[var(--surface)] px-5 py-3 font-mono-code text-[0.72rem] uppercase
+                    bg-[var(--surface)] px-4 py-3 font-mono-code text-[0.72rem] uppercase
                     tracking-wider text-[var(--text-primary)] backdrop-blur-md
                     transition-colors duration-200
                     hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]
@@ -188,7 +188,7 @@ export default function Hero() {
                   scrollToSection("contact");
                 }}
                 className="
-                  group inline-flex items-center gap-1.5 px-2 py-2 font-mono-code text-[0.68rem]
+                  group inline-flex items-center gap-1.5 shrink-0 px-2 py-2 font-mono-code text-[0.68rem]
                   uppercase tracking-wider text-[var(--text-secondary)]
                   transition-colors duration-200 hover:text-[var(--accent-teal)]
                 "
@@ -210,24 +210,18 @@ export default function Hero() {
 
             {/* ── Integrated engineering metrics ───────────────── */}
             <motion.div
-              initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
+              initial={reduceMotion ? undefined : { opacity: 0, y: 16 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.65, ease: EASE }}
-              className="mt-8 space-y-2"
+              className="mt-3 space-y-1.5"
             >
               <AnimatedMetrics />
             </motion.div>
           </div>
 
-          {/* Right — interactive systems constellation.
-              `lg:mt-*` drops it slightly below the headline baseline; the
-              negative right margin widens the track into the gutter so the graph
-              sits further right and larger. No `w-full` here on purpose: a fixed
-              width would pin the box to its track and cancel the negative
-              margin. Below `lg` the grid is single-column, so the negative
-              margin and offset are scoped to `lg+` and never affect mobile. */}
-          <div className="lg:col-span-5 lg:-mr-6 lg:mt-10 xl:-mr-14 xl:mt-14">
+          {/* Right — interactive systems constellation */}
+          <div>
             <motion.div
               style={
                 reduceMotion
@@ -273,7 +267,7 @@ export default function Hero() {
               e.preventDefault();
               scrollToSection("journey");
             }}
-            className="group inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border px-4 py-3 transition-colors duration-300 hover:border-[var(--accent-teal)]"
+            className="group flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border px-4 py-3 transition-colors duration-300 hover:border-[var(--accent-teal)]"
             style={{
               borderColor: "var(--border)",
               background: "var(--surface)",
@@ -295,7 +289,7 @@ export default function Hero() {
             <FiArrowDown
               size={14}
               aria-hidden="true"
-              className="transition-transform duration-300 group-hover:translate-y-0.5"
+              className="ml-auto transition-transform duration-300 group-hover:translate-y-0.5"
               style={{ color: "var(--text-muted)" }}
             />
           </a>
