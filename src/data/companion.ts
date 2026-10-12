@@ -22,8 +22,8 @@ export const SECTION_TIPS: Record<string, string> = {
   skills: 'Only the tools I actually reach for.',
   experience: 'Newest role first; each diagram shows how the work fits together.',
   projects: 'Open a card for the problem, the build and the result.',
-  education: 'Where the theory and the practice meet.',
-  credentials: 'Every certificate here is verified — tap one to check.',
+  education: 'Where the theory and the practice meet — try dragging the orb.',
+  credentials: 'Verified, every one — pick a card, then drag its panel around.',
   contact: 'The form opens your mail client with the subject already set.',
 }
 

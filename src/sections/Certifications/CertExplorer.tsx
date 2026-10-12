@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { FiExternalLink, FiAward, FiCheck, FiAlertCircle } from 'react-icons/fi'
 import { CREDENTIAL_KIND_LABEL, CREDENTIAL_KIND_NOTE } from '@/data'
-import { TiltCard } from '@/components/ui'
+import { DraggableCard, TiltCard } from '@/components/ui'
 import { accentColor } from '@/utils/accents'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD } from '@/utils/motion'
 import type { Credential, CredentialKind } from '@/types'
@@ -177,7 +177,19 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
               >
                 {/* Same restrained depth as the archive, dialled back for a
                     panel you read: a shallower tilt, no scale shock and no
-                    grain overlay. The panel itself is the scroll surface. */}
+                    grain overlay. The panel itself is the scroll surface.
+
+                    `DraggableCard` wraps the panel so it can be picked up and
+                    will always spring back to this exact spot. Its grip is the
+                    handle a finger needs; on a mouse the body is grabbable too,
+                    while the panel's links and its own scroll keep their
+                    gestures. */}
+                <DraggableCard
+                  accent={accentColor[active.accent]}
+                  wrapperClassName="h-full min-h-0"
+                  className="h-full min-h-0"
+                  maxTravel={110}
+                >
                 <TiltCard
                   accent={accentColor[active.accent]}
                   maxTilt={3}
@@ -339,6 +351,7 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
                   </div>
                   </div>
                 </TiltCard>
+                </DraggableCard>
               </motion.div>
             </AnimatePresence>
           </div>

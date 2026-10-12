@@ -102,6 +102,34 @@ body {
   color: var(--accent-teal);
 }
 
+/* Selection is off across the portfolio.
+
+   This is a pointer-driven, cinematic surface: dragging a card, an orb or the
+   cursor companion should never smear a blue highlight across the layout. Text
+   is still reachable — form fields, code and editable regions opt back in below,
+   because a visitor must always be able to select what they need to type or
+   copy. Disabled with `user-select` rather than by swallowing events, so
+   keyboard access, focus and assistive tech are unaffected. */
+html,
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+select,
+[contenteditable='true'],
+pre,
+code,
+kbd,
+samp {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
 /* ─── Focus Styles (Accessibility) ──────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--accent-teal);
@@ -1509,4 +1537,18 @@ a.tr-ev:focus-visible {
   .tr-stage { transition: none; }
   .tr-ev { transition: none; }
   a.tr-ev:hover, a.tr-ev:focus-visible { transform: none; }
+}
+
+/* ─── Learning orb ───────────────────────────────────────────────────────── */
+/* The orb's dashed ring turns very slowly — restrained enough to read as detail
+   rather than as decoration demanding attention. The component also stops it
+   under reduced motion; this is the CSS-side guarantee. */
+@keyframes learning-orb-spin {
+  to { transform: rotate(360deg); }
+}
+.orb-ring {
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orb-ring { animation: none !important; }
 }

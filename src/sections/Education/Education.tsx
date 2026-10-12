@@ -1,4 +1,4 @@
-import { SectionLabel, SectionBackground } from '@/components/ui'
+import { SectionLabel, SectionBackground, LearningOrb } from '@/components/ui'
 import { Parallax } from '@/components/animations'
 import { educationList } from '@/data'
 import AcademicJourney from './AcademicJourney'
@@ -13,12 +13,18 @@ export default function Education() {
     >
       <SectionBackground variant="orbit" />
       <div className="max-container section-padding relative z-10">
-        <SectionLabel
-          index="06"
-          label="Learning"
-          title="Academic"
-          titleAccent="background"
-        />
+        {/* The orb shares the heading row on wide screens and centres above the
+            timeline on narrow ones, so it is always a featured object rather
+            than a stray one floating over the content. */}
+        <div className="flex flex-col items-start sm:flex-row sm:items-start sm:justify-between">
+          <SectionLabel
+            index="06"
+            label="Learning"
+            title="Academic"
+            titleAccent="background"
+          />
+          <LearningOrb className="mb-8 self-center sm:mb-0 sm:self-start sm:mt-1" />
+        </div>
 
         {/* The journey is ordered earliest → latest and fills in as you scroll,
             so the progression itself is the story. Carried on its own layer so

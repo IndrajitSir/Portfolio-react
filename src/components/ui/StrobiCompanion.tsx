@@ -2,7 +2,13 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { createAvatar } from '@bible-strong/avatar-react'
 import '@bible-strong/avatar-react/styles.css'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { useActiveSection, useCompanionState, useMediaQuery, useStrobiPlayback } from '@/hooks'
+import {
+  useActiveSection,
+  useCompanionState,
+  useCursorCompanion,
+  useMediaQuery,
+  useStrobiPlayback,
+} from '@/hooks'
 import { accentColor } from '@/utils/accents'
 import { subscribeCompanionCues } from '@/utils/companionCues'
 import { CHAPTER_TIPS, ROLE_TIPS, SECTION_TIPS } from '@/data'
@@ -182,6 +188,20 @@ export default function StrobiCompanion() {
   // A touch screen has no hover state, so the same reaction is earned by tapping a
   // control instead — read from CSS rather than from a user-agent guess.
   const canHover = useMediaQuery('(hover: hover) and (pointer: fine)')
+
+  /**
+   * Whether the companion travels with the cursor. Only where a cursor truly
+   * exists, on a screen wide enough to have room beside it, and never when the
+   * visitor asked for reduced motion — a companion that will not stay still is
+   * exactly the motion that setting is about. Everywhere else it docks, which is
+   * the honest fallback rather than a fake cursor on a touch screen.
+   */
+  const wideEnough = useMediaQuery('(min-width: 768px)')
+  const follow = canHover && wideEnough && !reduceMotion
+  const companion = useCursorCompanion({ enabled: follow })
+  // Compact while it travels, the full pill once it settles — reading a label
+  // mid-flight would mean something to cover, and this way there is nothing to.
+  const expanded = !follow || companion.settled
 
   const playback = useStrobiPlayback(reduceMotion ? 'idle' : 'waking')
   const { controller } = playback
@@ -411,6 +431,10 @@ export default function StrobiCompanion() {
   const focusAccent = chapter?.accent ?? role?.accent ?? null
   const accent = focusAccent ? accentColor[focusAccent] : 'var(--accent-teal)'
 
+  // The tip hangs off the side of the pill that faces the middle of the screen,
+  // so a companion travelling near an edge never pushes its bubble off-screen.
+  const bubbleOnLeft = follow && companion.side === 'left'
+
   const status = statusFor({
     waking,
     reaction,
@@ -431,21 +455,32 @@ export default function StrobiCompanion() {
 
   return (
     <aside
-      className="fixed bottom-4 right-4 z-[60] sm:bottom-6 sm:right-6"
+      ref={companion.ref}
+      className={
+        follow
+          ? 'fixed left-0 top-0 z-[60] pointer-events-none'
+          : 'fixed bottom-4 right-4 z-[60] sm:bottom-6 sm:right-6'
+      }
+      // The wrapper is always transparent to the pointer, so the companion can
+      // never intercept a click, a hover or a selection on the page beneath it.
+      // Only the pill re-enables events, and only once it has settled.
+      style={follow ? { willChange: 'transform, opacity', transition: 'opacity 220ms ease' } : undefined}
       aria-label="Strobi — the portfolio's runtime companion"
     >
       <motion.div
         ref={pillRef}
-        initial={reduceMotion ? false : { opacity: 0, y: 20, scale: 0.94 }}
+        initial={follow || reduceMotion ? false : { opacity: 0, y: 20, scale: 0.94 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{
           duration: 0.6,
-          delay: reduceMotion ? 0 : 1.05,
+          delay: follow || reduceMotion ? 0 : 1.05,
           ease: [0.22, 1, 0.36, 1],
         }}
         onMouseEnter={() => setEngaged(true)}
         onMouseLeave={() => setEngaged(false)}
-        className="relative flex items-center gap-3 rounded-full border p-2 backdrop-blur-md sm:py-2 sm:pl-2.5 sm:pr-4"
+        className={`relative flex items-center gap-3 rounded-full border p-2 backdrop-blur-md sm:py-2 sm:pl-2.5 sm:pr-4 ${
+          follow && !(companion.settled && companion.visible) ? 'pointer-events-none' : ''
+        }`}
         style={{
           background: 'color-mix(in srgb, var(--panel) 90%, transparent)',
           borderColor: focusAccent ? accent : 'var(--border)',
@@ -465,7 +500,9 @@ export default function StrobiCompanion() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 4, scale: 0.97 }}
               transition={{ duration: reduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className={`pointer-events-none absolute bottom-full right-0 mb-3 w-[min(78vw,17rem)] origin-bottom-right rounded-2xl border px-3.5 py-2.5${
+              className={`pointer-events-none absolute bottom-full mb-3 w-[min(78vw,17rem)] rounded-2xl border px-3.5 py-2.5 ${
+                bubbleOnLeft ? 'left-0 origin-bottom-left' : 'right-0 origin-bottom-right'
+              }${
                 // `invisible` rather than unmounting: the rectangle stays
                 // measurable, so the guard can stand down the moment the page
                 // scrolls the control out from under the bubble.
@@ -482,7 +519,9 @@ export default function StrobiCompanion() {
               </p>
               <span
                 aria-hidden="true"
-                className="absolute -bottom-1 right-6 h-2 w-2 rotate-45 border-b border-r"
+                className={`absolute -bottom-1 h-2 w-2 rotate-45 border-b border-r ${
+                  bubbleOnLeft ? 'left-6' : 'right-6'
+                }`}
                 style={{
                   background: 'color-mix(in srgb, var(--panel) 94%, transparent)',
                   borderColor: 'var(--border)',
@@ -516,8 +555,17 @@ export default function StrobiCompanion() {
         {/* The label is a wide-screen luxury: below `sm` the companion is just the
             avatar, so it never covers the text it is meant to sit beside. The
             status line has a *fixed* width — a longer chapter name truncates
-            rather than widening the pill under the reader's eye. */}
-        <div className="hidden min-w-0 leading-tight sm:block">
+            rather than widening the pill under the reader's eye. While the
+            companion is travelling it collapses to the avatar alone. */}
+        <div
+          className={
+            follow
+              ? expanded
+                ? 'min-w-0 leading-tight'
+                : 'hidden'
+              : 'hidden min-w-0 leading-tight sm:block'
+          }
+        >
           <p
             className="font-mono-code text-[0.6rem] font-semibold uppercase tracking-widest"
             style={{ color: 'var(--text-primary)' }}
@@ -533,7 +581,9 @@ export default function StrobiCompanion() {
         </div>
 
         <span
-          className="hidden shrink-0 items-center gap-1.5 transition-colors duration-500 sm:flex"
+          className={`shrink-0 items-center gap-1.5 transition-colors duration-500 ${
+            follow ? (expanded ? 'flex' : 'hidden') : 'hidden sm:flex'
+          }`}
           style={{ color: accent }}
         >
           <span
