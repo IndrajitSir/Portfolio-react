@@ -32,7 +32,6 @@ interface DrawCtx {
   green: string
   gold: string
   violet: string
-  isLight: boolean
 }
 
 const CODE_CHARS = '01NESTSQLTSAPI{}<>/=$'
@@ -141,10 +140,10 @@ const pointAtDist = (tr: Trace, dist: number): { x: number; y: number } => {
 // ── Variants ────────────────────────────────────────────────────────────
 
 function drawCodeRain(d: DrawCtx) {
-  const { ctx, W, H, t, teal, isLight } = d
+  const { ctx, W, H, t, teal } = d
   const cell = 16
   const cols = Math.floor(W / cell)
-  const base = isLight ? 0.055 : 0.07
+  const base = 0.07
   ctx.font = `400 ${Math.max(9, cell - 5)}px 'JetBrains Mono', monospace`
   for (let c = 0; c < cols; c++) {
     const speed = 0.55 + ((c * 7) % 9) * 0.1
@@ -161,8 +160,8 @@ function drawCodeRain(d: DrawCtx) {
 }
 
 function drawCircuit(d: DrawCtx, traces: Trace[]) {
-  const { ctx, t, teal, indigo, isLight } = d
-  const lineAlpha = isLight ? 0.16 : 0.17
+  const { ctx, t, teal, indigo } = d
+  const lineAlpha = 0.17
   for (const tr of traces) {
     ctx.strokeStyle = `rgba(${teal},${lineAlpha})`
     ctx.lineWidth = 1
@@ -199,13 +198,13 @@ function drawCircuit(d: DrawCtx, traces: Trace[]) {
 }
 
 function drawRise(d: DrawCtx, particles: Particle[]) {
-  const { ctx, W, H, t, teal, indigo, isLight } = d
+  const { ctx, W, H, t, teal, indigo } = d
   for (let i = 0; i < 5; i++) {
     const bx = W * (0.1 + i * 0.2)
     const bw = 3 + Math.sin(t * 0.8 + i * 2.1) * 1.5
     const bh = H * (0.28 + 0.22 * Math.sin(t * 0.6 + i * 1.7))
     const grad = ctx.createLinearGradient(0, H, 0, H - bh)
-    grad.addColorStop(0, `rgba(${teal},${isLight ? 0.11 : 0.12})`)
+    grad.addColorStop(0, `rgba(${teal},0.12)`)
     grad.addColorStop(1, 'rgba(0,0,0,0)')
     ctx.fillStyle = grad
     ctx.fillRect(bx, H - bh, bw, bh)
@@ -233,13 +232,13 @@ function drawRise(d: DrawCtx, particles: Particle[]) {
  * graphic (the thread itself is real markup in the foreground).
  */
 function drawJourney(d: DrawCtx) {
-  const { ctx, W, H, t, teal, indigo, violet, isLight } = d
+  const { ctx, W, H, t, teal, indigo, violet } = d
 
   // Contour bands: wide, slow sine ridges suggesting terrain.
   ctx.lineWidth = 1
   for (let band = 0; band < 4; band++) {
     const phase = t * 0.12 + band * 1.6
-    ctx.strokeStyle = `rgba(${band % 2 ? indigo : teal},${isLight ? 0.05 : 0.06})`
+    ctx.strokeStyle = `rgba(${band % 2 ? indigo : teal},0.06)`
     ctx.beginPath()
     for (let x = 0; x <= W; x += 12) {
       const y =
@@ -261,7 +260,7 @@ function drawJourney(d: DrawCtx) {
       y: u * H * 1.05 - H * 0.02,
     })
   }
-  ctx.strokeStyle = `rgba(${violet},${isLight ? 0.1 : 0.13})`
+  ctx.strokeStyle = `rgba(${violet},0.13)`
   ctx.beginPath()
   route.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)))
   ctx.stroke()
@@ -277,7 +276,7 @@ function drawJourney(d: DrawCtx) {
 }
 
 function drawOrbit(d: DrawCtx) {
-  const { ctx, W, H, t, teal, indigo, isLight } = d
+  const { ctx, W, H, t, teal, indigo } = d
   const cx = W * 0.5
   const cy = H * 0.4
   const R = Math.min(W, H) * 0.34
@@ -302,7 +301,7 @@ function drawOrbit(d: DrawCtx) {
   for (const ring of rings) {
     const rx = R * Math.abs(Math.cos(t * ring.speed + ring.phase))
     if (rx < 2) continue
-    ctx.strokeStyle = `rgba(${ring.color},${isLight ? 0.09 : 0.11})`
+    ctx.strokeStyle = `rgba(${ring.color},0.11)`
     ctx.lineWidth = 1
     ctx.beginPath()
     ctx.ellipse(cx, cy, rx, R * ring.ry, ring.tilt, 0, Math.PI * 2)
@@ -321,12 +320,12 @@ function drawOrbit(d: DrawCtx) {
 }
 
 function drawAward(d: DrawCtx, stars: Star[]) {
-  const { ctx, W, H, t, teal, indigo, gold, isLight } = d
+  const { ctx, W, H, t, teal, indigo, gold } = d
   const colors = [teal, indigo, gold]
   for (const s of stars) {
     const tw = 0.5 + Math.sin(t * s.speed + s.phase) * 0.5
     const color = colors[s.c % colors.length]
-    const alpha = (0.07 + tw * 0.2) * (isLight ? 0.85 : 1)
+    const alpha = 0.07 + tw * 0.2
     ctx.fillStyle = `rgba(${color},${alpha})`
     ctx.beginPath()
     ctx.arc(s.x * W, s.y * H, s.size, 0, Math.PI * 2)
@@ -361,36 +360,163 @@ function drawAward(d: DrawCtx, stars: Star[]) {
 }
 
 function drawSignal(d: DrawCtx, particles: Particle[]) {
-  const { ctx, W, H, t, teal, indigo, isLight } = d
-  const cx = W * 0.5
-  const cy = H * 0.8
-  for (let k = 0; k < 3; k++) {
-    const r = (t * 26 + k * 55) % 175
-    const a = Math.max(0, 1 - r / 175)
-    ctx.strokeStyle = `rgba(${teal},${a * 0.38})`
-    ctx.lineWidth = 1
+  const { ctx, W, H, t, teal, indigo } = d
+
+  // Positioned on the left, directly below the direct channels / GitHub link
+  // Shifted +25px right and +40px down to center in the open space below GitHub link
+  const isDesktop = W >= 1024
+  const containerW = Math.min(W - 48, 1280)
+  const containerLeft = (W - containerW) / 2
+  const baseCx = isDesktop ? containerLeft + containerW * 0.22 : W * 0.5
+  const baseCy = isDesktop ? H * 0.76 : H * 0.48
+  const cx = baseCx + (isDesktop ? 65 : 10)
+  const cy = baseCy + (isDesktop ? 100 : 25)
+
+  // Expansive range to fulfill the empty column below the GitHub link
+  const maxRange = isDesktop ? 280 : 190
+  const rangeSteps = [60, 120, 180, 240, 300]
+
+  ctx.save()
+
+  // 1. Soft atmospheric wash in the empty region
+  const radGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxRange * 0.9)
+  radGlow.addColorStop(0, `rgba(${teal},0.08)`)
+  radGlow.addColorStop(0.55, `rgba(${indigo},0.035)`)
+  radGlow.addColorStop(1, 'rgba(0,0,0,0)')
+  ctx.fillStyle = radGlow
+  ctx.beginPath()
+  ctx.arc(cx, cy, maxRange * 0.9, Math.PI, Math.PI * 2)
+  ctx.fill()
+
+  // 2. Concentric range rings (subtle dashed sonar guides)
+  ctx.lineWidth = 1
+  for (const r of rangeSteps) {
+    if (r > maxRange + 30) continue
+    ctx.strokeStyle = `rgba(${teal},0.1)`
+    ctx.setLineDash([3, 7])
     ctx.beginPath()
     ctx.arc(cx, cy, r, Math.PI, Math.PI * 2)
     ctx.stroke()
   }
-  for (const p of particles) {
-    const dx = cx - p.x * W
-    const dy = cy - p.y * H
-    p.x += (dx / W) * 0.0022
-    p.y += (dy / H) * 0.0022
-    p.x += Math.sin(t * 0.3 + p.sway) * 0.0005
-    p.y += Math.cos(t * 0.35 + p.sway * 2) * 0.0004
-    if (Math.hypot(dx, dy) < 14) {
-      p.x = Math.random()
-      p.y = Math.random() * 0.6
+  ctx.setLineDash([])
+
+  // 3. Crosshair baseline & directional spoke rays
+  ctx.strokeStyle = `rgba(${teal},0.14)`
+  ctx.beginPath()
+  ctx.moveTo(cx - maxRange * 0.85, cy)
+  ctx.lineTo(cx + maxRange * 0.85, cy)
+  ctx.stroke()
+
+  const angles = [Math.PI * 1.18, Math.PI * 1.35, Math.PI * 1.5, Math.PI * 1.65, Math.PI * 1.82]
+  ctx.strokeStyle = `rgba(${teal},0.07)`
+  ctx.setLineDash([2, 5])
+  for (const ang of angles) {
+    ctx.beginPath()
+    ctx.moveTo(cx, cy)
+    ctx.lineTo(cx + Math.cos(ang) * (maxRange * 0.85), cy + Math.sin(ang) * (maxRange * 0.85))
+    ctx.stroke()
+  }
+  ctx.setLineDash([])
+
+  // 4. Sweeping radar beam line
+  const sweepAngle = Math.PI + (0.5 + 0.5 * Math.sin(t * 1.1)) * Math.PI
+  const beamLen = maxRange * 0.92
+  const bx = cx + Math.cos(sweepAngle) * beamLen
+  const by = cy + Math.sin(sweepAngle) * beamLen
+
+  const beamGrad = ctx.createLinearGradient(cx, cy, bx, by)
+  beamGrad.addColorStop(0, `rgba(${teal},0.38)`)
+  beamGrad.addColorStop(0.7, `rgba(${teal},0.12)`)
+  beamGrad.addColorStop(1, 'rgba(0,0,0,0)')
+  ctx.strokeStyle = beamGrad
+  ctx.lineWidth = 1.3
+  ctx.beginPath()
+  ctx.moveTo(cx, cy)
+  ctx.lineTo(bx, by)
+  ctx.stroke()
+
+  // 5. Dynamic expanding signal pulse waves (5 ripple rings)
+  const waveCount = 5
+  const waveCycle = maxRange
+  for (let k = 0; k < waveCount; k++) {
+    const progress = ((t * 32 + k * (waveCycle / waveCount)) % waveCycle) / waveCycle
+    const r = progress * waveCycle
+    const alpha = Math.sin(progress * Math.PI) * 0.38
+    ctx.strokeStyle = `rgba(${teal},${alpha})`
+    ctx.lineWidth = 1.2
+    ctx.beginPath()
+    ctx.arc(cx, cy, r, Math.PI, Math.PI * 2)
+    ctx.stroke()
+  }
+
+  // 6. Central beacon node
+  const pulse = 0.5 + 0.5 * Math.sin(t * 2.8)
+  ctx.fillStyle = `rgba(${teal},${0.45 + pulse * 0.45})`
+  ctx.beginPath()
+  ctx.arc(cx, cy, 3.5, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.fillStyle = `rgba(${teal},${0.12 + pulse * 0.15})`
+  ctx.beginPath()
+  ctx.arc(cx, cy, 11 + pulse * 5, 0, Math.PI * 2)
+  ctx.fill()
+
+  // 7. Subtle telemetry HUD text
+  ctx.font = "400 9px 'JetBrains Mono', monospace"
+  ctx.fillStyle = `rgba(${teal},0.32)`
+  ctx.fillText("BEACON // ACTIVE", cx - 44, cy + 18)
+  ctx.fillStyle = `rgba(${indigo},0.25)`
+  ctx.fillText("RX 2.4GHz · DIRECT", cx - 48, cy + 30)
+
+  // 8. Converging particles with interconnecting network links
+  const activeZoneW = isDesktop ? containerW * 0.44 : W * 0.8
+  const activeZoneLeft = isDesktop ? containerLeft : W * 0.1
+
+  // Faint proximity lines between nearby particles
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const p1 = particles[i]
+      const p2 = particles[j]
+      const p1x = p1.x * W
+      const p1y = p1.y * H
+      const p2x = p2.x * W
+      const p2y = p2.y * H
+      const dist = Math.hypot(p1x - p2x, p1y - p2y)
+      if (dist < 75) {
+        ctx.strokeStyle = `rgba(${teal},${(1 - dist / 75) * 0.11})`
+        ctx.lineWidth = 0.8
+        ctx.beginPath()
+        ctx.moveTo(p1x, p1y)
+        ctx.lineTo(p2x, p2y)
+        ctx.stroke()
+      }
     }
-    const d2 = Math.hypot(cx - p.x * W, cy - p.y * H)
-    const alpha = (0.1 + p.z * 0.2) * (0.35 + (1 - Math.min(1, d2 / (H * 0.8))) * 0.65) * (isLight ? 0.85 : 1)
+  }
+
+  for (const p of particles) {
+    const px = p.x * W
+    const py = p.y * H
+    const dx = cx - px
+    const dy = cy - py
+    p.x += (dx / W) * 0.0018
+    p.y += (dy / H) * 0.0018
+    p.x += Math.sin(t * 0.3 + p.sway) * 0.0006
+    p.y += Math.cos(t * 0.35 + p.sway * 2) * 0.0005
+
+    if (Math.hypot(dx, dy) < 18) {
+      p.x = (activeZoneLeft + Math.random() * activeZoneW) / W
+      p.y = isDesktop ? 0.45 + Math.random() * 0.45 : 0.25 + Math.random() * 0.45
+    }
+
+    const d2 = Math.hypot(dx, dy)
+    const alpha = (0.12 + p.z * 0.22) * (0.35 + (1 - Math.min(1, d2 / (maxRange * 1.2))) * 0.65)
     ctx.fillStyle = `rgba(${indigo},${alpha})`
     ctx.beginPath()
-    ctx.arc(p.x * W, p.y * H, 0.8 + p.z * 1.2, 0, Math.PI * 2)
+    ctx.arc(px, py, 0.9 + p.z * 1.3, 0, Math.PI * 2)
     ctx.fill()
   }
+
+  ctx.restore()
 }
 
 function drawPackages(d: DrawCtx, cubes: Cube[]) {
@@ -557,8 +683,6 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
       ctx.clip()
       ctx.clearRect(0, bandTop, W, bandH)
 
-      const isLight = document.documentElement.classList.contains('light')
-
       // ── Parallax: shift the canvas at a slower rate than content
       const section = canvas.parentElement
       if (section) {
@@ -579,13 +703,12 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
         W,
         H,
         t: performance.now() / 1000,
-        teal: isLight ? '8,145,178' : '94,234,212',
-        indigo: isLight ? '99,102,241' : '129,140,248',
-        orange: isLight ? '234,88,12' : '251,146,60',
-        green: isLight ? '16,145,87' : '37,211,102',
-        gold: isLight ? '202,138,4' : '251,191,36',
-        violet: isLight ? '124,58,237' : '167,139,250',
-        isLight,
+        teal: '94,234,212',
+        indigo: '129,140,248',
+        orange: '251,146,60',
+        green: '37,211,102',
+        gold: '251,191,36',
+        violet: '167,139,250',
       }
 
       // ── Shared ambient layer: drifting glow blobs ──────────
@@ -593,7 +716,7 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
         W * 0.2 + Math.sin(d.t * 0.18) * W * 0.05, H * 0.3 + Math.cos(d.t * 0.14) * H * 0.05, 0,
         W * 0.2, H * 0.3, Math.max(W, H) * 0.42,
       )
-      blob1.addColorStop(0, `rgba(${d.teal},${isLight ? 0.06 : 0.055})`)
+      blob1.addColorStop(0, `rgba(${d.teal},0.055)`)
       blob1.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = blob1
       ctx.fillRect(0, 0, W, H)
@@ -602,7 +725,7 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
         W * 0.8 + Math.cos(d.t * 0.16) * W * 0.04, H * 0.7 + Math.sin(d.t * 0.12) * H * 0.04, 0,
         W * 0.8, H * 0.7, Math.max(W, H) * 0.36,
       )
-      blob2.addColorStop(0, `rgba(${d.indigo},${isLight ? 0.06 : 0.055})`)
+      blob2.addColorStop(0, `rgba(${d.indigo},0.055)`)
       blob2.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = blob2
       ctx.fillRect(0, 0, W, H)
@@ -701,7 +824,7 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-x-0 -top-[15%] w-full h-[130%] pointer-events-none z-0 [.light_&]:opacity-55"
+      className="absolute inset-x-0 -top-[15%] w-full h-[130%] pointer-events-none z-0"
       aria-hidden="true"
     />
   )

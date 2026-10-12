@@ -44,43 +44,11 @@
   --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Light theme ──────────────────────────────────────────────────────────
-   A warm ivory foundation with white panels, deep charcoal type and a
-   deliberately restrained decorative layer. Accents stay semantic: teal is the
-   primary accent (links, active states, the core), indigo the secondary. */
-.light {
-  --bg-primary: #f7f6f3;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #efede8;
-  --panel: #ffffff;
-  --panel-raised: #f4f2ee;
-  --surface: rgba(23, 31, 46, 0.04);
-  --surface-hover: rgba(23, 31, 46, 0.07);
-
-  --border: rgba(23, 31, 46, 0.14);
-  --border-strong: rgba(23, 31, 46, 0.24);
-  --border-glow: rgba(14, 116, 144, 0.4);
-  --grid-line: rgba(23, 31, 46, 0.05);
-
-  --text-primary: #151922;
-  --text-secondary: #48505d;
-  /* Deliberately darker than a typical "muted" grey: these labels are set in
-     0.55–0.62rem mono, and a pale grey at that size fails AA. */
-  --text-muted: #5d6572;
-
-  --accent-teal: #0e7490;
-  --accent-indigo: #4f46e5;
-  --accent-orange: #c2410c;
-  --accent-violet: #6d28d9;
-  --accent-green: #15803d;
-  --glow-teal: rgba(14, 116, 144, 0.12);
-  --glow-indigo: rgba(79, 70, 229, 0.1);
-
-  --shadow-panel:
-    0 1px 2px rgba(23, 31, 46, 0.05),
-    0 18px 40px -22px rgba(23, 31, 46, 0.28);
-  --shadow-soft: 0 1px 2px rgba(23, 31, 46, 0.06);
-}
+/* ── One theme only ───────────────────────────────────────────────────────
+   The portfolio is dark-only. The tokens above are the whole palette; there is
+   no `.light` override, no `data-theme` switch and no persisted preference, so
+   `<html class="dark">` from `index.html` is the only theme state that exists.
+   Keep new colours on these tokens rather than branching on a theme. */
 
 /* ─── Base Reset ─────────────────────────────────────────────────────────── */
 *,
@@ -307,9 +275,8 @@ body {
     0 0 12px var(--glow-teal);
 }
 .mindset-frame[data-lit='true'] svg {
-  /* `contrast` works in both themes: it lifts the faint blueprint strokes on a
-     near-black card and deepens them on the light one. `brightness` would just
-     blow the diagram out in light mode. */
+  /* `contrast` lifts the faint blueprint strokes on the near-black card without
+     blowing the diagram out the way `brightness` would. */
   filter: contrast(1.3);
 }
 
@@ -323,7 +290,7 @@ body {
    toggles `data-paused` off-screen, which never re-renders React. */
 .npm-scene {
   --npm-cycle: 19s;
-  /* The vignette has to flip with the theme, so it gets its own colour. */
+  /* The vignette colour, kept as its own token for the dark scene. */
   --npm-vignette: 8, 9, 13;
   position: absolute;
   inset: 0;
@@ -331,9 +298,6 @@ body {
   pointer-events: none;
   /* Lets the wordmark size itself from the panel, not from the viewport. */
   container-type: inline-size;
-}
-:root.light .npm-scene {
-  --npm-vignette: 244, 246, 251;
 }
 
 /* Layer 1 — background ------------------------------------------------- */
@@ -1309,9 +1273,6 @@ body {
 .tc-grain { opacity: 0.12; transition: opacity 0.5s ease; }
 .tc:hover .tc-grain,
 .tc:focus-within .tc-grain { opacity: 0.2; }
-.light .tc-grain { filter: invert(1); opacity: 0.09; }
-.light .tc:hover .tc-grain,
-.light .tc:focus-within .tc-grain { opacity: 0.14; }
 
 .tc-wash {
   background: radial-gradient(70% 45% at 50% 62%, color-mix(in srgb, var(--tc-accent) 12%, transparent), transparent 70%);
@@ -1332,6 +1293,12 @@ body {
 
 .tc-card {
   transform-style: preserve-3d;
+  /* The root is `inline-flex`, so the surface is a flex item and would collapse
+     to its content width. Filling it here is what keeps sibling cards in a list
+     (the credential archive) the same width whatever their titles measure, and
+     `min-width: 0` lets long, unbreakable strings wrap instead of overflowing. */
+  width: 100%;
+  min-width: 0;
   border: 1px solid var(--border);
   background: var(--panel);
   transition: border-color 0.3s ease, box-shadow 0.4s ease;
@@ -1357,8 +1324,6 @@ body {
 /* Grain gets denser on hover, as on the original */
 .tc-grain { opacity: 0.14; transition: opacity 0.5s ease; }
 .tc:hover .tc-grain { opacity: 0.26; }
-.light .tc-grain { filter: invert(1); opacity: 0.1; }
-.light .tc:hover .tc-grain { opacity: 0.16; }
 
 .tc-glare { opacity: 0; transition: opacity 0.3s ease; }
 .tc:hover .tc-glare { opacity: 1; }

@@ -269,5 +269,6 @@ export interface NavItem {
 }
 
 // ─── UI Types ───────────────────────────────────────────────────────────────
-
-export type ThemeMode = 'dark' | 'light'
+//
+// The portfolio is dark-only, so there is no `ThemeMode` union and no theme
+// state to thread through the tree. The one theme's tokens live in `index.css`.

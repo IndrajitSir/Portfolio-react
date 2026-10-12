@@ -1,9 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight, FiDownload } from 'react-icons/fi'
+import { FiMenu, FiX, FiArrowUpRight, FiDownload } from 'react-icons/fi'
 import { navItems } from '@/data/navigation'
 import { personalInfo } from '@/data/personal'
-import { useTheme } from '@/hooks/useTheme'
 import { useActiveSection } from '@/hooks/useActiveSection'
 import { useRoute, useSectionNavigation, SIDE_MISSIONS_ROUTE, HOME_ROUTE } from '@/context/route'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD, SPRING_LAYOUT } from '@/utils/motion'
@@ -11,7 +10,6 @@ import HireMeButton from '../ui/HireMeButton'
 import ResumeButton from '../ui/ResumeButton'
 
 export default function Navbar() {
-  const { isDark, toggleTheme } = useTheme()
   const { path, isSideMissions, navigate } = useRoute()
   const goToSection = useSectionNavigation()
   const reduceMotion = useReducedMotion()
@@ -87,9 +85,7 @@ export default function Navbar() {
             ? 'backdrop-blur-2xl border-b border-[var(--border)]'
             : 'bg-transparent'}
         `}
-        style={scrolled ? { background: isDark
-          ? 'rgba(8,9,13,0.75)'
-          : 'rgba(244,246,251,0.75)' } : {}}
+        style={scrolled ? { background: 'rgba(8,9,13,0.75)' } : {}}
       >
         {/* Logo */}
         <a
@@ -185,33 +181,6 @@ export default function Navbar() {
               waits for the widest breakpoint the rail can still clear; below
               that the hero, the drawer and Contact all carry their own copy. */}
           {personalInfo.resumeUrl && <ResumeButton href={personalInfo.resumeUrl} />}
-
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            className="
-              w-9 h-9 rounded-full flex items-center justify-center overflow-hidden
-              border border-[var(--border)] bg-[var(--surface)]
-              hover:border-[var(--accent-teal)] hover:bg-[var(--glow-teal)]
-              transition-all duration-200 text-[var(--text-secondary)]
-              hover:text-[var(--accent-teal)]
-            "
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={isDark ? 'sun' : 'moon'}
-                initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
-                animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
-                transition={{ duration: DURATION.quick, ease: EASE_STANDARD }}
-                className="flex"
-                aria-hidden="true"
-              >
-                {isDark ? <FiSun size={15} /> : <FiMoon size={15} />}
-              </motion.span>
-            </AnimatePresence>
-          </button>
 
           {/* Hire Me CTA — desktop only, magnetic */}
           <HireMeButton onClick={(e) => { e?.preventDefault(); goToSection('contact') }} />

@@ -1,6 +1,7 @@
 // ─── Shared canvas scene helpers ────────────────────────────────────────────
 // Every animated showcase canvas reads its palette from here so the whole
-// portfolio shares one theme mapping (dark / light aware).
+// portfolio shares one mapping. The portfolio is dark-only, so there is exactly
+// one palette and no theme lookup.
 
 export interface ScenePalette {
   teal: string
@@ -10,10 +11,9 @@ export interface ScenePalette {
   gold: string
   violet: string
   text: string
-  isLight: boolean
 }
 
-const DARK: Omit<ScenePalette, 'isLight'> = {
+const PALETTE: ScenePalette = {
   teal: '94,234,212',
   indigo: '129,140,248',
   orange: '251,146,60',
@@ -23,18 +23,7 @@ const DARK: Omit<ScenePalette, 'isLight'> = {
   text: '232,234,240',
 }
 
-const LIGHT: Omit<ScenePalette, 'isLight'> = {
-  teal: '8,145,178',
-  indigo: '99,102,241',
-  orange: '234,88,12',
-  green: '16,145,87',
-  gold: '202,138,4',
-  violet: '124,58,237',
-  text: '15,17,23',
-}
-
-export const canvasPalette = (isLight: boolean): ScenePalette =>
-  isLight ? { ...LIGHT, isLight: true } : { ...DARK, isLight: false }
+export const canvasPalette = (): ScenePalette => PALETTE
 
 /** Rounded rectangle path (caller decides fill / stroke). */
 export function roundRect(

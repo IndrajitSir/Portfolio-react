@@ -15,8 +15,7 @@ export interface SceneFrame {
  * conventions:
  *  - DPR-aware sizing (capped at 2×) with zero layout thrash,
  *  - pauses when scrolled out of view or when the tab is hidden,
- *  - honours `prefers-reduced-motion` by painting a single static frame,
- *  - reads the current theme class each frame so it follows the theme toggle.
+ *  - honours `prefers-reduced-motion` by painting a single static frame.
  *
  * The `draw` callback is kept in a ref, so passing an inline closure does not
  * re-subscribe the loop on every render.
@@ -48,8 +47,7 @@ export function useCanvasScene(draw: (frame: SceneFrame) => void) {
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, W, H)
-      const isLight = document.documentElement.classList.contains('light')
-      drawRef.current({ ctx, W, H, t: performance.now() / 1000, pal: canvasPalette(isLight) })
+      drawRef.current({ ctx, W, H, t: performance.now() / 1000, pal: canvasPalette() })
     }
 
     const loop = () => {

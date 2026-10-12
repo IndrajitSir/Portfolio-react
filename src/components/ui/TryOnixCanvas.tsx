@@ -63,7 +63,7 @@ function slot(
 
 export default function TryOnixCanvas() {
   const canvasRef = useCanvasScene(({ ctx, W, H, t, pal }: SceneFrame) => {
-    drawGrid(ctx, W, H, 26, `rgba(${pal.violet},${pal.isLight ? 0.05 : 0.06})`)
+    drawGrid(ctx, W, H, 26, `rgba(${pal.violet},0.06)`)
 
     const cycle = t % CYCLE
     const stageIdx = Math.min(STAGES.length - 1, Math.floor(cycle / (CYCLE / STAGES.length)))

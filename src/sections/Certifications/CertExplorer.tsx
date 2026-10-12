@@ -130,7 +130,7 @@ export default function CredentialExplorer({ credentials }: CredentialExplorerPr
                 animate={{ opacity: 1, y: 0 }}
                 exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
                 transition={{ duration: DURATION.base, ease: EASE_OUT_EXPO, delay: Math.min(i, 6) * 0.05 }}
-                className="shrink-0"
+                className="w-full min-w-0 shrink-0"
               >
                 <TiltCard
                   accent={accentColor[cert.accent]}

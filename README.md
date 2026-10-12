@@ -37,8 +37,8 @@ src/
 │   ├── Education/
 │   ├── Certifications/
 │   └── Contact/
-├── hooks/            # useScrollReveal, useMouse, useLenis, useTheme, useCanvasScene, useMediaQuery
-├── context/          # ThemeContext, RouteContext
+├── hooks/            # useScrollReveal, useMouse, useLenis, useCanvasScene, useMediaQuery, useAnimeReveal
+├── context/          # RouteContext (single-page ↔ side-missions routing)
 ├── utils/            # Motion language, scroll helpers, lenisRef
 ├── types/            # Shared TypeScript interfaces
 └── data/             # All professional content (single source of truth)

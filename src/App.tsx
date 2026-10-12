@@ -1,5 +1,4 @@
 import { lazy, Suspense } from 'react'
-import { ThemeProvider } from '@/context/ThemeContext'
 import { RouteProvider } from '@/context/RouteContext'
 import { useRoute } from '@/context/route'
 import { useLenis } from '@/hooks/useLenis'
@@ -89,12 +88,15 @@ function AppInner() {
   )
 }
 
+/**
+ * The portfolio ships dark-only. There is no theme provider, no persisted
+ * preference and no toggle: `<html class="dark">` is set in `index.html`, so the
+ * very first paint is already the finished theme and nothing can flash light.
+ */
 export default function App() {
   return (
-    <ThemeProvider>
-      <RouteProvider>
-        <AppInner />
-      </RouteProvider>
-    </ThemeProvider>
+    <RouteProvider>
+      <AppInner />
+    </RouteProvider>
   )
 }

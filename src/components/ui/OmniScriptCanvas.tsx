@@ -67,7 +67,7 @@ function row(
 
 export default function OmniScriptCanvas() {
   const canvasRef = useCanvasScene(({ ctx, W, H, t, pal }: SceneFrame) => {
-    drawGrid(ctx, W, H, 26, `rgba(${pal.teal},${pal.isLight ? 0.05 : 0.055})`)
+    drawGrid(ctx, W, H, 26, `rgba(${pal.teal},0.055)`)
 
     const domIdx = Math.floor(t / CYCLE) % DOMAINS.length
     const domain = DOMAINS[domIdx]

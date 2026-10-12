@@ -42,11 +42,11 @@ export default function PlacementPipelineCanvas() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, W, H)
 
-      const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
-      const teal = isDark ? '94,234,212' : '8,145,178'
-      const indigo = isDark ? '129,140,248' : '99,102,241'
-      const orange = isDark ? '251,146,60' : '234,88,12'
-      const textMuted = isDark ? '148,163,184' : '71,85,105'
+      // Dark-only palette.
+      const teal = '94,234,212'
+      const indigo = '129,140,248'
+      const orange = '251,146,60'
+      const textMuted = '148,163,184'
 
       const t = performance.now() / 1000
 
@@ -65,7 +65,7 @@ export default function PlacementPipelineCanvas() {
       // Animated dashed flow line
       ctx.setLineDash([5, 9])
       ctx.lineDashOffset = -t * 26
-      ctx.strokeStyle = `rgba(${teal},${isDark ? 0.4 : 0.5})`
+      ctx.strokeStyle = `rgba(${teal},0.4)`
       ctx.lineWidth = 1.4
       ctx.beginPath()
       ctx.moveTo(p0.x, p0.y)
@@ -79,7 +79,7 @@ export default function PlacementPipelineCanvas() {
       const hubW = Math.max(14, W * 0.07)
       const hubH = Math.max(20, H * 0.2)
       // building body
-      ctx.fillStyle = `rgba(${indigo},${isDark ? 0.28 : 0.22})`
+      ctx.fillStyle = `rgba(${indigo},0.28)`
       ctx.strokeStyle = `rgba(${indigo},0.6)`
       ctx.lineWidth = 1
       roundRect(ctx, hubX - hubW / 2, hubY - hubH, hubW, hubH, 3)

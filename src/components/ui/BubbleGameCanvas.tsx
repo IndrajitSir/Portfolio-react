@@ -21,7 +21,7 @@ export default function BubbleGameCanvas() {
   const popupsRef = useRef<{ x: number; y: number; t: number }[]>([])
   const pointerRef = useRef({ x: -999, y: -999, active: false })
   const canvasRef = useCanvasScene(({ ctx, W, H, t, pal }: SceneFrame) => {
-    drawGrid(ctx, W, H, 22, `rgba(${pal.teal},${pal.isLight ? 0.05 : 0.06})`)
+    drawGrid(ctx, W, H, 22, `rgba(${pal.teal},0.06)`)
 
     const topY = 34
     const bottomY = H - 18
@@ -74,7 +74,7 @@ export default function BubbleGameCanvas() {
         const rgb = matches ? pal.teal : pal.indigo
         const alpha = matches ? 0.32 : 0.12
 
-        ctx.fillStyle = pal.isLight ? `rgba(${rgb},${alpha * 0.6})` : `rgba(${rgb},${alpha})`
+        ctx.fillStyle = `rgba(${rgb},${alpha})`
         ctx.strokeStyle = `rgba(${rgb},${near ? 0.95 : matches ? 0.7 : 0.32})`
         ctx.lineWidth = near ? 1.8 : 1
         ctx.beginPath()

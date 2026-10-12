@@ -24,8 +24,8 @@ export default function ProjectCanvas2() {
             const W = canvas.width = canvas.offsetWidth || 300
             const H = canvas.height = canvas.offsetHeight || 150
 
-            const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
-            ctx.fillStyle = isDark ? 'rgba(8,9,13,0.3)' : 'rgba(244,246,251,0.3)'
+            // Dark-only palette, so the wash is a constant.
+            ctx.fillStyle = 'rgba(8,9,13,0.3)'
             ctx.fillRect(0, 0, W, H)
 
             // Move nodes
@@ -42,16 +42,14 @@ export default function ProjectCanvas2() {
                     if (j <= i) return
                     const d = Math.hypot(m.x - n.x, m.y - n.y)
                     if (d < 100) {
-                        ctx.strokeStyle = isDark
-                            ? `rgba(94,234,212,${(1 - d / 100) * 0.4})`
-                            : `rgba(8,145,178,${(1 - d / 100) * 0.35})`
+                        ctx.strokeStyle = `rgba(94,234,212,${(1 - d / 100) * 0.4})`
                         ctx.lineWidth = 1
                         ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(m.x, m.y); ctx.stroke();
                     }
                 })
 
                 ctx.beginPath(); ctx.arc(n.x, n.y, 3, 0, Math.PI * 2);
-                ctx.fillStyle = isDark ? 'rgba(129,140,248,0.8)' : 'rgba(99,102,241,0.8)';
+                ctx.fillStyle = 'rgba(129,140,248,0.8)';
                 ctx.fill();
             })
 

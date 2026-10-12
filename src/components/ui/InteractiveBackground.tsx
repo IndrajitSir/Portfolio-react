@@ -90,13 +90,9 @@ export default function InteractiveBackground({
 
     const seed = () => {
       const area = width * height
-      // In light mode the decorative field is thinned as well as dimmed: a cyan
-      // particle haze that reads as atmosphere on near-black reads as noise on
-      // ivory, so there are simply fewer points and routes to begin with.
-      const isLight = document.documentElement.classList.contains('light')
       // Device-appropriate density: fewer points on small / touch screens.
       const density = coarse ? 1 / 26000 : 1 / 14000
-      const count = Math.max(24, Math.min(140, Math.round(area * density * (isLight ? 0.65 : 1))))
+      const count = Math.max(24, Math.min(140, Math.round(area * density)))
       particles = Array.from({ length: count }, (_, i) => {
         const z = Math.random()
         return {
@@ -112,7 +108,7 @@ export default function InteractiveBackground({
       })
 
       // Generate a handful of Manhattan circuit routes across the viewport.
-      const routeCount = (coarse ? 5 : 8) - (isLight ? 2 : 0)
+      const routeCount = coarse ? 5 : 8
       routes = Array.from({ length: routeCount }, () => {
         let x = Math.random() * width
         let y = Math.random() * height
@@ -157,12 +153,10 @@ export default function InteractiveBackground({
       seed()
     }
 
-    const drawGrid = (ox: number, oy: number, isLight: boolean) => {
+    const drawGrid = (ox: number, oy: number) => {
       const step = 54
-      // The grid stays in light mode as a technical substrate, but at roughly
-      // half the weight so it never competes with the hero content.
-      const alpha = isLight ? 0.028 : 0.045
-      ctx.strokeStyle = `rgba(${isLight ? '8,145,178' : '94,234,212'},${alpha})`
+      const alpha = 0.045
+      ctx.strokeStyle = `rgba(94,234,212,${alpha})`
       ctx.lineWidth = 1
       ctx.beginPath()
       const gx = ((ox % step) + step) % step
@@ -178,12 +172,12 @@ export default function InteractiveBackground({
       ctx.stroke()
     }
 
-    const drawRoutes = (ox: number, oy: number, t: number, isLight: boolean) => {
-      const teal = isLight ? '8,145,178' : '94,234,212'
+    const drawRoutes = (ox: number, oy: number, t: number) => {
+      const teal = '94,234,212'
       ctx.save()
       ctx.translate(ox, oy)
       for (const route of routes) {
-        ctx.strokeStyle = `rgba(${teal},${isLight ? 0.06 : 0.11})`
+        ctx.strokeStyle = `rgba(${teal},0.11)`
         ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(route.pts[0].x, route.pts[0].y)
@@ -209,9 +203,9 @@ export default function InteractiveBackground({
       ctx.restore()
     }
 
-    const drawParticles = (ox: number, oy: number, isLight: boolean) => {
-      const teal = isLight ? '8,145,178' : '94,234,212'
-      const indigo = isLight ? '99,102,241' : '129,140,248'
+    const drawParticles = (ox: number, oy: number) => {
+      const teal = '94,234,212'
+      const indigo = '129,140,248'
       const maxLink = coarse ? 96 : 118
 
       for (let i = 0; i < particles.length; i++) {
@@ -237,7 +231,7 @@ export default function InteractiveBackground({
           const dy = py - qy
           const d2 = dx * dx + dy * dy
           if (d2 < maxLink * maxLink) {
-            const a = (1 - Math.sqrt(d2) / maxLink) * (isLight ? 0.09 : 0.16)
+            const a = (1 - Math.sqrt(d2) / maxLink) * 0.16
             ctx.strokeStyle = `rgba(${teal},${a})`
             ctx.lineWidth = 0.6
             ctx.beginPath()
@@ -254,10 +248,10 @@ export default function InteractiveBackground({
       }
     }
 
-    const drawCursor = (isLight: boolean) => {
+    const drawCursor = () => {
       const { x, y, active } = smooth.current
       if (active < 0.01) return
-      const teal = isLight ? '8,145,178' : '94,234,212'
+      const teal = '94,234,212'
       const radius = coarse ? 160 : 220
 
       const grad = ctx.createRadialGradient(x, y, 0, x, y, radius)
@@ -284,7 +278,6 @@ export default function InteractiveBackground({
 
     const render = (time: number) => {
       const t = (time - startTime) / 1000
-      const isLight = document.documentElement.classList.contains('light')
 
       // Gently respond to scroll: the field drifts down and dims as the hero
       // leaves the viewport. Reading scrollY is cheap and does not force layout.
@@ -303,13 +296,11 @@ export default function InteractiveBackground({
       const oy = -smooth.current.py * 46 + scrollP * 90
 
       ctx.clearRect(0, 0, width, height)
-      // In light mode the whole decorative field sits back: a continuous cyan
-      // haze is exactly what made the old light theme read as washed out.
-      ctx.globalAlpha = dim * (isLight ? 0.55 : 1)
-      drawGrid(ox * 0.35, oy * 0.35, isLight)
-      drawRoutes(ox * 0.6, oy * 0.6, t, isLight)
-      drawParticles(ox, oy, isLight)
-      drawCursor(isLight)
+      ctx.globalAlpha = dim
+      drawGrid(ox * 0.35, oy * 0.35)
+      drawRoutes(ox * 0.6, oy * 0.6, t)
+      drawParticles(ox, oy)
+      drawCursor()
       ctx.globalAlpha = 1
     }
 

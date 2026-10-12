@@ -42,18 +42,18 @@ export default function WhatsAppAlertCanvas() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, W, H)
 
-      const isLight = document.documentElement.classList.contains('light')
-      const teal = isLight ? '8,145,178' : '94,234,212'
-      const indigo = isLight ? '99,102,241' : '129,140,248'
-      const green = isLight ? '16,145,87' : '37,211,102'
-      const textMain = isLight ? '15,17,23' : '232,234,240'
+      // Dark-only palette.
+      const teal = '94,234,212'
+      const indigo = '129,140,248'
+      const green = '37,211,102'
+      const textMain = '232,234,240'
 
       const t = performance.now() / 1000
       const cx = W * 0.5
       const cy = H * 0.45
 
       // ── Background grid ────────────────────────────────────
-      ctx.strokeStyle = `rgba(${teal},${isLight ? 0.05 : 0.06})`
+      ctx.strokeStyle = `rgba(${teal},0.06)`
       ctx.lineWidth = 1
       for (let x = 0; x < W; x += 26) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke()
@@ -92,7 +92,7 @@ export default function WhatsAppAlertCanvas() {
       ctx.fillRect(cx - phoneH * 0.8, cy - phoneH * 0.8, phoneH * 1.6, phoneH * 1.6)
 
       // body
-      ctx.fillStyle = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(8,9,13,0.75)'
+      ctx.fillStyle = 'rgba(8,9,13,0.75)'
       ctx.strokeStyle = `rgba(${green},0.55)`
       ctx.lineWidth = 1.4
       roundRect(ctx, px, py, phoneW, phoneH, radius)
@@ -104,7 +104,7 @@ export default function WhatsAppAlertCanvas() {
       const sh = phoneH - 9
       const sx = px + 3.5
       const sy = py + 4.5
-      ctx.fillStyle = isLight ? 'rgba(240,243,248,0.95)' : 'rgba(10,12,17,0.9)'
+      ctx.fillStyle = 'rgba(10,12,17,0.9)'
       roundRect(ctx, sx, sy, sw, sh, phoneW * 0.1)
       ctx.fill()
 
@@ -126,17 +126,15 @@ export default function WhatsAppAlertCanvas() {
         const w = sw * (i % 2 === 0 ? 0.78 : 0.62)
         // item near scan line → highlighted (keyword matched)
         const near = Math.abs(y + barH / 2 - scanY) < 11
-        const itemBg = near
-          ? `rgba(${green},${isLight ? 0.25 : 0.28})`
-          : isLight ? 'rgba(15,17,23,0.08)' : 'rgba(255,255,255,0.07)'
+        const itemBg = near ? `rgba(${green},0.28)` : 'rgba(255,255,255,0.07)'
         ctx.fillStyle = itemBg
-        ctx.strokeStyle = near ? `rgba(${green},0.8)` : `rgba(${teal},${isLight ? 0.2 : 0.16})`
+        ctx.strokeStyle = near ? `rgba(${green},0.8)` : `rgba(${teal},0.16)`
         ctx.lineWidth = near ? 1.2 : 1
         roundRect(ctx, x, y, w, barH + 6, 5)
         ctx.fill()
         ctx.stroke()
         // text bars
-        ctx.fillStyle = near ? `rgba(${green},0.9)` : isLight ? 'rgba(15,17,23,0.35)' : 'rgba(232,234,240,0.3)'
+        ctx.fillStyle = near ? `rgba(${green},0.9)` : 'rgba(232,234,240,0.3)'
         ctx.fillRect(x + 4, y + 3.5, w * 0.55, 2.4)
         ctx.fillRect(x + 4, y + 7.5, w * 0.35, 2.4)
         // matched → alert tag
@@ -181,7 +179,7 @@ export default function WhatsAppAlertCanvas() {
         // chip
         ctx.font = `700 ${Math.max(7, phoneW * 0.075)}px 'JetBrains Mono', monospace`
         const tw = ctx.measureText(k.label).width + 12
-        ctx.fillStyle = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(8,9,13,0.72)'
+        ctx.fillStyle = 'rgba(8,9,13,0.72)'
         ctx.strokeStyle = `rgba(${k.color},${0.35 + depth * 0.6})`
         ctx.lineWidth = 1
         roundRect(ctx, kx - tw / 2, ky - 7, tw, 14, 7)

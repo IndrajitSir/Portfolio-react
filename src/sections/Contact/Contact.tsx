@@ -1,11 +1,10 @@
-import { motion } from 'framer-motion'
-import { FiMail, FiPhone, FiGithub } from 'react-icons/fi'
-import { staggerContainer, fadeInLeft, fadeInRight } from '@/utils/animations'
+import { FiMail, FiPhone, FiGithub, FiArrowUpRight } from 'react-icons/fi'
 import { SectionLabel, GlowCard, SectionBackground } from '@/components/ui'
 import { personalInfo } from '@/data'
+import { useAnimeReveal } from '@/hooks/useAnimeReveal'
 import ContactForm from './ContactForm'
 
-const socialLinks = [
+const channels = [
   {
     icon: <FiMail size={16} />,
     label: 'Email',
@@ -27,7 +26,23 @@ const socialLinks = [
   },
 ]
 
+/**
+ * The closing scene.
+ *
+ * A conventional portfolio ends on a form. This one ends on a *handshake*: a
+ * live signal panel on the left that a visitor can play with, and the message
+ * composer on the right, framed as the destination rather than an afterthought.
+ * The copy, the channels and the composer share one column rhythm so the eye
+ * reads heading → context → channel → compose, top to bottom.
+ *
+ * Entrance motion is Anime.js via `useAnimeReveal`: the section's own heading
+ * keeps its existing reveal (framer-motion, shared across every section), while
+ * the supporting copy, the signal panel, the channels and the composer's fields
+ * assemble underneath it.
+ */
 export default function Contact() {
+  const revealRef = useAnimeReveal<HTMLDivElement>({ y: 18, stagger: 55, duration: 640 })
+
   return (
     <section
       id="contact"
@@ -36,7 +51,15 @@ export default function Contact() {
       style={{ background: 'var(--bg-secondary)' }}
     >
       <SectionBackground variant="signal" />
-      <div className="max-container section-padding relative z-10">
+
+      {/* Atmospheric lift at the top, so the section reads as a lit space. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[460px] z-0"
+        style={{ background: 'radial-gradient(75% 100% at 50% 0%, var(--glow-teal), transparent 68%)' }}
+      />
+
+      <div ref={revealRef} className="max-container section-padding relative z-10">
         <SectionLabel
           index="08"
           label="Connect"
@@ -44,76 +67,126 @@ export default function Contact() {
           titleAccent="together"
         />
 
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start"
-        >
-          {/* Left */}
-          <motion.div variants={fadeInLeft} className="space-y-6">
-            <p className="text-[1.05rem] leading-[1.8]" style={{ color: 'var(--text-secondary)' }}>
-              I'm actively seeking backend development roles, open-source collaborations,
-              and interesting engineering problems to solve. If you have an idea or
-              opportunity — I'd love to hear from you.
+        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
+          {/* ── Left: context, the signal panel, and the direct channels ── */}
+          <div className="space-y-7">
+            <div
+              data-reveal
+              className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-mono-code text-[0.66rem] uppercase tracking-widest"
+              style={{
+                borderColor: 'var(--border-glow)',
+                background: 'var(--glow-teal)',
+                color: 'var(--accent-teal)',
+              }}
+            >
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full animate-pulse"
+                style={{ background: 'var(--accent-teal)' }}
+              />
+              Open to backend roles &amp; collaborations
+            </div>
+
+            <p
+              data-reveal
+              className="max-w-[46ch] text-[1.02rem] leading-[1.85]"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              I'm actively seeking backend development roles, open-source
+              collaborations and interesting engineering problems. If you have
+              an idea or an opportunity, this is the handshake — the signal
+              reaches me directly.
             </p>
 
-            <div className="space-y-3">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target={link.external ? '_blank' : undefined}
-                  rel={link.external ? 'noopener noreferrer' : undefined}
-                  className="group block"
-                  aria-label={`Contact via ${link.label}`}
-                >
-                  <GlowCard>
-                    <div className="flex items-center gap-4 p-4 group-hover:text-[var(--accent-teal)] transition-colors duration-200">
-                      <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{
-                          background: 'var(--glow-teal)',
-                          border: '1px solid var(--border-glow)',
-                          color: 'var(--accent-teal)',
-                        }}
-                      >
-                        {link.icon}
-                      </div>
-                      <div>
-                        <p
-                          className="font-mono-code text-[0.68rem] uppercase tracking-widest"
-                          style={{ color: 'var(--text-muted)' }}
-                        >
-                          {link.label}
-                        </p>
-                        <p
-                          className="text-sm font-medium mt-0.5 group-hover:text-[var(--accent-teal)] transition-colors duration-200"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {link.value}
-                        </p>
-                      </div>
-                      <span className="ml-auto text-[var(--text-muted)] group-hover:text-[var(--accent-teal)] transition-colors duration-200">
-                        →
-                      </span>
-                    </div>
-                  </GlowCard>
-                </a>
-              ))}
+            <div data-reveal>
+              <p
+                className="mb-3 font-mono-code text-[0.62rem] uppercase tracking-[0.2em]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                Or reach me directly
+              </p>
+              <ul className="space-y-2.5">
+                {channels.map((channel) => (
+                  <li key={channel.label}>
+                    <a
+                      href={channel.href}
+                      target={channel.external ? '_blank' : undefined}
+                      rel={channel.external ? 'noopener noreferrer' : undefined}
+                      aria-label={`Contact via ${channel.label}`}
+                      className="group block"
+                    >
+                      <GlowCard>
+                        <div className="flex items-center gap-4 p-4">
+                          <span
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border"
+                            style={{
+                              background: 'var(--glow-teal)',
+                              borderColor: 'var(--border-glow)',
+                              color: 'var(--accent-teal)',
+                            }}
+                            aria-hidden="true"
+                          >
+                            {channel.icon}
+                          </span>
+                          <span className="min-w-0">
+                            <span
+                              className="block font-mono-code text-[0.64rem] uppercase tracking-widest"
+                              style={{ color: 'var(--text-muted)' }}
+                            >
+                              {channel.label}
+                            </span>
+                            <span
+                              className="mt-0.5 block truncate text-sm font-medium transition-colors duration-200 group-hover:text-[var(--accent-teal)]"
+                              style={{ color: 'var(--text-primary)' }}
+                            >
+                              {channel.value}
+                            </span>
+                          </span>
+                          <FiArrowUpRight
+                            size={15}
+                            aria-hidden="true"
+                            className="ml-auto shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                            style={{ color: 'var(--text-muted)' }}
+                          />
+                        </div>
+                      </GlowCard>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Right: Form */}
-          <motion.div variants={fadeInRight}>
+          {/* ── Right: the composer ── */}
+          <div data-reveal>
             <GlowCard>
-              <div className="p-7">
+              <div className="p-6 sm:p-7">
+                <div className="mb-6 flex items-center justify-between gap-4">
+                  <div>
+                    <h3
+                      className="font-display text-[1.15rem] font-light leading-tight tracking-tight"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      Send a transmission
+                    </h3>
+                    <p className="mt-1 font-mono-code text-[0.64rem]" style={{ color: 'var(--text-muted)' }}>
+                      Opens in your mail client
+                    </p>
+                  </div>
+                  <span
+                    aria-hidden="true"
+                    className="hidden font-mono-code text-[0.6rem] uppercase tracking-[0.2em] sm:block"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    &lt;encrypted/&gt;
+                  </span>
+                </div>
+
                 <ContactForm />
               </div>
             </GlowCard>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   )

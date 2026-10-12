@@ -24,7 +24,7 @@ export default function GrapifyCanvas() {
   const seededRef = useRef(false)
 
   const canvasRef = useCanvasScene(({ ctx, W, H, t, pal }: SceneFrame) => {
-    drawGrid(ctx, W, H, 24, `rgba(${pal.indigo},${pal.isLight ? 0.06 : 0.07})`)
+    drawGrid(ctx, W, H, 24, `rgba(${pal.indigo},0.07)`)
 
     // Seed a starter graph once the canvas has a real size.
     if (!seededRef.current && W > 60 && H > 40) {
@@ -54,7 +54,7 @@ export default function GrapifyCanvas() {
       const hovered = hoverRef.current === i
 
       glowDisc(ctx, n.x, y, r * 3.2, pal.indigo, hovered ? 0.35 : 0.2)
-      ctx.fillStyle = pal.isLight ? 'rgba(255,255,255,0.92)' : 'rgba(12,14,22,0.92)'
+      ctx.fillStyle = 'rgba(12,14,22,0.92)'
       ctx.strokeStyle = hovered ? `rgba(${pal.orange},1)` : `rgba(${pal.indigo},0.75)`
       ctx.lineWidth = hovered ? 1.8 : 1.3
       ctx.beginPath()

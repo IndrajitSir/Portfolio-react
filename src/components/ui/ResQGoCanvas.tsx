@@ -20,7 +20,7 @@ const STEPS: { at: number; label: string }[] = [
 
 export default function ResQGoCanvas() {
   const canvasRef = useCanvasScene(({ ctx, W, H, t, pal }: SceneFrame) => {
-    drawGrid(ctx, W, H, 28, `rgba(${pal.orange},${pal.isLight ? 0.05 : 0.05})`)
+    drawGrid(ctx, W, H, 28, `rgba(${pal.orange},0.05)`)
 
     const u = (t % CYCLE) / CYCLE
     const assigned = u >= 0.14
