@@ -147,15 +147,6 @@ export interface Credential {
   accent: AccentKey
 }
 
-/** A publicly verifiable source behind a claim in this portfolio. */
-export interface SourceRecord {
-  id: string
-  label: string
-  url: string
-  /** Which part of the portfolio it supports. */
-  supports: string
-}
-
 // Key into the showcase-canvas registry (see sections/Projects/ProjectCard).
 export type ProjectVisual =
   | 'nest-auth'
@@ -277,18 +268,6 @@ export interface NavItem {
   href: string
 }
 
-// ─── Animation / UI Types ───────────────────────────────────────────────────
-
-export interface AnimationVariant {
-  hidden: Record<string, unknown>
-  visible: Record<string, unknown>
-}
+// ─── UI Types ───────────────────────────────────────────────────────────────
 
 export type ThemeMode = 'dark' | 'light'
-
-export interface CursorState {
-  x: number
-  y: number
-  isHovering: boolean
-  isClicking: boolean
-}
