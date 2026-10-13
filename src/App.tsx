@@ -8,8 +8,15 @@ import CustomCursor from '@/components/ui/CustomCursor'
 import Preloader from '@/components/ui/Preloader'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import NoiseOverlay from '@/components/ui/NoiseOverlay'
-import StrobiCompanion from '@/components/ui/StrobiCompanion'
 import Hero from '@/sections/Hero/Hero'
+
+// Strobi is deferred rather than imported eagerly. Its avatar runtime pulls the
+// whole JSON-schema validator (`ajv`) into whichever chunk loads it — ~150 kB of
+// code that validates one avatar definition at import time. As global chrome it
+// does not block the first paint: it wakes on its own timer a couple of seconds
+// after mount, so loading it in parallel with the hero costs nothing visually
+// and keeps the entry chunk free of the validator.
+const StrobiCompanion = lazy(() => import('@/components/ui/StrobiCompanion'))
 
 // Lazy-load below-fold sections for performance
 const About       = lazy(() => import('@/sections/About/About'))
@@ -71,7 +78,11 @@ function AppInner() {
       <CustomCursor />
       <Preloader />
       <Navbar />
-      {!isSideMissions && <StrobiCompanion />}
+      {!isSideMissions && (
+        <Suspense fallback={null}>
+          <StrobiCompanion />
+        </Suspense>
+      )}
 
       {isSideMissions ? (
         <Suspense fallback={<SectionFallback />}>

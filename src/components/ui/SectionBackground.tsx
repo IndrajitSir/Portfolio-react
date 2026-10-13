@@ -4,16 +4,13 @@ import { useRef, useEffect } from 'react'
 // than its section and is translated at a slower rate than the content, so the
 // backdrop layer visibly lags as you scroll. Each variant reflects a trait of
 // the owner's profile: code rain (backend engineer), circuit traces (devops
-// arsenal), rising data (career growth), orbital rings (learning), award
-// starfield (achievements), signal beacon (open to opportunities), floating
-// packages (open source).
+// arsenal), rising data (career growth), award starfield (achievements) and
+// floating packages (open source).
 export type SectionBackgroundVariant =
   | 'code'
   | 'circuit'
   | 'rise'
-  | 'orbit'
   | 'award'
-  | 'signal'
   | 'packages'
   | 'journey'
 
@@ -275,50 +272,6 @@ function drawJourney(d: DrawCtx) {
   ctx.fill()
 }
 
-function drawOrbit(d: DrawCtx) {
-  const { ctx, W, H, t, teal, indigo } = d
-  const cx = W * 0.5
-  const cy = H * 0.4
-  const R = Math.min(W, H) * 0.34
-  const pulse = 0.5 + Math.sin(t * 1.6) * 0.5
-
-  const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.55)
-  core.addColorStop(0, `rgba(${teal},${0.1 + pulse * 0.06})`)
-  core.addColorStop(1, 'rgba(0,0,0,0)')
-  ctx.fillStyle = core
-  ctx.fillRect(cx - R, cy - R, R * 2, R * 2)
-
-  ctx.fillStyle = `rgba(${teal},${0.55 + pulse * 0.3})`
-  ctx.beginPath()
-  ctx.arc(cx, cy, 2 + pulse * 1.3, 0, Math.PI * 2)
-  ctx.fill()
-
-  const rings = [
-    { tilt: 0.5, phase: 0, ry: 0.32, color: teal, speed: 0.7 },
-    { tilt: -0.35, phase: 2.1, ry: 0.5, color: indigo, speed: -0.5 },
-    { tilt: 1.25, phase: 4.2, ry: 0.22, color: teal, speed: 0.42 },
-  ]
-  for (const ring of rings) {
-    const rx = R * Math.abs(Math.cos(t * ring.speed + ring.phase))
-    if (rx < 2) continue
-    ctx.strokeStyle = `rgba(${ring.color},0.11)`
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.ellipse(cx, cy, rx, R * ring.ry, ring.tilt, 0, Math.PI * 2)
-    ctx.stroke()
-
-    const a = t * ring.speed * 1.6 + ring.phase * 1.9
-    const px0 = rx * Math.cos(a)
-    const py0 = R * ring.ry * Math.sin(a)
-    const sx = cx + px0 * Math.cos(ring.tilt) - py0 * Math.sin(ring.tilt)
-    const sy = cy + px0 * Math.sin(ring.tilt) + py0 * Math.cos(ring.tilt)
-    ctx.fillStyle = `rgba(${ring.color},0.75)`
-    ctx.beginPath()
-    ctx.arc(sx, sy, 1.6, 0, Math.PI * 2)
-    ctx.fill()
-  }
-}
-
 function drawAward(d: DrawCtx, stars: Star[]) {
   const { ctx, W, H, t, teal, indigo, gold } = d
   const colors = [teal, indigo, gold]
@@ -357,166 +310,6 @@ function drawAward(d: DrawCtx, stars: Star[]) {
     ctx.arc(cxx, cyy, 2 + ping * maxR, 0, Math.PI * 2)
     ctx.stroke()
   })
-}
-
-function drawSignal(d: DrawCtx, particles: Particle[]) {
-  const { ctx, W, H, t, teal, indigo } = d
-
-  // Positioned on the left, directly below the direct channels / GitHub link
-  // Shifted +25px right and +40px down to center in the open space below GitHub link
-  const isDesktop = W >= 1024
-  const containerW = Math.min(W - 48, 1280)
-  const containerLeft = (W - containerW) / 2
-  const baseCx = isDesktop ? containerLeft + containerW * 0.22 : W * 0.5
-  const baseCy = isDesktop ? H * 0.76 : H * 0.48
-  const cx = baseCx + (isDesktop ? 65 : 10)
-  const cy = baseCy + (isDesktop ? 100 : 25)
-
-  // Expansive range to fulfill the empty column below the GitHub link
-  const maxRange = isDesktop ? 280 : 190
-  const rangeSteps = [60, 120, 180, 240, 300]
-
-  ctx.save()
-
-  // 1. Soft atmospheric wash in the empty region
-  const radGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxRange * 0.9)
-  radGlow.addColorStop(0, `rgba(${teal},0.08)`)
-  radGlow.addColorStop(0.55, `rgba(${indigo},0.035)`)
-  radGlow.addColorStop(1, 'rgba(0,0,0,0)')
-  ctx.fillStyle = radGlow
-  ctx.beginPath()
-  ctx.arc(cx, cy, maxRange * 0.9, Math.PI, Math.PI * 2)
-  ctx.fill()
-
-  // 2. Concentric range rings (subtle dashed sonar guides)
-  ctx.lineWidth = 1
-  for (const r of rangeSteps) {
-    if (r > maxRange + 30) continue
-    ctx.strokeStyle = `rgba(${teal},0.1)`
-    ctx.setLineDash([3, 7])
-    ctx.beginPath()
-    ctx.arc(cx, cy, r, Math.PI, Math.PI * 2)
-    ctx.stroke()
-  }
-  ctx.setLineDash([])
-
-  // 3. Crosshair baseline & directional spoke rays
-  ctx.strokeStyle = `rgba(${teal},0.14)`
-  ctx.beginPath()
-  ctx.moveTo(cx - maxRange * 0.85, cy)
-  ctx.lineTo(cx + maxRange * 0.85, cy)
-  ctx.stroke()
-
-  const angles = [Math.PI * 1.18, Math.PI * 1.35, Math.PI * 1.5, Math.PI * 1.65, Math.PI * 1.82]
-  ctx.strokeStyle = `rgba(${teal},0.07)`
-  ctx.setLineDash([2, 5])
-  for (const ang of angles) {
-    ctx.beginPath()
-    ctx.moveTo(cx, cy)
-    ctx.lineTo(cx + Math.cos(ang) * (maxRange * 0.85), cy + Math.sin(ang) * (maxRange * 0.85))
-    ctx.stroke()
-  }
-  ctx.setLineDash([])
-
-  // 4. Sweeping radar beam line
-  const sweepAngle = Math.PI + (0.5 + 0.5 * Math.sin(t * 1.1)) * Math.PI
-  const beamLen = maxRange * 0.92
-  const bx = cx + Math.cos(sweepAngle) * beamLen
-  const by = cy + Math.sin(sweepAngle) * beamLen
-
-  const beamGrad = ctx.createLinearGradient(cx, cy, bx, by)
-  beamGrad.addColorStop(0, `rgba(${teal},0.38)`)
-  beamGrad.addColorStop(0.7, `rgba(${teal},0.12)`)
-  beamGrad.addColorStop(1, 'rgba(0,0,0,0)')
-  ctx.strokeStyle = beamGrad
-  ctx.lineWidth = 1.3
-  ctx.beginPath()
-  ctx.moveTo(cx, cy)
-  ctx.lineTo(bx, by)
-  ctx.stroke()
-
-  // 5. Dynamic expanding signal pulse waves (5 ripple rings)
-  const waveCount = 5
-  const waveCycle = maxRange
-  for (let k = 0; k < waveCount; k++) {
-    const progress = ((t * 32 + k * (waveCycle / waveCount)) % waveCycle) / waveCycle
-    const r = progress * waveCycle
-    const alpha = Math.sin(progress * Math.PI) * 0.38
-    ctx.strokeStyle = `rgba(${teal},${alpha})`
-    ctx.lineWidth = 1.2
-    ctx.beginPath()
-    ctx.arc(cx, cy, r, Math.PI, Math.PI * 2)
-    ctx.stroke()
-  }
-
-  // 6. Central beacon node
-  const pulse = 0.5 + 0.5 * Math.sin(t * 2.8)
-  ctx.fillStyle = `rgba(${teal},${0.45 + pulse * 0.45})`
-  ctx.beginPath()
-  ctx.arc(cx, cy, 3.5, 0, Math.PI * 2)
-  ctx.fill()
-
-  ctx.fillStyle = `rgba(${teal},${0.12 + pulse * 0.15})`
-  ctx.beginPath()
-  ctx.arc(cx, cy, 11 + pulse * 5, 0, Math.PI * 2)
-  ctx.fill()
-
-  // 7. Subtle telemetry HUD text
-  ctx.font = "400 9px 'JetBrains Mono', monospace"
-  ctx.fillStyle = `rgba(${teal},0.32)`
-  ctx.fillText("BEACON // ACTIVE", cx - 44, cy + 18)
-  ctx.fillStyle = `rgba(${indigo},0.25)`
-  ctx.fillText("RX 2.4GHz · DIRECT", cx - 48, cy + 30)
-
-  // 8. Converging particles with interconnecting network links
-  const activeZoneW = isDesktop ? containerW * 0.44 : W * 0.8
-  const activeZoneLeft = isDesktop ? containerLeft : W * 0.1
-
-  // Faint proximity lines between nearby particles
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const p1 = particles[i]
-      const p2 = particles[j]
-      const p1x = p1.x * W
-      const p1y = p1.y * H
-      const p2x = p2.x * W
-      const p2y = p2.y * H
-      const dist = Math.hypot(p1x - p2x, p1y - p2y)
-      if (dist < 75) {
-        ctx.strokeStyle = `rgba(${teal},${(1 - dist / 75) * 0.11})`
-        ctx.lineWidth = 0.8
-        ctx.beginPath()
-        ctx.moveTo(p1x, p1y)
-        ctx.lineTo(p2x, p2y)
-        ctx.stroke()
-      }
-    }
-  }
-
-  for (const p of particles) {
-    const px = p.x * W
-    const py = p.y * H
-    const dx = cx - px
-    const dy = cy - py
-    p.x += (dx / W) * 0.0018
-    p.y += (dy / H) * 0.0018
-    p.x += Math.sin(t * 0.3 + p.sway) * 0.0006
-    p.y += Math.cos(t * 0.35 + p.sway * 2) * 0.0005
-
-    if (Math.hypot(dx, dy) < 18) {
-      p.x = (activeZoneLeft + Math.random() * activeZoneW) / W
-      p.y = isDesktop ? 0.45 + Math.random() * 0.45 : 0.25 + Math.random() * 0.45
-    }
-
-    const d2 = Math.hypot(dx, dy)
-    const alpha = (0.12 + p.z * 0.22) * (0.35 + (1 - Math.min(1, d2 / (maxRange * 1.2))) * 0.65)
-    ctx.fillStyle = `rgba(${indigo},${alpha})`
-    ctx.beginPath()
-    ctx.arc(px, py, 0.9 + p.z * 1.3, 0, Math.PI * 2)
-    ctx.fill()
-  }
-
-  ctx.restore()
 }
 
 function drawPackages(d: DrawCtx, cubes: Cube[]) {
@@ -741,17 +534,11 @@ export default function SectionBackground({ variant }: SectionBackgroundProps) {
         case 'rise':
           drawRise(d, particlesRef.current)
           break
-        case 'orbit':
-          drawOrbit(d)
-          break
         case 'journey':
           drawJourney(d)
           break
         case 'award':
           drawAward(d, starsRef.current)
-          break
-        case 'signal':
-          drawSignal(d, particlesRef.current)
           break
         case 'packages':
           drawPackages(d, cubesRef.current)
