@@ -13,7 +13,7 @@ import { accentColor } from '@/utils/accents'
 import { subscribeCompanionCues } from '@/utils/companionCues'
 import { CHAPTER_TIPS, ROLE_TIPS, SECTION_TIPS } from '@/data'
 import type { ChapterKind, StrobiAnimation } from '@/types'
-import type { CareerFocus, JourneyFocus } from '@/utils/companionFocus'
+import type { CareerFocus } from '@/utils/companionFocus'
 import definition from '@/assets/strobi.avatar.json'
 
 /**
@@ -121,43 +121,6 @@ const TIP_MS = 7000
 
 type IdleStage = 'awake' | 'drowsy' | 'sleeping'
 
-interface StatusInput {
-  waking: boolean
-  reaction: StrobiAnimation | null
-  idleStage: IdleStage
-  inspecting: boolean
-  engaged: boolean
-  chapter: JourneyFocus | null
-  role: CareerFocus | null
-  section: string
-}
-
-/** The one line under "Strobi" — the reason for whatever face is on screen. */
-const statusFor = ({
-  waking,
-  reaction,
-  idleStage,
-  inspecting,
-  engaged,
-  chapter,
-  role,
-  section,
-}: StatusInput): string => {
-  if (waking) return 'Waking up…'
-  if (reaction === 'celebrate') return 'Your message is on its way.'
-  if (reaction === 'confused') return 'That form needs all three fields.'
-  if (reaction === 'laughing') return 'That tickles.'
-  if (reaction === 'excited') return 'Noticed that one.'
-  if (idleStage === 'sleeping') return 'Asleep — move and I will wake.'
-  if (idleStage === 'drowsy') return 'Getting sleepy…'
-
-  if (inspecting) return 'Tracing the cluster…'
-  if (engaged) return 'Following your pointer…'
-  if (chapter) return `Journey · ${chapter.label}`
-  if (role) return `Career · ${role.label}`
-  return section ? `Runtime companion · ${section}` : 'Runtime companion · idle'
-}
-
 /**
  * True when the bubble's own footprint has a control underneath it.
  *
@@ -201,7 +164,6 @@ export default function StrobiCompanion() {
   const companion = useCursorCompanion({ enabled: follow })
   // Compact while it travels, the full pill once it settles — reading a label
   // mid-flight would mean something to cover, and this way there is nothing to.
-  const expanded = !follow || companion.settled
 
   const playback = useStrobiPlayback(reduceMotion ? 'idle' : 'waking')
   const { controller } = playback
@@ -435,17 +397,6 @@ export default function StrobiCompanion() {
   // so a companion travelling near an edge never pushes its bubble off-screen.
   const bubbleOnLeft = follow && companion.side === 'left'
 
-  const status = statusFor({
-    waking,
-    reaction,
-    idleStage,
-    inspecting,
-    engaged,
-    chapter,
-    role,
-    section,
-  })
-
   // One element either way: the runtime reconciles the same avatar whether it is
   // handed an animation or an expression, and keeps its position in the timeline.
   const targetProps =
@@ -551,54 +502,6 @@ export default function StrobiCompanion() {
             onAnimationEnd={handleAnimationEnd}
           />
         </button>
-
-        {/* The label is a wide-screen luxury: below `sm` the companion is just the
-            avatar, so it never covers the text it is meant to sit beside. The
-            status line has a *fixed* width — a longer chapter name truncates
-            rather than widening the pill under the reader's eye. While the
-            companion is travelling it collapses to the avatar alone. */}
-        <div
-          className={
-            follow
-              ? expanded
-                ? 'min-w-0 leading-tight'
-                : 'hidden'
-              : 'hidden min-w-0 leading-tight sm:block'
-          }
-        >
-          <p
-            className="font-mono-code text-[0.6rem] font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            Strobi
-          </p>
-          <p
-            className="w-[15rem] truncate text-[0.68rem]"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            {status}
-          </p>
-        </div>
-
-        <span
-          className={`shrink-0 items-center gap-1.5 transition-colors duration-500 ${
-            follow ? (expanded ? 'flex' : 'hidden') : 'hidden sm:flex'
-          }`}
-          style={{ color: accent }}
-        >
-          <span
-            className="h-1.5 w-1.5 rounded-full transition-colors duration-500"
-            style={{ background: accent }}
-            aria-hidden="true"
-          />
-          <span className="font-mono-code text-[0.55rem] uppercase tracking-widest">
-            {inspecting || engaged || reaction
-              ? 'active'
-              : idleStage === 'sleeping'
-                ? 'asleep'
-                : 'online'}
-          </span>
-        </span>
       </motion.div>
     </aside>
   )
