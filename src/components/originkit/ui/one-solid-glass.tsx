@@ -60,7 +60,7 @@ function parseColor(input: unknown, fallback: RGB): RGB {
     const m = s.match(/rgba?\(([^)]+)\)/i)
     if (m) {
         const p = m[1]
-            .split(/[\s,\/]+/)
+            .split(/[\s,/]+/)
             .filter(Boolean)
             .map(parseFloat)
         if (p.length >= 3 && p.slice(0, 3).every((x) => isFinite(x)))
@@ -343,11 +343,6 @@ interface OneSolidGlassProps {
 
 export default function OneSolidGlass(props: OneSolidGlassProps) {
     const {
-        speed = 50,
-        scale = 100,
-        rounded = 14,
-        dispersion = 50,
-        tilt = 35,
         background = "#000000",
         style,
     } = props

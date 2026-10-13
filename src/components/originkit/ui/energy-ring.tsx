@@ -366,7 +366,10 @@ export default function GetDescriptionFrames(props: Props) {
                 strandCount = sc
             }
 
-            const bg = parseColor(p.background, [0, 0, 0])
+            // `background: "transparent"` clears the frame instead of painting it,
+            // so the ring can sit over a section's own backdrop rather than
+            // replacing it with an opaque panel.
+            const bg = p.background === "transparent" ? null : parseColor(p.background, [0, 0, 0])
             const rim = parseColor(p.rimColor, [219, 83, 195])
             const base = parseColor(p.baseColor, [114, 85, 198])
             const rimCore = css(mix(rim, [255, 255, 255], 0.72))
@@ -388,8 +391,12 @@ export default function GetDescriptionFrames(props: Props) {
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
             ctx.globalCompositeOperation = "source-over"
             ctx.globalAlpha = 1
-            ctx.fillStyle = css(bg)
-            ctx.fillRect(0, 0, W, H)
+            if (bg) {
+                ctx.fillStyle = css(bg)
+                ctx.fillRect(0, 0, W, H)
+            } else {
+                ctx.clearRect(0, 0, W, H)
+            }
 
             const m = Math.min(W, H) * (clamp(p.ringSize, 20, 150) / 100)
             const cx = W / 2

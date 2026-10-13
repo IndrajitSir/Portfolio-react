@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from 'react';
 import { terminalData as d } from '../../data/terminal';
+import { ACCENT, A, Heading, MUTED, RunLink } from './CommandParts';
 
 export interface CommandContext {
   clear: () => void;
@@ -14,36 +15,7 @@ export interface Command {
   run: (args: string[], ctx: CommandContext) => ReactNode;
 }
 
-export const ACCENT = 'var(--accent-teal, #2dd4bf)';
-export const MUTED = '#8b9bb0';
 const ERROR = '#ff7b72';
-
-const Heading = ({ children }: { children: ReactNode }) => (
-  <div className="mb-1 font-semibold" style={{ color: ACCENT }}>{children}</div>
-);
-
-const A = ({ href, children }: { href: string; children: ReactNode }) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="underline underline-offset-2 hover:opacity-80"
-    style={{ color: ACCENT }}
-  >
-    {children}
-  </a>
-);
-
-const RunLink = ({ cmd, ctx }: { cmd: string; ctx: CommandContext }) => (
-  <button
-    type="button"
-    onClick={() => ctx.run(cmd)}
-    className="text-left underline-offset-2 hover:underline"
-    style={{ color: ACCENT }}
-  >
-    {cmd}
-  </button>
-);
 
 const FILES: Record<string, string> = {
   'about.txt': 'about',

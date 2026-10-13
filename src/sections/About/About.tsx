@@ -79,7 +79,19 @@ export default function About() {
         >
           <GlowCard>
             <div className="p-5 sm:p-7 lg:p-8">
-              <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-4">
+              {/* The profile row. It wraps into three deliberate lines rather
+                  than letting flexbox decide: the portrait and the identity are
+                  a fixed two-column pair — the portrait shrinks a little on the
+                  narrowest screens so the name and role always have a readable
+                  column beside it — and the two launchers only fall to their own
+                  row, aligned right, when the row genuinely cannot hold them.
+                  Nothing here needs a hard breakpoint: the identity's flex-basis
+                  is the wrap threshold, and `min-w-0` lets the type reflow
+                  inside it instead of forcing the portrait off its line. */}
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-wrap items-start gap-x-4 gap-y-3 sm:items-center"
+              >
                 <div className="relative shrink-0">
                   {/* A slow orbit around the portrait. It is the one piece of
                       ambient motion in the section, and it stops dead under
@@ -94,7 +106,7 @@ export default function About() {
                     alt="Portrait of Indrajit Mandal"
                     loading="lazy"
                     decoding="async"
-                    className="h-[68px] w-[68px] rounded-xl object-cover border-2 border-[var(--accent-teal)] shadow-[0_0_18px_var(--glow-teal)]"
+                    className="h-14 w-14 rounded-xl object-cover border-2 border-[var(--accent-teal)] shadow-[0_0_18px_var(--glow-teal)] sm:h-[68px] sm:w-[68px]"
                   />
                   <span
                     className="absolute -right-1 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold"
@@ -104,15 +116,18 @@ export default function About() {
                     ✓
                   </span>
                 </div>
-                <div className="min-w-[190px] flex-1">
+                <div className="min-w-0 flex-[1_1_9rem]">
                   <h3 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>
                     {personalInfo.name}
                   </h3>
                   <p className="font-mono-code text-sm" style={{ color: 'var(--accent-teal)' }}>
                     {personalInfo.title}
                   </p>
-                  <p className="mt-1 flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    <FiMapPin size={12} style={{ color: 'var(--accent-teal)' }} />
+                  <p
+                    className="mt-1 flex flex-wrap items-center gap-x-1.5 text-xs"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    <FiMapPin size={12} style={{ color: 'var(--accent-teal)', flexShrink: 0 }} />
                     {personalInfo.location}
                   </p>
                 </div>

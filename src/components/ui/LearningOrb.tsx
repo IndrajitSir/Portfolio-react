@@ -2,6 +2,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import { animate, motion, useMotionValue, useReducedMotion } from 'framer-motion'
@@ -20,16 +21,30 @@ import { EASE_OUT_EXPO } from '@/utils/motion'
  * only `x`/`y`/`scale`/`rotate` move, so a drag cannot reflow a single pixel of
  * the section. Release always springs back to the resting centre.
  *
+ * Its size is a CSS expression, not a constant, because it sits on the Learning
+ * section's eyebrow line and has to shrink as that line runs out of room — see
+ * `SectionLabel`'s `trailing` slot. Everything else is derived from it: the play
+ * area, and the drag bounds, which are measured off the rendered element at the
+ * start of every gesture so a resized orb still travels the right distance.
+ *
+ * The box is `1.88 × size` and the orb sits centred in it, so the box needs
+ * `-0.44 × size` of vertical margin on both sides to contribute only its own
+ * diameter to the line it lives on — without that, a 60px orb would reserve
+ * 128px of height in a 16px-tall eyebrow row.
+ *
  * `prefers-reduced-motion` keeps the orb still in every sense that matters — no
  * spin on the ring, no squash, no bounce home, just a short glide.
  */
 
-/** Diameter of the orb. */
-const SIZE = 100
-/** How far it may travel from centre before resistance grows. */
-const TRAVEL = 44
-/** The bounding box — the orb's play area, and the only space it can occupy. */
-const BOX = SIZE + TRAVEL * 2
+/** How far the orb may travel from centre, as a fraction of its diameter. */
+const TRAVEL_RATIO = 0.44
+/** The bounding box, as a multiple of the orb's diameter. */
+const BOX_RATIO = 1 + TRAVEL_RATIO * 2
+/** Reflection of the box ratio, for the negative margins above. */
+export const ORB_BOX_MARGIN_RATIO = TRAVEL_RATIO
+
+/** Default size: compact enough to sit on the eyebrow line at every width. */
+const DEFAULT_SIZE = 'clamp(38px, 4.6vw, 60px)'
 
 const KIND = 'a[href], button, input, textarea, select, label, [role="button"]'
 
@@ -41,13 +56,17 @@ export interface LearningOrbProps {
   className?: string
   /** Accent for the ring, the core and the glow. */
   accent?: string
+  /** Any CSS length (or `clamp()`) — the play area and travel scale with it. */
+  size?: string
 }
 
 export default function LearningOrb({
   className = '',
   accent = 'var(--accent-teal)',
+  size = DEFAULT_SIZE,
 }: LearningOrbProps) {
   const reduceMotion = useReducedMotion()
+  const orbRef = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const scaleX = useMotionValue(1)
@@ -67,12 +86,15 @@ export default function LearningOrb({
     let lastX = startX
     let lastY = startY
     let moved = false
+    // Measured once per gesture: the orb's size is a CSS expression, so this is
+    // the only way to know how far this particular orb may travel.
+    const travel = (e.currentTarget.getBoundingClientRect().width || 60) * TRAVEL_RATIO
 
-    /** Rubber band past TRAVEL, with a ceiling so it cannot leave the box far. */
+    /** Rubber band past the limit, with a ceiling so it cannot leave the box far. */
     const bound = (v: number) => {
       const a = Math.abs(v)
-      if (a <= TRAVEL) return v
-      return Math.sign(v) * Math.min(TRAVEL + (a - TRAVEL) * 0.3, TRAVEL * 1.5)
+      if (a <= travel) return v
+      return Math.sign(v) * Math.min(travel + (a - travel) * 0.3, travel * 1.4)
     }
 
     const onMove = (ev: PointerEvent) => {
@@ -130,17 +152,31 @@ export default function LearningOrb({
   }
 
   return (
-    <div className={`relative shrink-0 ${className}`} style={{ width: BOX, height: BOX }}>
+    <div
+      className={`relative shrink-0 ${className}`}
+      style={
+        {
+          '--orb-size': size,
+          width: `calc(var(--orb-size) * ${BOX_RATIO})`,
+          height: `calc(var(--orb-size) * ${BOX_RATIO})`,
+          // Give back the box's own padding vertically, so the orb contributes
+          // roughly its diameter to whatever row it is placed in.
+          marginTop: `calc(var(--orb-size) * -${ORB_BOX_MARGIN_RATIO})`,
+          marginBottom: `calc(var(--orb-size) * -${ORB_BOX_MARGIN_RATIO})`,
+        } as CSSProperties
+      }
+    >
       <motion.div
+        ref={orbRef}
         role="img"
         aria-label="Learning orb — drag it and let it settle"
         onPointerDown={beginDrag}
         className="absolute flex cursor-grab items-center justify-center rounded-full active:cursor-grabbing"
         style={{
-          left: TRAVEL,
-          top: TRAVEL,
-          width: SIZE,
-          height: SIZE,
+          left: `calc(var(--orb-size) * ${TRAVEL_RATIO})`,
+          top: `calc(var(--orb-size) * ${TRAVEL_RATIO})`,
+          width: 'var(--orb-size)',
+          height: 'var(--orb-size)',
           x,
           y,
           scaleX,
@@ -172,20 +208,21 @@ export default function LearningOrb({
         {/* A slow, low-opacity dashed ring — motion you notice only if you look. */}
         <span
           aria-hidden="true"
-          className="orb-ring pointer-events-none absolute inset-2 rounded-full"
+          className="orb-ring pointer-events-none absolute rounded-full"
           style={{
+            inset: 'calc(var(--orb-size) * 0.08)',
             border: `1px dashed color-mix(in srgb, ${accent} 30%, transparent)`,
             animation: reduceMotion ? undefined : 'learning-orb-spin 26s linear infinite',
           }}
         />
 
         <span className="relative flex flex-col items-center leading-none" aria-hidden="true">
-          <span className="font-display text-[1.6rem]" style={{ color: accent }}>
+          <span className="font-display" style={{ color: accent, fontSize: 'calc(var(--orb-size) * 0.26)' }}>
             ∞
           </span>
           <span
-            className="font-mono-code text-[0.5rem] uppercase tracking-[0.22em]"
-            style={{ color: 'var(--text-muted)' }}
+            className="font-mono-code uppercase"
+            style={{ color: 'var(--text-muted)', fontSize: 'calc(var(--orb-size) * 0.085)', letterSpacing: '0.22em' }}
           >
             learn
           </span>
@@ -194,8 +231,15 @@ export default function LearningOrb({
         {/* Specular highlight, sold as light rather than a shape. */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute left-[26%] top-[20%] h-3 w-3 rounded-full"
-          style={{ background: 'rgba(255,255,255,0.35)', filter: 'blur(3px)' }}
+          className="pointer-events-none absolute rounded-full"
+          style={{
+            left: '26%',
+            top: '20%',
+            width: 'calc(var(--orb-size) * 0.12)',
+            height: 'calc(var(--orb-size) * 0.12)',
+            background: 'rgba(255,255,255,0.35)',
+            filter: 'blur(3px)',
+          }}
         />
       </motion.div>
     </div>

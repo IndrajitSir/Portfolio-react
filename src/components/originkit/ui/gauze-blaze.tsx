@@ -904,5 +904,3 @@ export default function GauzeBlaze(props: GauzeBlazeProps) {
         </div>
     )
 }
-
-const A = DEFAULT_ADVANCED

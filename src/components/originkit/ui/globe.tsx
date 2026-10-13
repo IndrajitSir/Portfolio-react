@@ -708,7 +708,7 @@ export default function Globe({
                 canvas.style.opacity = "1";
                 canvas.style.visibility = "visible";
                 setIsLoading(false);
-            } catch (err) {
+            } catch {
                 setError("Failed to load land map data");
                 setIsLoading(false);
             }
@@ -923,6 +923,7 @@ export default function Globe({
     }, [
         speed,
         smoothing,
+        smoothingN,
         dots,
         fill,
         fillColor,

@@ -14,7 +14,6 @@ const MAX_MOTES = 90000
 const RING_THICKNESS = 0.011
 
 const RING_MOTE_FACTOR = 1.35
-const TAU = Math.PI * 2
 
 const DEFAULTS = {
     coreColor: "#EE1212",
@@ -520,7 +519,7 @@ export default function ParticleSaturn(props: Props) {
     const containerRef = useRef<HTMLDivElement | null>(null)
     const sceneRef = useRef<SaturnScene | null>(null)
 
-    const cfgRef = useRef<Config>(null as any)
+    const cfgRef = useRef<Config>(null as unknown as Config)
     cfgRef.current = {
         coreColor,
         ringColor,

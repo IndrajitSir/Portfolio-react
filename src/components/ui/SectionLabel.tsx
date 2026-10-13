@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { MaskReveal, SlideIn } from '@/components/animations'
 
 interface SectionLabelProps {
@@ -6,6 +7,17 @@ interface SectionLabelProps {
   title: string
   titleAccent?: string // italic coloured word at the end
   className?: string
+  /**
+   * An object to sit on the eyebrow line, immediately after `index — label`.
+   *
+   * Deliberately a slot rather than a hard-coded decoration: the eyebrow is the
+   * one line every section already has, so anything that belongs *with* the
+   * heading has somewhere honest to live, and each section decides whether it
+   * has one. A trailing object is centred against the label's own line, which is
+   * why the row's height is the object's height — nothing is absolutely
+   * positioned over the heading below it.
+   */
+  trailing?: ReactNode
 }
 
 /**
@@ -22,6 +34,7 @@ export default function SectionLabel({
   title,
   titleAccent,
   className = '',
+  trailing,
 }: SectionLabelProps) {
   return (
     <div className={`mb-14 ${className}`}>
@@ -32,11 +45,12 @@ export default function SectionLabel({
           style={{ background: 'var(--accent-teal)' }}
         />
         <span
-          className="font-mono-code text-xs tracking-widest uppercase"
+          className="font-mono-code text-xs tracking-widest uppercase whitespace-nowrap"
           style={{ color: 'var(--accent-teal)' }}
         >
           {index} — {label}
         </span>
+        {trailing}
       </SlideIn>
 
       {/* heading */}

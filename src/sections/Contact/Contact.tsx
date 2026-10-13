@@ -1,5 +1,8 @@
+import { useRef } from 'react'
 import { FiMail, FiPhone, FiGithub, FiArrowUpRight } from 'react-icons/fi'
-import { SectionLabel, GlowCard, SectionBackground } from '@/components/ui'
+import { useInView } from 'framer-motion'
+import { SectionLabel, GlowCard } from '@/components/ui'
+import EnergyRing from '@/components/originkit/ui/energy-ring'
 import { personalInfo } from '@/data'
 import { useAnimeReveal } from '@/hooks/useAnimeReveal'
 import ContactForm from './ContactForm'
@@ -34,14 +37,25 @@ const channels = [
  * composer on the right, framed as the destination rather than an afterthought.
  * The copy, the channels and the composer share one column rhythm so the eye
  * reads heading → context → channel → compose, top to bottom.
+ * *  Entrance motion is Anime.js via `useAnimeReveal`: the section's own heading
+ *  keeps its existing reveal (framer-motion, shared across every section), while
+ *  the supporting copy, the signal panel, the channels and the composer's fields
+ *  assemble underneath it.
  *
- * Entrance motion is Anime.js via `useAnimeReveal`: the section's own heading
- * keeps its existing reveal (framer-motion, shared across every section), while
- * the supporting copy, the signal panel, the channels and the composer's fields
- * assemble underneath it.
+ *  The backdrop is OriginKit's `EnergyRing`: the section used to draw its own
+ *  five ripple rings + beacon in `SectionBackground`, and this is the same
+ *  idea — a pulsing ring that signals outward — executed as a live particle
+ *  field instead. Palette is adapted from OriginKit's magenta/violet to the
+ *  site's teal/indigo (`#5eead4` / `#818cf8`), the canvas background is
+ *  transparent so the section keeps its own surface and top glow, and the ring
+ *  only mounts while the section is near the viewport so the rAF loop never
+ *  runs four screens away. Under `prefers-reduced-motion` the component draws
+ *  one static frame and stops, so there is nothing to gate at this level.
  */
 export default function Contact() {
   const revealRef = useAnimeReveal<HTMLDivElement>({ y: 18, stagger: 55, duration: 640 })
+  const ringRef = useRef<HTMLDivElement>(null)
+  const ringNear = useInView(ringRef, { margin: '240px 0px 240px 0px' })
 
   return (
     <section
@@ -50,7 +64,27 @@ export default function Contact() {
       className="relative overflow-hidden"
       style={{ background: 'var(--bg-secondary)' }}
     >
-      <SectionBackground variant="signal" />
+      {/* The signal itself: an OriginKit energy ring, centred behind the
+          composition and kept below the content (`z-0`, `pointer-events-none`)
+          so links, fields and the send button all keep their gestures. */}
+      <div
+        ref={ringRef}
+        aria-hidden="true"
+        className="absolute left-1/2 top-1/2 z-0 aspect-square w-[min(82vw,660px)] -translate-x-1/2 -translate-y-1/2 opacity-[0.55]"
+      >
+        {ringNear && (
+          <EnergyRing
+            background="transparent"
+            rimColor="#5eead4"
+            baseColor="#818cf8"
+            density={2600}
+            speed={70}
+            ringSize={74}
+            hoverEnabled={false}
+            style={{ minWidth: 0, minHeight: 0 }}
+          />
+        )}
+      </div>
 
       {/* Atmospheric lift at the top, so the section reads as a lit space. */}
       <div
