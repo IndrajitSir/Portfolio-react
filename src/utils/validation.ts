@@ -12,8 +12,8 @@
  * stop a visitor from shipping a message that cannot reach the inbox.
  */
 
-export const NAME_MAX = 20
-export const EMAIL_MAX = 15
+export const NAME_MAX = 30
+export const EMAIL_MAX = 30
 export const MESSAGE_MAX = 500
 
 /**

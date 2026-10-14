@@ -15,6 +15,7 @@ import { DURATION, EASE_OUT_EXPO, EASE_STANDARD } from '@/utils/motion'
 import { useRoute, SIDE_MISSIONS_ROUTE, HOME_ROUTE } from '@/context/route'
 import MissionCard from './MissionCard'
 import MissionPreview from './MissionPreview'
+import LabCursorField from './LabCursorField'
 
 const EASE = EASE_STANDARD
 
@@ -50,6 +51,7 @@ export default function SideMissions() {
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <SectionBackground variant="packages" />
       </div>
+      <LabCursorField />
       <div className="max-container section-padding relative z-10 pt-28">
         {/* ── Return + header ──────────────────────────────────────── */}
         <motion.button

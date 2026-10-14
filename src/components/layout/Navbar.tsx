@@ -68,6 +68,16 @@ const EXPANDED_AT = 40
 /** The morph itself: decelerating, a touch slower than a hover. */
 const MORPH = { duration: 0.42, ease: EASE_OUT_EXPO }
 
+/**
+ * Below this width the bar's scroll morph is deliberately switched off: the
+ * mobile rail is not rendered, so compacting would only ever shrink to the
+ * same monogram + menu pill the bar already is, and the fluid motion pays for
+ * nothing. Scrolling a phone therefore keeps the bar in its static expanded
+ * state — no measurement churn, no re-renders, one fewer scroll listener cost.
+ * Matches Tailwind's `lg` breakpoint, where the drawer button appears.
+ */
+const MORPH_DISABLE_QUERY = '(max-width: 1023px)'
+
 /** Everything a keyboard can land on inside the drawer. */
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
@@ -89,10 +99,19 @@ export default function Navbar() {
   // the only thing that matters is where the page actually ended up. React bails
   // out when the answer has not changed, so hovering the rail is the only thing
   // left that re-renders the bar.
+  //
+  // On phones the morph is skipped entirely (see `MORPH_DISABLE_QUERY`): the
+  // compact geometry would be the same pill the bar already is, so the listener
+  // stills the state forever instead of chasing scroll positions.
   useEffect(() => {
+    const compactDisabled = window.matchMedia(MORPH_DISABLE_QUERY)
     let frame = 0
     const resolve = () => {
       frame = 0
+      if (compactDisabled.matches) {
+        setCompact(false)
+        return
+      }
       const y = window.scrollY
       setCompact((prev) => (prev ? y > EXPANDED_AT : y > COMPACT_AT))
     }
@@ -100,12 +119,15 @@ export default function Navbar() {
       if (frame) return
       frame = window.requestAnimationFrame(resolve)
     }
+    const onModeChange = () => resolve()
     resolve()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll, { passive: true })
+    compactDisabled.addEventListener?.('change', onModeChange)
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
+      compactDisabled.removeEventListener?.('change', onModeChange)
       if (frame) window.cancelAnimationFrame(frame)
     }
   }, [])

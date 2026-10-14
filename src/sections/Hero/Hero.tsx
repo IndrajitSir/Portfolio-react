@@ -14,6 +14,7 @@ import ScrollIndicator from "@/components/ui/ScrollIndicator";
 import MagneticButton from "@/components/ui/MagneticButton";
 import HeroIdentity from "./HeroIdentity";
 import HeroTopology from "./HeroTopology";
+import HeroSaturn from "./HeroSaturn";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -97,6 +98,9 @@ export default function Hero() {
           style={{ background: "var(--accent-indigo)" }}
         />
       </div>
+
+      {/* Particle-ringed planet drifting behind the constellation field */}
+      <HeroSaturn />
 
       <div className="relative z-10 mx-auto w-full max-w-[1440px] px-6 py-24 md:px-12 xl:px-16">
         <TelemetryStrip />

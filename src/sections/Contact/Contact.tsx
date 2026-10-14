@@ -3,6 +3,7 @@ import { FiMail, FiPhone, FiGithub, FiArrowUpRight } from 'react-icons/fi'
 import { useInView } from 'framer-motion'
 import { SectionLabel, GlowCard } from '@/components/ui'
 import EnergyRing from '@/components/originkit/ui/energy-ring'
+// import SignalGlobe from './SignalGlobe'
 import { personalInfo } from '@/data'
 import { useAnimeReveal } from '@/hooks/useAnimeReveal'
 import ContactForm from './ContactForm'
@@ -131,6 +132,12 @@ export default function Contact() {
               an idea or an opportunity, this is the handshake — the signal
               reaches me directly.
             </p>
+
+            {/* The globe instrument: OriginKit's dotted earth with the real
+                location pinned, framing the channels below as a live uplink. */}
+            {/* <div data-reveal className="mt-10 max-w-[520px]">
+              <SignalGlobe />
+            </div> */}
 
             <div data-reveal>
               <p

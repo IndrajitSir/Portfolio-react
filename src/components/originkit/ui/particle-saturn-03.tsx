@@ -597,4 +597,3 @@ export default function ParticleSaturn(props: Props) {
 }
 
 ParticleSaturn.displayName = "Particle Saturn"
-ParticleSaturn.defaultProps = { ...DEFAULTS }
