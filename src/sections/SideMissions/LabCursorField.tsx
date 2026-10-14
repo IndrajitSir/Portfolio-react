@@ -36,21 +36,24 @@ export default function LabCursorField() {
     <div
       ref={frameRef}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[68vh] overflow-hidden opacity-[0.5]"
+      className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[46vh] overflow-hidden opacity-[0.42]"
     >
       {near && !reduceMotion && (
         <CursorRingField
           background="transparent"
           colors={['#818cf8', '#5eead4', '#0b0b18']}
-          density={90}
-          dotSize={70}
-          speed={5}
-          cameraDistance={170}
+          density={55}
+          dotSize={55}
+          speed={4}
+          cameraDistance={175}
           ring={{
-            push: 38,
-            width: 8,
-            radius: 11,
-            turbulence: 70,
+            // Tuned after measuring: tighter ring, softer push and gentler
+            // turbulence — the field steers obediently and stays a whisper
+            // instead of grabbing attention away from the mission cards.
+            push: 30,
+            width: 7.5,
+            radius: 9.5,
+            turbulence: 55,
           }}
           style={{ width: '100%', height: '100%', minWidth: 0, minHeight: 0 }}
         />

@@ -774,6 +774,23 @@ export default function CursorRingField(props: CursorRingFieldProps) {
         window.addEventListener("pointermove", onMove)
         canvas.addEventListener("pointerleave", onLeave)
 
+        // Touch steering. While a finger drags, the browser fires `pointercancel`
+        // as soon as it claims the gesture for scrolling, so the ring would only
+        // ever wander on its own on phones. A passive window-level `touchmove`
+        // tracks the same coordinates without ever preventing the scroll — the
+        // page keeps scrolling normally while the ring steers alongside the
+        // drag. Generic behavior of the component, not a portfolio concern.
+        const onTouchMove = (e: TouchEvent) => {
+            const touch = e.touches[0]
+            if (touch) onMove(touch as unknown as PointerEvent)
+        }
+        const onTouchEndOrCancel = () => {
+            pointer.over = false
+        }
+        window.addEventListener("touchmove", onTouchMove, { passive: true })
+        window.addEventListener("touchend", onTouchEndOrCancel, { passive: true })
+        window.addEventListener("touchcancel", onTouchEndOrCancel, { passive: true })
+
         let raf = 0
         let last = 0
         let simTime = 0
@@ -923,6 +940,9 @@ export default function CursorRingField(props: CursorRingFieldProps) {
             ro.disconnect()
             window.removeEventListener("pointermove", onMove)
             canvas.removeEventListener("pointerleave", onLeave)
+            window.removeEventListener("touchmove", onTouchMove)
+            window.removeEventListener("touchend", onTouchEndOrCancel)
+            window.removeEventListener("touchcancel", onTouchEndOrCancel)
             disposeField()
             gl.deleteBuffer(quad)
             gl.deleteBuffer(uvBuf)
