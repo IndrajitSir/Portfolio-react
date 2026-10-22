@@ -22,7 +22,6 @@
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.18);
   --border-glow: rgba(94, 234, 212, 0.2);
-  --grid-line: rgba(94, 234, 212, 0.045);
 
   /* ── Type ──────────────────────────────────────────────────────────── */
   --text-primary: #e8eaf0;
@@ -241,15 +240,7 @@ samp {
   animation: timeline-flow 3.6s linear infinite;
 }
 
-/* ─── Topology beam flow (active connection) ─────────────────────── */
-@keyframes beam-flow {
-  to { stroke-dashoffset: -24; }
-}
-.beam-flow {
-  animation: beam-flow 1.1s linear infinite;
-}
 @media (prefers-reduced-motion: reduce) {
-  .beam-flow { animation: none; }
 
   /* ── Respect reduced motion portfolio-wide ───────────────────────
      Component code already gates framer-motion with useReducedMotion();
@@ -1231,41 +1222,6 @@ samp {
 @media (prefers-reduced-motion: reduce) {
   .mt-main, .mt-panel, .mt-in, .mt-meter, .mt-line, .mt-hint { transition: none; }
   .mt-wave { animation: none; }
-}
-
-.cx { container-type: inline-size; }
-
-/* Narrow card: panel sits below the stage */
-.cx-body  { display: grid; grid-template-columns: minmax(0, 1fr); }
-.cx-panel { margin: 0 16px 12px; }
-.cx-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.cx-fact  { display: flex; flex-direction: column; min-width: 0; }
-.cx-links { height: 38px; align-items: center; overflow-x: auto; scrollbar-width: none; }
-.cx-label { display: none; }
-.cx-hint  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-@container (min-width: 400px) {
-  .cx-label { display: inline; }
-}
-
-/* Wide card: panel moves to the right of the stage */
-@container (min-width: 440px) {
-  .cx-body   { grid-template-columns: minmax(0, 1fr) 250px; }
-  .cx-panel  { margin: 12px 14px 12px 0; }
-  .cx-facts  { grid-template-columns: minmax(0, 1fr); }
-  .cx-fact   { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 8px; }
-  .cx-links  {
-    height: auto;
-    min-height: 128px; /* label + 3 chips is about 115px, so pinned never grows the panel */
-    margin-top: auto;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-end;
-    padding-block: 8px;
-    overflow: visible;
-  }
-  .cx-links > button { text-align: left; }
-  .cx-hint   { white-space: normal; }
 }
 
 /* ─── Reusable 3D tilt card ────────────────────────────────────

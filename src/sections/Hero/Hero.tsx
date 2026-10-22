@@ -10,48 +10,53 @@ import { personalInfo, journeyChapters } from "@/data";
 import { scrollToSection } from "@/utils";
 import InteractiveBackground from "@/components/ui/InteractiveBackground";
 import AnimatedMetrics from "@/components/ui/AnimatedMetrics";
+// import CoreKernelPanel from "@/components/ui/CoreKernelPanel";
 import ScrollIndicator from "@/components/ui/ScrollIndicator";
 import MagneticButton from "@/components/ui/MagneticButton";
 import HeroIdentity from "./HeroIdentity";
-import HeroTopology from "./HeroTopology";
-import HeroSaturn from "./HeroSaturn";
+import HeroBackdrop from "./HeroBackdrop";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 /** Slim system telemetry strip that frames the hero like a runtime dashboard. */
 function TelemetryStrip() {
-  const reduceMotion = useReducedMotion();
+  // const reduceMotion = useReducedMotion();
   return (
-    <motion.div
-      initial={reduceMotion ? undefined : { opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.7 }}
-      className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-3 font-mono-code text-[0.6rem] uppercase tracking-[0.16em]"
-      style={{ color: "var(--text-muted)" }}
-    >
-      <span className="flex items-center gap-2">
-        <span
-          className="h-1.5 w-1.5 rounded-full"
-          style={{ background: "var(--accent-teal)" }}
-          aria-hidden="true"
-        />
-        Location: {personalInfo.location} // Remote-capable
-      </span>
-      <span className="hidden items-center gap-3 sm:flex">
-        <span className="flex items-center gap-1.5">
-          <span
-            className="h-1.5 w-1.5 rounded-full"
-            style={{ background: "var(--accent-indigo)" }}
-            aria-hidden="true"
-          />
-          Runtime: v3.8.2-prod
-        </span>
-        <span style={{ color: "var(--border)" }} aria-hidden="true">
-          |
-        </span>
-        <span>System state: nominal</span>
-      </span>
-    </motion.div>
+    <></>
+    // <motion.div
+    //   initial={reduceMotion ? undefined : { opacity: 0 }}
+    //   animate={{ opacity: 1 }}
+    //   transition={{ duration: 0.7 }}
+    //   className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-3 font-mono-code text-[0.6rem] uppercase tracking-[0.16em]"
+    //   style={{ color: "var(--text-muted)" }}
+    // >
+    //   <span className="flex items-center gap-2">
+    //     <span
+    //       className="h-1.5 w-1.5 rounded-full"
+    //       style={{ background: "var(--accent-teal)" }}
+    //       aria-hidden="true"
+    //     />
+    //     Location: {personalInfo.location} // Remote-capable
+    //   </span>
+    //   <span className="hidden items-center gap-3 sm:flex">
+    //     <span className="flex items-center gap-1.5">
+    //       <span
+    //         className="h-1.5 w-1.5 rounded-full"
+    //         style={{ background: "var(--accent-indigo)" }}
+    //         aria-hidden="true"
+    //       />
+    //       Runtime: v3.8.2-prod
+    //     </span>
+    //     <span style={{ color: "var(--border)" }} aria-hidden="true">
+    //       |
+    //     </span>
+    //     <span>System state: nominal</span>
+    //     <span style={{ color: "var(--border)" }} aria-hidden="true">
+    //       |
+    //     </span>
+    //     <span>Latency: 14ms (p99)</span>
+    //   </span>
+    // </motion.div>
   );
 }
 
@@ -59,19 +64,18 @@ export default function Hero() {
   const reduceMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
 
-  // As the hero scrolls away, the visualization recedes slightly — a gentle
+  // As the hero scrolls away, the backdrop recedes slightly — a gentle
   // hand-off into the About section rather than an abrupt cut.
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
-  const constellationY = useTransform(scrollYProgress, [0, 1], [0, -34]);
-  const constellationScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
-  const constellationOpacity = useTransform(
+  const backdropOpacity = useTransform(
     scrollYProgress,
-    [0, 0.85, 1],
-    [1, 0.6, 0.35],
+    [0, 0.5, 1],
+    [1, 0.5, 0],
   );
+  const backdropY = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
   return (
     <section
@@ -81,12 +85,26 @@ export default function Hero() {
       style={{ background: "var(--bg-primary)" }}
       aria-label="Hero section"
     >
+      {/* ── The photograph ─────────────────────────────────────── */}
+      {/* The cinematic portrait is the hero's background, full-bleed. It sits
+          under everything else and recedes with the scroll, so the section
+          below starts from black rather than from a picture. */}
+      <motion.div
+        className="pointer-events-none absolute inset-0 z-0"
+        aria-hidden="true"
+        style={
+          reduceMotion ? undefined : { opacity: backdropOpacity, y: backdropY }
+        }
+      >
+        <HeroBackdrop />
+      </motion.div>
+
       {/* Interactive generative environment */}
-      <InteractiveBackground opacity={0.9} />
+      <InteractiveBackground opacity={0.5} />
 
       {/* Ambient glow fields that anchor the composition */}
       <div
-        className="pointer-events-none absolute inset-0 overflow-hidden"
+        className="pointer-events-none absolute inset-0 z-[1] overflow-hidden"
         aria-hidden="true"
       >
         <div
@@ -99,18 +117,13 @@ export default function Hero() {
         />
       </div>
 
-      {/* Particle-ringed planet drifting behind the constellation field */}
-      <HeroSaturn />
-
       <div className="relative z-10 mx-auto w-full max-w-[1440px] px-6 py-24 md:px-12 xl:px-16">
         <TelemetryStrip />
 
-        {/* ── Asymmetric hero grid ───────────────────────── */}
-        {/* The 7/5 split is kept exactly as it was so the identity column reads
-            the same as before. The topology gains its extra size and rightward
-            shift from a negative right margin, which lets the track extend into
-            the page gutter instead of relying on hardcoded coordinates. */}
-        <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-end xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] xl:gap-12">
+        {/* ── Hero grid ─────────────────────────────────────────── */}
+        {/* Two columns: the identity reads first, the instrument answers the
+            question it raises. The photograph sits behind both. */}
+        <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
           {/* Left: identity, actions, metrics */}
           <div className="flex flex-col gap-4">
             <HeroIdentity />
@@ -120,7 +133,7 @@ export default function Hero() {
               initial={reduceMotion ? undefined : { opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 1.05, ease: EASE }}
-              className="flex flex-wrap items-center gap-2 sm:gap-3 xl:flex-nowrap"
+              className="flex flex-wrap items-center gap-2 sm:gap-3"
             >
               {/* Primary CTA */}
               <MagneticButton
@@ -224,35 +237,15 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* Right — interactive systems constellation */}
-          <div>
-            <motion.div
-              style={
-                reduceMotion
-                  ? undefined
-                  : {
-                      y: constellationY,
-                      scale: constellationScale,
-                      opacity: constellationOpacity,
-                    }
-              }
-            >
-              <motion.div
-                initial={
-                  reduceMotion ? undefined : { opacity: 0, y: 28, scale: 0.98 }
-                }
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 1, delay: 0.5, ease: EASE }}
-              >
-                {/* The topology is the hero's one live instrument. Strobi now
-                    travels with the reader as a docked companion, so
-                    `HeroTopology` only reports which node is inspected —
-                    inspecting one still changes the companion's expression,
-                    without re-rendering the whole hero. */}
-                <HeroTopology />
-              </motion.div>
-            </motion.div>
-          </div>
+          {/* Right — the core kernel readout */}
+          {/* <motion.div
+            initial={reduceMotion ? undefined : { opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
+            className="lg:sticky lg:top-28"
+          >
+            <CoreKernelPanel />
+          </motion.div> */}
         </div>
 
         {/* ── Journey doorway ──────────────────────────────────────── */}

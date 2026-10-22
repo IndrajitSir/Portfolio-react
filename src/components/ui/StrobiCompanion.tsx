@@ -147,7 +147,7 @@ const coversAControl = (bubble: HTMLElement, pill: HTMLElement | null): boolean 
 export default function StrobiCompanion() {
   const reduceMotion = useReducedMotion()
   const section = useActiveSection()
-  const { journey, experience, inspecting } = useCompanionState()
+  const { journey, experience } = useCompanionState()
   // A touch screen has no hover state, so the same reaction is earned by tapping a
   // control instead — read from CSS rather than from a user-agent guess.
   const canHover = useMediaQuery('(hover: hover) and (pointer: fine)')
@@ -200,15 +200,13 @@ export default function StrobiCompanion() {
   const chapter = section === 'journey' ? journey : null
   const role = section === 'experience' ? experience : null
 
-  const ambient: StrobiAnimation = inspecting
-    ? 'thinking'
-    : engaged
-      ? 'working'
-      : chapter
-        ? CHAPTER_MOOD[chapter.kind]
-        : role
-          ? roleMood(role)
-          : (SECTION_MOOD[section] ?? 'idle')
+  const ambient: StrobiAnimation = engaged
+    ? 'working'
+    : chapter
+      ? CHAPTER_MOOD[chapter.kind]
+      : role
+        ? roleMood(role)
+        : (SECTION_MOOD[section] ?? 'idle')
 
   const target: StrobiAnimation = waking
     ? 'waking'

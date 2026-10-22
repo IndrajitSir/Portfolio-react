@@ -6,10 +6,12 @@ import { useEffect, useRef } from 'react'
  * A single, self-contained Canvas scene that backs the hero. It layers several
  * depth planes so the environment feels spatial rather than decorative:
  *
- *   Layer 0  · hairline grid / wireframe (slowest parallax)
- *   Layer 1  · circuit "routes" + travelling light packets
- *   Layer 2  · particle field with proximity links (medium parallax)
- *   Layer 3  · cursor light + nearest-particle filaments (fast, follows pointer)
+ *   Layer 0  · particle field with proximity links (medium parallax)
+ *   Layer 1  · cursor light + nearest-particle filaments (fast, follows pointer)
+ *
+ * The hairline grid and the stepped "circuit routes" that used to sit under all
+ * of it are gone: the hero now carries a photograph, and right-angled lines
+ * over a photograph read as boxes rather than as depth.
  *
  * Design notes
  *   • One rAF loop drives everything — no DOM animation per particle.
@@ -35,30 +37,7 @@ interface Particle {
   tone: 0 | 1 // teal | indigo
 }
 
-interface Route {
-  pts: { x: number; y: number }[]
-  len: number[]
-  total: number
-  speed: number
-  offset: number
-}
-
 const TAU = Math.PI * 2
-
-function pointAtDist(route: Route, dist: number): { x: number; y: number } {
-  for (let i = 1; i < route.pts.length; i++) {
-    if (dist <= route.len[i]) {
-      const seg = route.len[i] - route.len[i - 1]
-      const r = seg > 0 ? (dist - route.len[i - 1]) / seg : 0
-      return {
-        x: route.pts[i - 1].x + (route.pts[i].x - route.pts[i - 1].x) * r,
-        y: route.pts[i - 1].y + (route.pts[i].y - route.pts[i - 1].y) * r,
-      }
-    }
-  }
-  const last = route.pts[route.pts.length - 1]
-  return { x: last.x, y: last.y }
-}
 
 export default function InteractiveBackground({
   className = '',
@@ -83,10 +62,8 @@ export default function InteractiveBackground({
     let height = 0
     let dpr = 1
     let particles: Particle[] = []
-    let routes: Route[] = []
     let raf = 0
     let running = false
-    let startTime = 0
 
     const seed = () => {
       const area = width * height
@@ -106,38 +83,6 @@ export default function InteractiveBackground({
           tone: (i % 4 === 0 ? 1 : 0) as 0 | 1,
         }
       })
-
-      // Generate a handful of Manhattan circuit routes across the viewport.
-      const routeCount = coarse ? 5 : 8
-      routes = Array.from({ length: routeCount }, () => {
-        let x = Math.random() * width
-        let y = Math.random() * height
-        const pts = [{ x, y }]
-        let horiz = Math.random() > 0.5
-        const segments = 3 + Math.floor(Math.random() * 3)
-        for (let s = 0; s < segments; s++) {
-          const dist = 40 + Math.random() * 120
-          if (horiz) x += Math.random() > 0.5 ? dist : -dist
-          else y += Math.random() > 0.5 ? dist : -dist
-          x = Math.max(8, Math.min(width - 8, x))
-          y = Math.max(8, Math.min(height - 8, y))
-          pts.push({ x, y })
-          horiz = !horiz
-        }
-        const len: number[] = [0]
-        let total = 0
-        for (let i = 1; i < pts.length; i++) {
-          total += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y)
-          len.push(total)
-        }
-        return {
-          pts,
-          len,
-          total,
-          speed: 0.16 + Math.random() * 0.24,
-          offset: Math.random(),
-        }
-      })
     }
 
     const resize = () => {
@@ -151,56 +96,6 @@ export default function InteractiveBackground({
       canvas.style.height = `${height}px`
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       seed()
-    }
-
-    const drawGrid = (ox: number, oy: number) => {
-      const step = 54
-      const alpha = 0.045
-      ctx.strokeStyle = `rgba(94,234,212,${alpha})`
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      const gx = ((ox % step) + step) % step
-      const gy = ((oy % step) + step) % step
-      for (let x = -gx; x <= width; x += step) {
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x, height)
-      }
-      for (let y = -gy; y <= height; y += step) {
-        ctx.moveTo(0, y)
-        ctx.lineTo(width, y)
-      }
-      ctx.stroke()
-    }
-
-    const drawRoutes = (ox: number, oy: number, t: number) => {
-      const teal = '94,234,212'
-      ctx.save()
-      ctx.translate(ox, oy)
-      for (const route of routes) {
-        ctx.strokeStyle = `rgba(${teal},0.11)`
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.moveTo(route.pts[0].x, route.pts[0].y)
-        for (let i = 1; i < route.pts.length; i++) ctx.lineTo(route.pts[i].x, route.pts[i].y)
-        ctx.stroke()
-
-        // Travelling light packet along the route.
-        const travel = (t * route.speed + route.offset) % 1
-        const dist = travel * route.total
-        const p = pointAtDist(route, dist)
-        const p2 = pointAtDist(route, Math.min(route.total, dist + 18))
-        ctx.strokeStyle = `rgba(${teal},0.55)`
-        ctx.lineWidth = 1.6
-        ctx.beginPath()
-        ctx.moveTo(p.x, p.y)
-        ctx.lineTo(p2.x, p2.y)
-        ctx.stroke()
-        ctx.fillStyle = `rgba(${teal},0.9)`
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, 1.8, 0, TAU)
-        ctx.fill()
-      }
-      ctx.restore()
     }
 
     const drawParticles = (ox: number, oy: number) => {
@@ -276,8 +171,7 @@ export default function InteractiveBackground({
       ctx.stroke()
     }
 
-    const render = (time: number) => {
-      const t = (time - startTime) / 1000
+    const render = () => {
 
       // Gently respond to scroll: the field drifts down and dims as the hero
       // leaves the viewport. Reading scrollY is cheap and does not force layout.
@@ -297,22 +191,19 @@ export default function InteractiveBackground({
 
       ctx.clearRect(0, 0, width, height)
       ctx.globalAlpha = dim
-      drawGrid(ox * 0.35, oy * 0.35)
-      drawRoutes(ox * 0.6, oy * 0.6, t)
       drawParticles(ox, oy)
       drawCursor()
       ctx.globalAlpha = 1
     }
 
-    const loop = (time: number) => {
-      render(time)
+    const loop = () => {
+      render()
       raf = requestAnimationFrame(loop)
     }
 
     const start = () => {
       if (running) return
       running = true
-      startTime = performance.now()
       raf = requestAnimationFrame(loop)
     }
 
@@ -362,7 +253,7 @@ export default function InteractiveBackground({
 
     if (reduceMotion) {
       // One calm, static frame — no loop, no pointer reactivity.
-      render(performance.now())
+      render()
     } else {
       start()
     }

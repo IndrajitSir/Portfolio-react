@@ -47,11 +47,9 @@ export interface CompanionState {
    */
   journey: JourneyFocus | null
   experience: CareerFocus | null
-  /** True while a node in the hero topology is being inspected. */
-  inspecting: boolean
 }
 
-let state: CompanionState = { journey: null, experience: null, inspecting: false }
+let state: CompanionState = { journey: null, experience: null }
 const listeners = new Set<() => void>()
 
 const emit = () => {
@@ -71,13 +69,6 @@ export const publishJourneyFocus = (focus: JourneyFocus): void => {
 export const publishCareerFocus = (focus: CareerFocus): void => {
   if (state.experience?.id === focus.id) return
   state = { ...state, experience: focus }
-  emit()
-}
-
-/** Report whether a node in the hero topology is being inspected. */
-export const setCompanionInspecting = (inspecting: boolean): void => {
-  if (state.inspecting === inspecting) return
-  state = { ...state, inspecting }
   emit()
 }
 

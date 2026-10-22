@@ -4,7 +4,7 @@ import { personalInfo } from '@/data'
 
 const ROLES = ['Backend Engineer', 'API Architect', 'Open-Source Builder']
 const DESCRIPTION =
-  'I build scalable backend systems, high-performance APIs, and developer tools that solve real-world problems.'
+  'I build scalable backend systems, high-performance APIs, and developer tools that solve real-world problems with deterministic resilience.'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 const NAME_WORDS = ['Indrajit', 'Mandal']
@@ -90,6 +90,7 @@ function MaskedWord({
                   WebkitBackgroundClip: 'text',
                   backgroundClip: 'text',
                   color: 'transparent',
+                  fontStyle: 'italic',
                   filter: 'drop-shadow(0 0 26px var(--glow-teal))',
                 }
               : { color: 'var(--text-primary)' }

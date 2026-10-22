@@ -15,6 +15,8 @@ interface Metric {
   unit?: string
   /** When set, the detail panel shows a meter filled to value / max. */
   max?: number
+  /** Status chip above the number, e.g. `Prod Ready`. */
+  badge: string
   label: string
   detail: string
 }
@@ -29,12 +31,15 @@ interface Metric {
 const METRICS: Metric[] = [
   {
     value: projects.length,
+    suffix: '+',
+    badge: 'Prod Ready',
     label: 'Projects Shipped',
     detail: 'Open-source packages, full-stack systems and mobile apps.',
   },
   {
     value: 150,
     suffix: '+',
+    badge: 'Indexed',
     label: 'DB Models Indexed',
     detail: 'Reviewed at Distronix to find and fix the indexing strategy.',
   },
@@ -43,7 +48,8 @@ const METRICS: Metric[] = [
     decimals: 2,
     unit: '/ 10',
     max: 10,
-    label: 'CGPA',
+    badge: 'Academic',
+    label: 'CGPA (Honors)',
     detail: 'Bachelor in Computer Application, Kazi Nazrul University.',
   },
 ]
@@ -155,6 +161,12 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
 
       {/* Resting content */}
       <div className="mt-main">
+        <span
+          className="mb-2 inline-flex w-fit items-center rounded border border-[var(--border-glow)] bg-[var(--glow-teal)] px-2 py-0.5 font-mono-code text-[0.52rem] uppercase tracking-widest"
+          style={{ color: 'var(--accent-teal)' }}
+        >
+          {metric.badge}
+        </span>
         <div className="flex items-baseline gap-1">
           <span
             className="font-display text-2xl font-light leading-none sm:text-3xl"
