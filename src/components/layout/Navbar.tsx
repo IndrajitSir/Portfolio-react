@@ -442,7 +442,7 @@ export default function Navbar() {
               onClick={(e) => { e.preventDefault(); goToSection('hero') }}
               className="logo-link relative z-10 shrink-0 whitespace-nowrap font-mono-code font-bold text-base tracking-wide"
               style={{ color: 'var(--accent-teal)' }}
-              aria-label="Go to top"
+              aria-label="IM. — back to the top"
             >
               IM<span className="logo-link__dot">.</span>
             </a>
@@ -696,7 +696,6 @@ export default function Navbar() {
                 <a
                   href="#contact"
                   onClick={(e) => { e.preventDefault(); handleNavClick('#contact') }}
-                  aria-label="Go to contact section"
                   className="
                     block text-center py-3 rounded-full
                     border border-[var(--accent-teal)] text-[var(--accent-teal)]

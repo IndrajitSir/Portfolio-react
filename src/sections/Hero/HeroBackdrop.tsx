@@ -14,8 +14,10 @@ import { motion, useReducedMotion } from 'framer-motion'
  * site's palette instead of sitting on top of it.
  */
 
-const BACKDROP_SRC =
-  'my_images/cinematic_hero_section_portrait_for_a_tech_portfolio_website._feature_the_same.png'
+/* WebP at q90: 50 kB against the PNG's 1.1 MB, same 1376×768 pixels. This is
+   the LCP element, so the saving lands directly on first paint. Browsers old
+   enough to lack WebP are already missing `color-mix()` elsewhere in the CSS. */
+const BACKDROP_SRC = 'my_images/cinematic_hero.webp'
 
 export default function HeroBackdrop() {
   const reduceMotion = useReducedMotion()
@@ -37,6 +39,9 @@ export default function HeroBackdrop() {
           className="h-full w-full object-cover object-[72%_top] sm:object-[80%_top] lg:object-[88%_top]"
           style={{ opacity: 0.88 }}
           loading="eager"
+          /* The hero paints over the photograph, so it is the LCP candidate —
+             priority keeps it ahead of the deferred scripts that follow. */
+          fetchPriority="high"
           decoding="async"
         />
 

@@ -32,6 +32,7 @@ export default function HeroSaturn() {
   const reduceMotion = useReducedMotion();
   const anchorRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
+  const [idle, setIdle] = useState(false);
 
   useEffect(() => {
     if (reduceMotion) return;
@@ -45,6 +46,24 @@ export default function HeroSaturn() {
     return () => io.disconnect();
   }, [reduceMotion]);
 
+  /* Mounting the planet pulls the whole Three.js chunk, and its setup runs on
+     the main thread — the same thread that owes the hero its first paint. So it
+     waits for the browser to go quiet rather than racing the LCP element. The
+     2s cap is only the fallback for an engine without `requestIdleCallback`. */
+  useEffect(() => {
+    if (reduceMotion) return;
+    const w = window as typeof window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (!w.requestIdleCallback) {
+      const t = window.setTimeout(() => setIdle(true), 2000);
+      return () => window.clearTimeout(t);
+    }
+    const id = w.requestIdleCallback(() => setIdle(true), { timeout: 2500 });
+    return () => w.cancelIdleCallback?.(id);
+  }, [reduceMotion]);
+
   return (
     <div
       ref={anchorRef}
@@ -55,7 +74,7 @@ export default function HeroSaturn() {
         sm:h-[56vmin] sm:w-[56vmin] sm:opacity-[0.48]
         sm:translate-x-[12%] sm:-translate-y-[10%]"
     >
-      {inView && (
+      {inView && idle && (
         <ParticleSaturn
           coreColor={ACCENT_TEAL}
           ringColor={ACCENT_INDIGO}

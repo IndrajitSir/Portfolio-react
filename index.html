@@ -29,13 +29,27 @@
     <meta name="twitter:description" content="Backend developer building authorization systems, secure file handling and indexed data layers with NestJS, Node.js and TypeScript. Open-source author of the @indrajitsir NestJS authorization packages." />
     <meta name="twitter:image" content="https://portfolio-react-orpin-psi.vercel.app/indrajit-portrait.png" />
 
+    <!-- Hero photograph: the LCP element, fetched before the JS graph starts. -->
+    <link rel="preload" as="image" href="/my_images/cinematic_hero.webp" fetchpriority="high" />
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Loaded as a print stylesheet and flipped to `all` on load, so the font
+         request never blocks first paint. `display=swap` in the URL keeps the
+         fallback face on screen until the webfont lands. -->
     <link
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all';this.onload=null"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
 
     <!-- Structured Data -->
     <script type="application/ld+json">

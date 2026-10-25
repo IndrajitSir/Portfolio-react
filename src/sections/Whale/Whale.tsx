@@ -458,7 +458,7 @@ export default function Whale() {
                       onMouseLeave={() => setHovered((current) => (current === index ? null : current))}
                       onFocus={() => setHovered(index)}
                       onBlur={() => setHovered((current) => (current === index ? null : current))}
-                      aria-label={`Enter container ${item.code}: ${item.label}`}
+                      aria-label={`${item.code} ${item.label} — enter container`}
                       aria-current={isActive ? 'true' : undefined}
                       className="group relative overflow-hidden border px-2 py-2 text-left transition-colors duration-200 sm:px-3"
                       style={{
