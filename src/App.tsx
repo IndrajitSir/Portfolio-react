@@ -1,4 +1,5 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect, type ComponentType, type LazyExoticComponent } from 'react'
+import { FiArrowLeft } from 'react-icons/fi'
 import { RouteProvider } from '@/context/RouteContext'
 import { useRoute } from '@/context/route'
 import { useLenis } from '@/hooks/useLenis'
@@ -18,6 +19,10 @@ import Hero from '@/sections/Hero/Hero'
 // and keeps the entry chunk free of the validator.
 const StrobiCompanion = lazy(() => import('@/components/ui/StrobiCompanion'))
 
+// The whale stage owns the Three.js scene, so it loads below the hero rather
+// than in the entry chunk.
+const Whale = lazy(() => import('@/sections/Whale/Whale'))
+
 // Lazy-load below-fold sections for performance
 const About       = lazy(() => import('@/sections/About/About'))
 const Skills      = lazy(() => import('@/sections/Skills/Skills'))
@@ -35,33 +40,47 @@ const SectionFallback = () => (
   </div>
 )
 
+/**
+ * Every portfolio chapter is its own page, keyed by the section id it renders.
+ * The whale's containers are the way in; a section hash opens the same page.
+ */
+const chapterSections: Record<string, LazyExoticComponent<ComponentType>> = {
+  about: About,
+  journey: Journey,
+  skills: Skills,
+  experience: Experience,
+  projects: Projects,
+  education: Education,
+  credentials: Certifications,
+  contact: Contact,
+}
+
+function ChapterPage({ id }: { id: string }) {
+  const Section = chapterSections[id]
+  return (
+    <main id="main-content" role="main" className="min-h-[100svh]">
+      <Suspense fallback={<SectionFallback />}>
+        <Section />
+      </Suspense>
+      <a
+        href="#whale"
+        className="fixed bottom-5 left-5 z-[80] inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[rgba(6,11,21,0.86)] px-3.5 py-2 font-mono-code text-[0.6rem] uppercase tracking-[0.14em] backdrop-blur-xl transition-colors hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
+        style={{ color: 'var(--text-secondary)' }}
+      >
+        <FiArrowLeft size={12} aria-hidden="true" />
+        Back to the whale
+      </a>
+    </main>
+  )
+}
+
 function Portfolio() {
   return (
     <main id="main-content" role="main">
       <Hero />
-      <Suspense fallback={<SectionFallback />}>
-        <About />
-      </Suspense>
-      <Suspense fallback={<SectionFallback />}>
-        <Journey />
-      </Suspense>
-      <Suspense fallback={<SectionFallback />}>
-        <Skills />
-      </Suspense>
-      <Suspense fallback={<SectionFallback />}>
-        <Experience />
-      </Suspense>
-      <Suspense fallback={<SectionFallback />}>
-        <Projects />
-      </Suspense>
-      <Suspense fallback={<SectionFallback />}>
-        <Education />
-      </Suspense>
-      <Suspense fallback={<SectionFallback />}>
-        <Certifications />
-      </Suspense>
-      <Suspense fallback={<SectionFallback />}>
-        <Contact />
+      {/* The whale's section height, so the page does not jump when it loads. */}
+      <Suspense fallback={<div style={{ height: '1000svh' }} aria-hidden="true" />}>
+        <Whale />
       </Suspense>
     </main>
   )
@@ -69,7 +88,16 @@ function Portfolio() {
 
 function AppInner() {
   useLenis()
-  const { isSideMissions } = useRoute()
+  const { isSideMissions, sectionPage } = useRoute()
+  const chapterId = sectionPage && chapterSections[sectionPage] ? sectionPage : null
+
+  // A chapter page starts at its top. Coming back with `#whale` is different:
+  // the whale resolves that hash itself and lands on the assembled carrier.
+  useEffect(() => {
+    if (chapterId || window.location.hash !== '#whale') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    }
+  }, [chapterId])
 
   return (
     <div className="relative min-h-screen">
@@ -90,6 +118,8 @@ function AppInner() {
             <SideMissions />
           </main>
         </Suspense>
+      ) : chapterId ? (
+        <ChapterPage id={chapterId} />
       ) : (
         <Portfolio />
       )}

@@ -49,7 +49,13 @@ export const useActiveSection = (enabled = true): string => {
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll, { passive: true })
 
+    // Chapters mount on demand, so a section can appear without the reader
+    // scrolling — the document growing is the event that tells us to look again.
+    const observer = new ResizeObserver(onScroll)
+    observer.observe(document.body)
+
     return () => {
+      observer.disconnect()
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
       if (frame) window.cancelAnimationFrame(frame)

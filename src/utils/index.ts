@@ -43,12 +43,17 @@ const scrollElementIntoView = (el: HTMLElement, offset: number): void => {
  * clears the navbar; anything sitting under a sticky header of its own (the
  * journey's chapter compass, for instance) passes a larger one so the jump lands
  * below both.
+ *
+ * Portfolio chapters render on their own page, so a section that is not on
+ * screen is reached by its hash — that is the page change.
  */
 export const scrollToSection = (id: string, offset = -96): void => {
   const el = document.getElementById(id)
   if (el) {
     scrollElementIntoView(el, offset)
+    return
   }
+  window.location.hash = `#${id}`
 }
 
 /**

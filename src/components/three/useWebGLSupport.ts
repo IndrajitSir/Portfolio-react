@@ -8,26 +8,32 @@ import { useEffect, useState } from 'react'
  * probe's own context is released immediately — it exists to answer a question,
  * not to hold a GPU resource for the life of the page.
  */
+const detectWebGL = (): boolean => {
+  let ok = false
+  try {
+    const probe = document.createElement('canvas')
+    const gl =
+      probe.getContext('webgl2') ??
+      probe.getContext('webgl') ??
+      probe.getContext('experimental-webgl')
+    if (gl) {
+      ok = true
+      const lose = (gl as WebGLRenderingContext).getExtension('WEBGL_lose_context')
+      lose?.loseContext()
+    }
+  } catch {
+    ok = false
+  }
+  return ok
+}
+
 export function useWebGLSupport(): boolean {
-  const [supported, setSupported] = useState(true)
+  // Read synchronously on the first render: a no-WebGL visitor must never mount
+  // the canvas for a frame before the fallback can take over.
+  const [supported, setSupported] = useState(detectWebGL)
 
   useEffect(() => {
-    let ok = false
-    try {
-      const probe = document.createElement('canvas')
-      const gl =
-        probe.getContext('webgl2') ??
-        probe.getContext('webgl') ??
-        probe.getContext('experimental-webgl')
-      if (gl) {
-        ok = true
-        const lose = (gl as WebGLRenderingContext).getExtension('WEBGL_lose_context')
-        lose?.loseContext()
-      }
-    } catch {
-      ok = false
-    }
-    setSupported(ok)
+    setSupported(detectWebGL())
   }, [])
 
   return supported

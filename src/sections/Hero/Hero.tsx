@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { lazy, Suspense, useRef } from "react";
 import {
   motion,
   useReducedMotion,
@@ -15,6 +15,10 @@ import ScrollIndicator from "@/components/ui/ScrollIndicator";
 import MagneticButton from "@/components/ui/MagneticButton";
 import HeroIdentity from "./HeroIdentity";
 import HeroBackdrop from "./HeroBackdrop";
+
+// The planet builds its own Three.js scene, so it is deferred rather than
+// pulled into the entry chunk: the hero paints first, the planet arrives after.
+const HeroSaturn = lazy(() => import("./HeroSaturn"));
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -101,6 +105,11 @@ export default function Hero() {
 
       {/* Interactive generative environment */}
       <InteractiveBackground opacity={0.5} />
+
+      {/* Particle planet, anchored in the top-right corner behind the content */}
+      <Suspense fallback={null}>
+        <HeroSaturn />
+      </Suspense>
 
       {/* Ambient glow fields that anchor the composition */}
       <div
@@ -293,7 +302,7 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      <ScrollIndicator targetId="about" label="Scroll to explore" />
+      <ScrollIndicator targetId="whale" label="Scroll to assemble" />
     </section>
   );
 }

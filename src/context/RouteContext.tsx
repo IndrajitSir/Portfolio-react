@@ -13,14 +13,20 @@ const readHash = (): string => {
   return raw.startsWith('/') ? raw : HOME_ROUTE
 }
 
+const readHashRaw = (): string => (typeof window === 'undefined' ? '' : window.location.hash)
+
 export function RouteProvider({ children }: { children: ReactNode }) {
   const [path, setPath] = useState<string>(readHash)
+  const [hash, setHash] = useState<string>(readHashRaw)
   const pendingSection = useRef<string | null>(null)
   const isFirstRun = useRef(true)
 
   // Keep state in sync with browser back/forward and manual hash edits.
   useEffect(() => {
-    const onHashChange = () => setPath(readHash())
+    const onHashChange = () => {
+      setPath(readHash())
+      setHash(readHashRaw())
+    }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
@@ -68,6 +74,7 @@ export function RouteProvider({ children }: { children: ReactNode }) {
     if (opts?.replace) {
       window.history.replaceState(null, '', hash)
       setPath(target)
+      setHash(hash)
     } else {
       window.location.hash = hash
     }
@@ -82,9 +89,10 @@ export function RouteProvider({ children }: { children: ReactNode }) {
       path,
       isSideMissions,
       missionId: segment && segment.length > 0 ? decodeURIComponent(segment) : null,
+      sectionPage: sectionFromHash(hash),
       navigate,
     }
-  }, [path, navigate])
+  }, [path, hash, navigate])
 
   return <RouteContext.Provider value={value}>{children}</RouteContext.Provider>
 }

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext } from 'react'
-import { scrollToSectionWhenReady } from '@/utils'
+import { scrollToSection } from '@/utils'
 
 /**
  * Minimal hash router — context, constants and hooks.
@@ -8,12 +8,13 @@ import { scrollToSectionWhenReady } from '@/utils'
  * routing dependency, so the Side Missions destination is layered on top of the
  * same primitive rather than pulling in a router library:
  *
- *   `#about`              → section anchor  → route `/`
+ *   `#about`              → chapter page   → route `/`, section `about`
  *   `#/side-missions`     → route `/side-missions`
  *   `#/side-missions/:id` → route `/side-missions/:id`
  *
- * Any hash that does not start with `/` is treated as a section anchor on the
- * home route, so all existing navigation keeps working untouched.
+ * The home route is the hero and the whale; every portfolio chapter is its own
+ * page reached from a container (or from any section link), because the whale is
+ * the end of the free scroll, not the middle of a long page.
  *
  * Kept free of JSX so the provider component can live in its own file and the
  * module stays fast-refresh friendly.
@@ -29,6 +30,8 @@ export interface RouteState {
   isSideMissions: boolean
   /** Selected mission id when on a mission detail route, otherwise null. */
   missionId: string | null
+  /** Section id named by a plain section hash (`#projects`), otherwise null. */
+  sectionPage: string | null
   /**
    * Navigate to a route. When returning to the home route you may pass the id of
    * a section to scroll to once the portfolio has rendered.
@@ -45,20 +48,9 @@ export function useRoute(): RouteState {
 }
 
 /**
- * Navigate to a portfolio section. On the home route this is a plain smooth
- * scroll; from the Side Missions route it returns home first, then scrolls.
+ * Navigate to a portfolio section: a smooth scroll when that section is already
+ * on screen, otherwise the hash change that opens its chapter page.
  */
 export function useSectionNavigation() {
-  const { path, navigate } = useRoute()
-  return useCallback(
-    (sectionId: string) => {
-      if (path === HOME_ROUTE) {
-        // Sections are lazy-loaded, so tolerate a brief delay before they exist.
-        scrollToSectionWhenReady(sectionId)
-      } else {
-        navigate(HOME_ROUTE, { section: sectionId })
-      }
-    },
-    [path, navigate],
-  )
+  return useCallback((sectionId: string) => scrollToSection(sectionId), [])
 }
