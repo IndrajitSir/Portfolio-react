@@ -1,5 +1,6 @@
 import { useMemo, useRef } from 'react'
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { useScrollContainer } from '@/context/ScrollContainer'
 import Globe from '@/components/originkit/ui/globe'
 import { personalInfo } from '@/data'
 
@@ -35,7 +36,9 @@ export default function SignalGlobe() {
 
   // Travel the panel itself makes through the viewport; drive a small
   // transform-only drift from it. No layout property is animated.
+  const container = useScrollContainer()
   const { scrollYProgress } = useScroll({
+    container: container ?? undefined,
     target: frameRef,
     offset: ['start end', 'end start'],
   })

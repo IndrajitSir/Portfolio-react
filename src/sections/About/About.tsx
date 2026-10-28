@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { useScrollContainer } from '@/context/ScrollContainer'
 import { FiMail, FiMapPin, FiGithub, FiLinkedin } from 'react-icons/fi'
 import { personalInfo, languages, journeyChapters } from '@/data'
 import { staggerContainer, fadeInUp, withDelay } from '@/utils/animations'
@@ -50,7 +51,12 @@ export default function About() {
   // the block drifts a little as the section passes and softens at both ends, so
   // it arrives and leaves instead of being switched on. It never fully fades —
   // a deep link that lands mid-page must still find readable text.
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
+  const container = useScrollContainer()
+  const { scrollYProgress } = useScroll({
+    container: container ?? undefined,
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  })
   const blockY = useTransform(scrollYProgress, [0, 1], [24, -24])
   const blockOpacity = useTransform(scrollYProgress, [0, 0.12, 0.9, 1], [0.4, 1, 1, 0.4])
 

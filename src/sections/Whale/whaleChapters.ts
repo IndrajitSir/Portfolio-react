@@ -138,14 +138,22 @@ export const containerPositions: [number, number, number][] = [
 
 /**
  * The pinned stage is split into screens of scrolling: three to assemble the
- * whale, then one per container. The viewport itself is the last screen, since a
+ * whale, then 1.5 per container. The viewport itself is the last screen, since a
  * sticky element only stays pinned for its section's height minus one viewport.
+ *
+ * A container used to get a single screen, which put its whole camera move —
+ * slide to the door, dolly in, hold inside, pull back out — inside one viewport
+ * of scrolling. It read as a flicker rather than a visit, so each container now
+ * gets 1.5 screens: the door still opens at 36% of the screen, but the visitor
+ * has ~1.5 viewports of travel either side of it instead of one.
  */
 const ASSEMBLY_SCREENS = 3
-export const WHALE_STAGE_HEIGHT = `${(ASSEMBLY_SCREENS + whaleChapters.length + 1) * 100}svh`
+const CHAPTER_SCREENS = 1.5
+const TRAVEL_SCREENS = ASSEMBLY_SCREENS + whaleChapters.length * CHAPTER_SCREENS
+export const WHALE_STAGE_HEIGHT = `${(TRAVEL_SCREENS + 1) * 100}svh`
 
 /** Fraction of the pinned scroll that assembles the whale. */
-export const ASSEMBLY_END = ASSEMBLY_SCREENS / (ASSEMBLY_SCREENS + whaleChapters.length)
+export const ASSEMBLY_END = ASSEMBLY_SCREENS / TRAVEL_SCREENS
 
 /** Within a container's screen, the camera is at the door between these. */
 export const INSIDE_IN = 0.36

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { motion, motionValue, useMotionValueEvent, useScroll } from 'framer-motion'
+import { useScrollContainer } from '@/context/ScrollContainer'
 import { journeyChapters } from '@/data'
 import { accentColor } from '@/utils/accents'
 import { useMediaQuery } from '@/hooks'
@@ -69,7 +70,9 @@ export default function Journey() {
 
   // Both ends meet the viewport centre, which is what makes the derived
   // per-chapter progress below exact.
+  const container = useScrollContainer()
   const { scrollYProgress } = useScroll({
+    container: container ?? undefined,
     target: listRef,
     offset: ['start center', 'end center'],
   })

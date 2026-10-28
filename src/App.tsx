@@ -51,11 +51,11 @@ function DeferredWhale() {
   }, [shouldLoad])
 
   if (!shouldLoad) {
-    return <div ref={placeholderRef} id="whale" aria-hidden="true" style={{ height: '1000svh' }} />
+    return <div ref={placeholderRef} id="whale" aria-hidden="true" style={{ height: '1300svh' }} />
   }
 
   return (
-    <Suspense fallback={<div id="whale" aria-hidden="true" style={{ height: '1000svh' }} />}>
+    <Suspense fallback={<div id="whale" aria-hidden="true" style={{ height: '1300svh' }} />}>
       <Whale />
     </Suspense>
   )

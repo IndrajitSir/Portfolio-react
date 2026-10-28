@@ -1,5 +1,6 @@
 import { useRef, type ReactNode } from 'react'
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { useScrollContainer } from '@/context/ScrollContainer'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
 
 /**
@@ -105,7 +106,9 @@ interface ParallaxProps {
 export function Parallax({ children, className = '', distance = 36 }: ParallaxProps) {
   const reduceMotion = useReducedMotion()
   const ref = useRef<HTMLDivElement>(null)
+  const container = useScrollContainer()
   const { scrollYProgress } = useScroll({
+    container: container ?? undefined,
     target: ref,
     offset: ['start end', 'end start'],
     // The section is code-split, so the ref can be null on the first layout

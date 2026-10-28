@@ -1,5 +1,6 @@
 import { useEffect, type RefObject } from 'react'
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { useScrollContainer } from '@/context/ScrollContainer'
 import { SPRING_POINTER } from '@/utils/motion'
 
 /**
@@ -40,7 +41,12 @@ export default function AboutDepth({ targetRef }: AboutDepthProps) {
   const reduceMotion = useReducedMotion()
   const amp = reduceMotion ? 0 : 1
 
-  const { scrollYProgress } = useScroll({ target: targetRef, offset: ['start end', 'end start'] })
+  const container = useScrollContainer()
+  const { scrollYProgress } = useScroll({
+    container: container ?? undefined,
+    target: targetRef,
+    offset: ['start end', 'end start'],
+  })
 
   // Pointer position, normalised to −1…1. Spring-smoothed so it drifts rather
   // than snaps, and shared by every near-plane token so they move together —

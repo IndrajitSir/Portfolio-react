@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { motion, motionValue, useMotionValueEvent, useScroll } from 'framer-motion'
+import { useScrollContainer } from '@/context/ScrollContainer'
 import { accentColor } from '@/utils/accents'
 import { clamp } from '@/utils'
 import { DURATION, EASE_OUT_EXPO } from '@/utils/motion'
@@ -61,7 +62,9 @@ export default function Experience() {
 
   // Both ends meet the viewport centre, which is what makes the derived
   // per-role progress below exact.
+  const container = useScrollContainer()
   const { scrollYProgress } = useScroll({
+    container: container ?? undefined,
     target: listRef,
     offset: ['start center', 'end center'],
   })

@@ -10,6 +10,7 @@ import {
   type AnimationPlaybackControls,
   type MotionValue,
 } from 'framer-motion'
+import { useScrollContainer } from '@/context/ScrollContainer'
 import { FiTarget, FiLayers, FiCode, FiActivity, FiSend } from 'react-icons/fi'
 import { DURATION, EASE_OUT_EXPO, EASE_STANDARD } from '@/utils/motion'
 import StageFrame, { FRAME_H, FRAME_W } from './MindsetFrames'
@@ -150,7 +151,9 @@ export default function MindsetTrace() {
 
   const [active, setActive] = useState(0)
 
+  const container = useScrollContainer()
   const { scrollYProgress } = useScroll({
+    container: container ?? undefined,
     target: rootRef,
     offset: ['start 0.85', 'end 0.45'],
   })

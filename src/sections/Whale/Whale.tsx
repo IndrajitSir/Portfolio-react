@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import {
   AnimatePresence,
   motion,
@@ -7,11 +7,12 @@ import {
   useReducedMotion,
   useScroll,
 } from 'framer-motion'
-import { FiArrowRight, FiArrowUpRight, FiX } from 'react-icons/fi'
+import { FiArrowRight, FiX } from 'react-icons/fi'
 import { useWebGLSupport } from '@/components/three/useWebGLSupport'
+import { ScrollContainerContext } from '@/context/ScrollContainer'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { getLenis } from '@/utils/lenisRef'
-import { scrollToSection, scrollBehavior } from '@/utils'
+import { scrollBehavior } from '@/utils'
 import WhaleCanvas from './WhaleCanvas'
 import WhaleFallback from './WhaleFallback'
 import {
@@ -26,6 +27,15 @@ import {
 const CHAPTER_COUNT = whaleChapters.length
 const HASH_PREFIX = 'whale-'
 
+const chapterContent = {
+  about: lazy(() => import('../About/About')),
+  journey: lazy(() => import('../Journey/Journey')),
+  skills: lazy(() => import('../Skills/Skills')),
+  projects: lazy(() => import('../Projects/Projects')),
+  experience: lazy(() => import('../Experience/Experience')),
+  contact: lazy(() => import('../Contact/Contact')),
+}
+
 /**
  * The inside of a container: shown while the camera sits past its doorway.
  *
@@ -35,17 +45,18 @@ const HASH_PREFIX = 'whale-'
 function ChapterPanel({
   chapter,
   onClose,
-  onOpenFull,
 }: {
   chapter: WhaleChapter
   onClose: () => void
-  onOpenFull: (href: string) => void
 }) {
-  const externalLinks = chapter.links.filter((link) => link.external)
+  const ChapterContent = chapterContent[chapter.id as keyof typeof chapterContent]
+  // The panel, not the window, is what scrolls once the chapter is open — the
+  // sections it renders read this so their scroll-driven values keep moving.
+  const panelRef = useRef<HTMLDivElement>(null)
 
   return (
     <motion.div
-      className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-8"
+      className="fixed inset-0 z-[120]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -63,116 +74,46 @@ function ChapterPanel({
       />
 
       <motion.div
+        ref={panelRef}
         role="region"
-        aria-labelledby="whale-chapter-title"
+        aria-label={`${chapter.label} chapter`}
         data-lenis-prevent
-        initial={{ opacity: 0, y: 24, scale: 0.985 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 14, scale: 0.99 }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 14 }}
         transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-        className="relative max-h-[82svh] w-full max-w-3xl overflow-y-auto border border-[rgba(94,234,212,0.22)] bg-[#060c17] shadow-[0_40px_120px_-40px_rgba(0,0,0,0.95)]"
+        className="absolute inset-0 overflow-y-auto overflow-x-hidden bg-[#060c17] shadow-[0_40px_120px_-40px_rgba(0,0,0,0.95)]"
         style={{
           backgroundImage:
             'linear-gradient(rgba(59,130,246,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.055) 1px, transparent 1px)',
           backgroundSize: '46px 46px',
         }}
       >
-        {/* Container seams. */}
-        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-[rgba(94,234,212,0.45)]" />
-        <span aria-hidden="true" className="absolute inset-y-0 left-0 w-px bg-[rgba(94,234,212,0.25)]" />
-
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(94,234,212,0.14)] bg-[rgba(5,11,21,0.72)] px-5 py-3 sm:px-7">
+        <div className="sticky top-0 z-[130] flex items-center justify-between border-b border-[rgba(94,234,212,0.14)] bg-[rgba(5,11,21,0.9)] px-5 py-3 backdrop-blur-xl sm:px-7">
           <div className="flex items-center gap-3">
             <span className="font-mono-code text-[0.6rem] uppercase tracking-[0.2em]" style={{ color: 'var(--accent-teal)' }}>
               {chapter.code}
             </span>
-            <span aria-hidden="true" className="hidden h-3 w-px sm:block" style={{ background: 'var(--border-strong)' }} />
-            <span className="hidden font-mono-code text-[0.56rem] uppercase tracking-[0.2em] sm:block" style={{ color: 'var(--text-muted)' }}>
-              Container interior · carrier 01
+            <span aria-hidden="true" className="h-3 w-px" style={{ background: 'var(--border-strong)' }} />
+            <span className="font-mono-code text-[0.56rem] uppercase tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>
+              {chapter.label} · full chapter
             </span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Leave the container and return to the whale"
+            aria-label="Leave the chapter and return to the whale"
             className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--text-secondary)] transition-colors hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
           >
             <FiX size={16} aria-hidden="true" />
           </button>
         </div>
 
-        <div className="px-5 py-6 sm:px-7 sm:py-8">
-          <p className="font-mono-code text-[0.62rem] uppercase tracking-[0.22em]" style={{ color: 'var(--accent-teal)' }}>
-            {chapter.label} — chapter {chapter.code.replace('CH-', '')}
-          </p>
-          <h2
-            id="whale-chapter-title"
-            className="mt-2 font-display text-[clamp(1.9rem,4.6vw,3rem)] font-light leading-[1.05] tracking-tight"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            {chapter.title}
-          </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>
-            {chapter.summary}
-          </p>
-
-          <div className="mt-6 border-t border-[var(--border)] pt-4">
-            <p className="mb-3 font-mono-code text-[0.58rem] uppercase tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>
-              Manifest
-            </p>
-            <ul className="space-y-2">
-              {chapter.facts.map((fact, index) => (
-                <li key={fact} className="flex items-start gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  <span className="mt-0.5 font-mono-code text-[0.6rem]" style={{ color: 'var(--accent-teal)' }}>
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span>{fact}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {externalLinks.length > 0 && (
-            <div className="mt-5 flex flex-wrap gap-2">
-              {externalLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target={link.href.startsWith('mailto:') ? undefined : '_blank'}
-                  rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] px-3 py-1.5 font-mono-code text-[0.66rem] transition-colors hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  {link.label}
-                  <FiArrowUpRight size={12} aria-hidden="true" />
-                </a>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={() => onOpenFull(chapter.href)}
-              className="group inline-flex items-center gap-2 rounded-lg bg-[var(--accent-teal)] px-4 py-2.5 font-mono-code text-[0.72rem] font-semibold uppercase tracking-wider text-[var(--bg-primary)] transition-colors hover:bg-[#7ff3e0]"
-            >
-              Open the full chapter
-              <FiArrowRight size={14} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5" />
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex items-center rounded-lg border border-[var(--border)] px-4 py-2.5 font-mono-code text-[0.7rem] uppercase tracking-wider transition-colors hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              Back to the whale
-            </button>
-          </div>
-
-          <p className="mt-5 font-mono-code text-[0.56rem] uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>
-            Keep scrolling to leave this container for the next
-          </p>
-        </div>
+        <ScrollContainerContext.Provider value={panelRef}>
+          <Suspense fallback={<div className="min-h-[60svh] animate-pulse bg-[var(--bg-primary)]" aria-label={`Loading ${chapter.label} chapter`} />}>
+            <ChapterContent />
+          </Suspense>
+        </ScrollContainerContext.Provider>
       </motion.div>
     </motion.div>
   )
@@ -251,11 +192,6 @@ export default function Whale() {
       window.history.replaceState(null, '', '#whale')
     }
   }, [reduceMotion, scrollToProgress])
-
-  const openFullChapter = useCallback((href: string) => {
-    // No section exists on this page — the hash is what opens its chapter page.
-    scrollToSection(href.replace('#', ''))
-  }, [])
 
   /* Escape leaves the container; it does not fight the scroll. */
   useEffect(() => {
@@ -458,7 +394,7 @@ export default function Whale() {
                       onMouseLeave={() => setHovered((current) => (current === index ? null : current))}
                       onFocus={() => setHovered(index)}
                       onBlur={() => setHovered((current) => (current === index ? null : current))}
-                      aria-label={`${item.code} ${item.label} — enter container`}
+                      aria-label={`${item.code} ${item.label}`}
                       aria-current={isActive ? 'true' : undefined}
                       className="group relative overflow-hidden border px-2 py-2 text-left transition-colors duration-200 sm:px-3"
                       style={{
@@ -506,7 +442,6 @@ export default function Whale() {
             key={chapter.id}
             chapter={chapter}
             onClose={returnToWhale}
-            onOpenFull={openFullChapter}
           />
         )}
       </AnimatePresence>
