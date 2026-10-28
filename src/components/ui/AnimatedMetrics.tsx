@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { m, useReducedMotion } from 'framer-motion'
 import { FiPlus } from 'react-icons/fi'
 import { projects, educationList } from '@/data'
 import { useScrollReveal } from '@/hooks'
@@ -121,7 +121,7 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
   }`
 
   return (
-    <motion.div
+    <m.div
       initial={reduceMotion ? undefined : { opacity: 0, y: 18 }}
       whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
@@ -193,7 +193,7 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
         </div>
 
         {/* Accent rule that draws into place */}
-        <motion.span
+        <m.span
           aria-hidden="true"
           className="mt-1.5 block h-px w-10"
           style={{ background: 'var(--accent-teal)', transformOrigin: 'left' }}
@@ -262,7 +262,7 @@ function MetricCard({ metric, index }: { metric: Metric; index: number }) {
           </div>
         )}
       </div>
-    </motion.div>
+    </m.div>
   )
 }
 

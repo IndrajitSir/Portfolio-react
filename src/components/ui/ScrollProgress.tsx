@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { motion, useSpring } from 'framer-motion'
+import { m, useSpring } from 'framer-motion'
 
 export default function ScrollProgress() {
   const [progress, setProgress] = useState(0)
@@ -16,7 +16,7 @@ export default function ScrollProgress() {
   }, [])
 
   return (
-    <motion.div
+    <m.div
       aria-hidden="true"
       className="fixed top-0 left-0 h-[2px] z-[200] origin-left"
       style={{

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { m, useReducedMotion } from 'framer-motion'
 
 interface MagneticButtonProps {
   children: ReactNode
@@ -65,7 +65,7 @@ export default function MagneticButton({
       onMouseLeave={onMouseLeave}
       style={{ display: 'inline-block' }}
     >
-      <motion.div
+      <m.div
         animate={{ x: pos.x, y: pos.y }}
         transition={{ type: 'spring', stiffness: 260, damping: 18, mass: 0.5 }}
       >
@@ -79,7 +79,7 @@ export default function MagneticButton({
         >
           {children}
         </Tag>
-      </motion.div>
+      </m.div>
     </div>
   )
 }

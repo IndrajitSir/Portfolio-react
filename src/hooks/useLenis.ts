@@ -1,7 +1,5 @@
 import { useEffect } from 'react'
-import Lenis from 'lenis'
 import { setLenis } from '@/utils/lenisRef'
-import { gsap, ScrollTrigger } from '@/utils/gsap'
 
 /**
  * Smooth scrolling for the whole page — the only scroll controller.
@@ -17,13 +15,7 @@ import { gsap, ScrollTrigger } from '@/utils/gsap'
  *     maximum scroll offset. Without this, links to lower sections silently
  *     fail to travel because the target is past a stale limit.
  *
- *  3. ScrollTrigger and Lenis share one clock. GSAP's ticker calls `lenis.raf`
- *     (instead of a second `requestAnimationFrame` loop), and every Lenis scroll
- *     event updates ScrollTrigger. Running both independently would let the two
- *     disagree about scroll position by a frame — the classic jitter that makes
- *     scroll-driven sequences look broken.
- *
- *  4. Locomotive Scroll is deliberately absent. It would be a second controller
+ *  3. Locomotive Scroll is deliberately absent. It would be a second controller
  *     for the same scroll container, and it would take over the document
  *     transform that Lenis already owns.
  *
@@ -31,51 +23,55 @@ import { gsap, ScrollTrigger } from '@/utils/gsap'
  */
 export const useLenis = (): void => {
   useEffect(() => {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduceMotion) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    })
-
-    setLenis(lenis)
-
-    // Keep ScrollTrigger's notion of scroll position in lockstep with Lenis.
-    lenis.on('scroll', ScrollTrigger.update)
-
-    // One clock: GSAP's ticker advances Lenis. The previous version ran its own
-    // rAF loop alongside GSAP's, which is two loops doing the same work.
-    const tick = (time: number) => {
-      lenis.raf(time * 1000)
+    let active = true
+    let frame = 0
+    let timeout = 0
+    let idleId: number | null = null
+    let lenis: import('lenis').default | null = null
+    let observer: ResizeObserver | null = null
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
     }
-    gsap.ticker.add(tick)
-    gsap.ticker.lagSmoothing(0)
 
-    // The document keeps growing as sections mount and scans decode. Lenis
-    // needs a resize on every change; ScrollTrigger only needs a refresh when
-    // the document's *height* settles at a new value. Refreshing on every
-    // observer callback is a resize/refresh feedback loop, so the height is
-    // compared first and the refresh is debounced.
-    let lastHeight = document.body.scrollHeight
-    let refreshTimer = 0
-    const observer = new ResizeObserver(() => {
-      lenis.resize()
-      const height = document.body.scrollHeight
-      if (height === lastHeight) return
-      lastHeight = height
-      window.clearTimeout(refreshTimer)
-      refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 220)
-    })
-    observer.observe(document.body)
+    const start = async () => {
+      const { default: Lenis } = await import('lenis')
+      if (!active) return
+
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      })
+      setLenis(lenis)
+
+      // Drive Lenis directly so GSAP and ScrollTrigger stay out of the startup graph.
+      const tick = (time: number) => {
+        lenis?.raf(time)
+        frame = window.requestAnimationFrame(tick)
+      }
+      frame = window.requestAnimationFrame(tick)
+
+      // Sections mount lazily and change the document height, so refresh Lenis's limits.
+      observer = new ResizeObserver(() => lenis?.resize())
+      observer.observe(document.body)
+    }
+
+    if (idleWindow.requestIdleCallback) {
+      idleId = idleWindow.requestIdleCallback(() => void start(), { timeout: 2500 })
+    } else {
+      timeout = window.setTimeout(() => void start(), 1200)
+    }
 
     return () => {
-      observer.disconnect()
-      window.clearTimeout(refreshTimer)
-      lenis.off('scroll', ScrollTrigger.update)
-      gsap.ticker.remove(tick)
-      lenis.destroy()
+      active = false
+      if (idleId !== null) idleWindow.cancelIdleCallback?.(idleId)
+      window.clearTimeout(timeout)
+      observer?.disconnect()
+      window.cancelAnimationFrame(frame)
+      lenis?.destroy()
       setLenis(null)
     }
   }, [])

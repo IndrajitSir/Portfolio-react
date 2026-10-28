@@ -1,10 +1,5 @@
 import { lazy, Suspense, useRef } from "react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import { m, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { FiArrowDown, FiArrowRight, FiArrowUpRight } from "react-icons/fi";
 import { personalInfo, journeyChapters } from "@/data";
 import { scrollToSection } from "@/utils";
@@ -27,7 +22,7 @@ function TelemetryStrip() {
   // const reduceMotion = useReducedMotion();
   return (
     <></>
-    // <motion.div
+    // <m.div
     //   initial={reduceMotion ? undefined : { opacity: 0 }}
     //   animate={{ opacity: 1 }}
     //   transition={{ duration: 0.7 }}
@@ -60,7 +55,7 @@ function TelemetryStrip() {
     //     </span>
     //     <span>Latency: 14ms (p99)</span>
     //   </span>
-    // </motion.div>
+    // </m.div>
   );
 }
 
@@ -93,7 +88,7 @@ export default function Hero() {
       {/* The cinematic portrait is the hero's background, full-bleed. It sits
           under everything else and recedes with the scroll, so the section
           below starts from black rather than from a picture. */}
-      <motion.div
+      <m.div
         className="pointer-events-none absolute inset-0 z-0"
         aria-hidden="true"
         style={
@@ -101,7 +96,7 @@ export default function Hero() {
         }
       >
         <HeroBackdrop />
-      </motion.div>
+      </m.div>
 
       {/* Interactive generative environment */}
       <InteractiveBackground opacity={0.5} />
@@ -138,7 +133,7 @@ export default function Hero() {
             <HeroIdentity />
 
             {/* Action cluster */}
-            <motion.div
+            <m.div
               initial={reduceMotion ? undefined : { opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 1.05, ease: EASE }}
@@ -232,10 +227,10 @@ export default function Hero() {
                   className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
               </MagneticButton>
-            </motion.div>
+            </m.div>
 
             {/* ── Integrated engineering metrics ───────────────── */}
-            <motion.div
+            <m.div
               initial={reduceMotion ? undefined : { opacity: 0, y: 16 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
@@ -243,24 +238,24 @@ export default function Hero() {
               className="mt-3 space-y-1.5"
             >
               <AnimatedMetrics />
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Right — the core kernel readout */}
-          {/* <motion.div
+          {/* <m.div
             initial={reduceMotion ? undefined : { opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
             className="lg:sticky lg:top-28"
           >
             <CoreKernelPanel />
-          </motion.div> */}
+          </m.div> */}
         </div>
 
         {/* ── Journey doorway ──────────────────────────────────────── */}
         {/* The hero's job is to point both audiences somewhere: recruiters get
             the CTAs above, first-time visitors get a way into the narrative. */}
-        <motion.div
+        <m.div
           initial={reduceMotion ? undefined : { opacity: 0, y: 18 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
@@ -299,7 +294,7 @@ export default function Hero() {
               style={{ color: "var(--text-muted)" }}
             />
           </a>
-        </motion.div>
+        </m.div>
       </div>
 
       <ScrollIndicator targetId="whale" label="Scroll to assemble" />

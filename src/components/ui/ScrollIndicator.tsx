@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { m, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { scrollToSection } from '@/utils'
 
 interface ScrollIndicatorProps {
@@ -26,7 +26,7 @@ export default function ScrollIndicator({
   })
 
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={() => scrollToSection(targetId)}
       style={{ opacity }}
@@ -48,7 +48,7 @@ export default function ScrollIndicator({
         style={{ background: 'var(--border)' }}
         aria-hidden="true"
       >
-        <motion.span
+        <m.span
           className="absolute inset-x-0 top-0 block h-full origin-top"
           style={{
             scaleY: draw,
@@ -56,7 +56,7 @@ export default function ScrollIndicator({
           }}
         />
         {!reduceMotion && (
-          <motion.span
+          <m.span
             className="absolute left-1/2 h-3 w-px -translate-x-1/2"
             style={{ background: 'var(--accent-teal)' }}
             animate={{ top: ['-12%', '100%'] }}
@@ -64,6 +64,6 @@ export default function ScrollIndicator({
           />
         )}
       </span>
-    </motion.button>
+    </m.button>
   )
 }

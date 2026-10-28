@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { m, useReducedMotion } from 'framer-motion'
 import { personalInfo } from '@/data'
 
 const ROLES = ['Backend Engineer', 'API Architect', 'Open-Source Builder']
@@ -14,7 +14,7 @@ function AvailabilityBadge() {
   const reduceMotion = useReducedMotion()
 
   return (
-    <motion.div
+    <m.div
       initial={reduceMotion ? undefined : { opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
@@ -27,7 +27,7 @@ function AvailabilityBadge() {
       aria-label="Currently available for opportunities"
     >
       {!reduceMotion && (
-        <motion.span
+        <m.span
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12"
           style={{
@@ -41,7 +41,7 @@ function AvailabilityBadge() {
 
       <span className="relative flex h-2 w-2" aria-hidden="true">
         {!reduceMotion && (
-          <motion.span
+          <m.span
             className="absolute inset-0 rounded-full"
             style={{ background: 'var(--accent-teal)' }}
             animate={{ scale: [1, 2.4], opacity: [0.6, 0] }}
@@ -55,7 +55,7 @@ function AvailabilityBadge() {
       </span>
 
       <span className="relative">Available for opportunities</span>
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -74,7 +74,7 @@ function MaskedWord({
 
   return (
     <span className="mr-[0.22em] inline-block overflow-hidden pb-[0.06em] align-bottom last:mr-0">
-      <motion.span
+      <m.span
         className="relative inline-block"
         initial={reduceMotion ? undefined : { y: '118%', opacity: 0 }}
         animate={reduceMotion ? undefined : { y: '0%', opacity: 1 }}
@@ -105,7 +105,7 @@ function MaskedWord({
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 overflow-hidden"
           >
-            <motion.span
+            <m.span
               className="absolute inset-y-0 w-1/2 -skew-x-12"
               style={{
                 background:
@@ -119,7 +119,7 @@ function MaskedWord({
             />
           </span>
         )}
-      </motion.span>
+      </m.span>
     </span>
   )
 }
@@ -152,7 +152,7 @@ function RoleHeadline() {
               wordIndex += 1
               return (
                 <span key={word} className="mr-[0.28em] inline-block overflow-hidden align-bottom">
-                  <motion.span
+                  <m.span
                     className="relative inline-block"
                     initial={reduceMotion ? undefined : { y: '110%', opacity: 0 }}
                     animate={reduceMotion ? undefined : { y: '0%', opacity: 1 }}
@@ -164,19 +164,19 @@ function RoleHeadline() {
                   >
                     {word}
                     {isActive && !reduceMotion && (
-                      <motion.span
+                      <m.span
                         layoutId="role-underline"
                         className="absolute -bottom-0.5 left-0 right-0 h-px"
                         style={{ background: 'var(--accent-teal)' }}
                         transition={{ type: 'spring', stiffness: 320, damping: 30 }}
                       />
                     )}
-                  </motion.span>
+                  </m.span>
                 </span>
               )
             })}
             {roleIdx < ROLES.length - 1 && (
-              <motion.span
+              <m.span
                 initial={reduceMotion ? undefined : { opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.75 + wordIndex * 0.06 }}
@@ -185,7 +185,7 @@ function RoleHeadline() {
                 aria-hidden="true"
               >
                 ·
-              </motion.span>
+              </m.span>
             )}
           </span>
         )
@@ -202,7 +202,7 @@ export default function HeroIdentity() {
       <AvailabilityBadge />
 
       <div className="flex flex-col gap-1">
-        <motion.span
+        <m.span
           initial={reduceMotion ? undefined : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -210,7 +210,7 @@ export default function HeroIdentity() {
           style={{ color: 'var(--text-muted)' }}
         >
           Systems Architecture / Backend Engineering
-        </motion.span>
+        </m.span>
 
         <h1
           className="font-display font-light leading-[1.02] tracking-tight"
@@ -224,7 +224,7 @@ export default function HeroIdentity() {
 
       <RoleHeadline />
 
-      <motion.p
+      <m.p
         initial={reduceMotion ? undefined : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.95, ease: EASE }}
@@ -232,7 +232,7 @@ export default function HeroIdentity() {
         style={{ color: 'var(--text-secondary)' }}
       >
         {DESCRIPTION}
-      </motion.p>
+      </m.p>
 
       <p className="sr-only">
         {personalInfo.name} — {ROLES.join(', ')}.

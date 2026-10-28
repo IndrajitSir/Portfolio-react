@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ComponentType, type LazyExoticComponent } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type ComponentType, type LazyExoticComponent, type ReactNode } from 'react'
+import { LazyMotion } from 'framer-motion'
 import { FiArrowLeft } from 'react-icons/fi'
 import { RouteProvider } from '@/context/RouteContext'
 import { useRoute } from '@/context/route'
@@ -17,6 +18,11 @@ import Hero from '@/sections/Hero/Hero'
 // after mount, so loading it in parallel with the hero costs nothing visually
 // and keeps the entry chunk free of the validator.
 const StrobiCompanion = lazy(() => import('@/components/ui/StrobiCompanion'))
+const motionFeatures = () => import('framer-motion').then(({ domMax }) => domMax)
+
+function MotionProvider({ children }: { children: ReactNode }) {
+  return <LazyMotion features={motionFeatures}>{children}</LazyMotion>
+}
 
 // The whale stage owns the Three.js scene, so it loads below the hero rather
 // than in the entry chunk.
@@ -38,7 +44,7 @@ function DeferredWhale() {
         setShouldLoad(true)
         observer.disconnect()
       },
-      { rootMargin: '50% 0px' },
+      { rootMargin: '0px' },
     )
     observer.observe(placeholder)
     return () => observer.disconnect()
@@ -190,8 +196,10 @@ function AppInner() {
  */
 export default function App() {
   return (
-    <RouteProvider>
-      <AppInner />
-    </RouteProvider>
+    <MotionProvider>
+      <RouteProvider>
+        <AppInner />
+      </RouteProvider>
+    </MotionProvider>
   )
 }

@@ -48,18 +48,31 @@ type Props = { onClick?: ComponentProps<typeof MagneticButton>['onClick'] };
 export default function HireMeButton({ onClick }: Props) {
   const root = useRef<HTMLDivElement>(null);
   const idle = useRef(true);
+  const entryFrame = useRef<number | null>(null);
 
   const enter = (side: Side) => {
     const el = root.current;
     if (!el) return;
-    // If the fill is parked off-screen, teleport it to the entry edge first
-    // (transitions off), then let it flow in. If it's mid-drain, just reverse.
+    if (entryFrame.current !== null) cancelAnimationFrame(entryFrame.current);
+
+    // Commit the parked position for a frame before enabling the transition;
+    // this avoids forcing synchronous layout to flush the style change.
     if (idle.current) {
       el.dataset.side = side;
       el.classList.add('hb-snap');
-      void el.offsetWidth; // flush styles
-      el.classList.remove('hb-snap');
+      entryFrame.current = requestAnimationFrame(() => {
+        entryFrame.current = requestAnimationFrame(() => {
+          entryFrame.current = null;
+          if (!el.isConnected) return;
+          el.classList.remove('hb-snap');
+          idle.current = false;
+          el.dataset.idle = 'false';
+          el.dataset.active = 'true';
+        });
+      });
+      return;
     }
+
     idle.current = false;
     el.dataset.idle = 'false';
     el.dataset.active = 'true';
@@ -68,6 +81,11 @@ export default function HireMeButton({ onClick }: Props) {
   const leave = (side: Side) => {
     const el = root.current;
     if (!el) return;
+    if (entryFrame.current !== null) {
+      cancelAnimationFrame(entryFrame.current);
+      entryFrame.current = null;
+      el.classList.remove('hb-snap');
+    }
     el.dataset.side = side; // drain out through the exit edge
     el.dataset.active = 'false';
   };

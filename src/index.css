@@ -1,3 +1,21 @@
+/* First-paint defaults apply before the production stylesheet is loaded. */
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+html,
+body {
+  background: #08090d;
+  color: #e8eaf0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

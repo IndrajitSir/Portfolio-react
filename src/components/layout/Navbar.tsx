@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { animate, AnimatePresence, motion, useMotionValue, useReducedMotion, type MotionValue } from 'framer-motion'
+import { animate, AnimatePresence, m, useMotionValue, useReducedMotion, type MotionValue } from 'framer-motion'
 import { FiMenu, FiX, FiArrowUpRight, FiDownload } from 'react-icons/fi'
 import { navItems } from '@/data/navigation'
 import { personalInfo } from '@/data/personal'
@@ -174,21 +174,17 @@ export default function Navbar() {
     const controls = controlsRef.current
     if (!bar || !logo || !rail || !controls) return
 
-    /**
-     * Read the geometry the compact pill has to satisfy. The bar's own padding
-     * is subtracted rather than assumed, so the measurement survives a change to
-     * the responsive gutters.
-     */
+    // ResizeObserver supplies post-layout content-box measurements; caching them
+    // avoids synchronous geometry reads in a layout effect after rendering.
+    const widths = new Map<Element, number>()
     const measure = () => {
-      const style = getComputedStyle(bar)
-      const logoW = logo.offsetWidth
-      const controlsW = controls.offsetWidth
-      // Zero on phones, where the rail is not rendered: the pill then hugs just
-      // the monogram and the menu button.
-      const railW = rail.offsetWidth
+      const expandedW = widths.get(bar) ?? 0
+      const logoW = widths.get(logo) ?? 0
+      const controlsW = widths.get(controls) ?? 0
+      const railW = widths.get(rail) ?? 0
+      if (!expandedW || !logoW || !controlsW) return
       metrics.current = {
-        expandedW:
-          bar.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight),
+        expandedW,
         compactW: PILL_PAD_X * 2 + logoW + controlsW + RAIL_CLEARANCE * 2 + railW,
         shift: (logoW - controlsW) / 2,
       }
@@ -240,8 +236,9 @@ export default function Navbar() {
     // of the morph. Re-applying then would snap the animation to its end point
     // on the first frame; comparing first means the morph is left alone, and an
     // observer that has nothing new to say costs two integer comparisons.
-    const remeasure = () => {
+    const observer = new ResizeObserver((entries) => {
       const before = metrics.current
+      entries.forEach((entry) => widths.set(entry.target, entry.contentRect.width))
       measure()
       const after = metrics.current
       if (
@@ -252,21 +249,15 @@ export default function Navbar() {
         return
       }
       apply(false)
-    }
-    const observer = new ResizeObserver(remeasure)
+    })
     observer.observe(bar)
     observer.observe(logo)
     observer.observe(rail)
     observer.observe(controls)
-    window.addEventListener('resize', remeasure)
-    // The webfonts land after first paint and change every width in the bar.
-    document.fonts?.ready.then(remeasure).catch(() => {})
-
     applyRef.current(false)
 
     return () => {
       observer.disconnect()
-      window.removeEventListener('resize', remeasure)
       // Nothing is left animating or listening once the bar is gone.
       for (const value of [width, padX, padY, barPad, radius, surfaceOpacity, railShift]) {
         value.stop()
@@ -388,13 +379,13 @@ export default function Navbar() {
       {/* The bar itself is transparent to the pointer and only the pill takes
           clicks, so the empty gutters beside the floating pill never swallow a
           click meant for the page underneath. */}
-      <motion.nav
+      <m.nav
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: DURATION.reveal, ease: EASE_STANDARD }}
         className="pointer-events-none fixed inset-x-0 top-0 z-[90]"
       >
-        <motion.div
+        <m.div
           ref={barRef}
           className="flex justify-center px-4 sm:px-6 xl:px-12"
           style={{ paddingTop: barPad, paddingBottom: barPad }}
@@ -403,7 +394,7 @@ export default function Navbar() {
           {/* The width starts at `100%` — the plain full-width bar — and the
               measurement above replaces it with a px width before the first
               paint, so there is no unmeasured frame. */}
-          <motion.div
+          <m.div
             className="pointer-events-auto relative flex shrink-0 items-center justify-between"
             style={{
               width,
@@ -417,7 +408,7 @@ export default function Navbar() {
             {/* The surface. Its shape is inherited from the pill's own animated
                 radius, so the two can never disagree, and its opacity is the
                 whole fade: background, edge, blur and lift arrive together. */}
-            <motion.div
+            <m.div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 backdrop-blur-xl"
               style={{
@@ -456,7 +447,7 @@ export default function Navbar() {
                 morph animates. Type scales at each breakpoint so the rail always
                 clears the flanks with room to spare. */}
             <div className="pointer-events-none absolute inset-y-0 left-1/2 hidden -translate-x-1/2 lg:block">
-              <motion.ul
+              <m.ul
                 ref={railRef}
                 style={{ x: railShift }}
                 className="
@@ -474,7 +465,7 @@ export default function Navbar() {
                   const indicatorId = hoveredNav ?? (activeSection || null)
                   const showIndicator = indicatorId === id
                   return (
-                    <motion.li key={item.href} {...railItem(i)}>
+                    <m.li key={item.href} {...railItem(i)}>
                       <button
                         onClick={() => handleNavClick(item.href)}
                         onMouseEnter={() => setHoveredNav(id)}
@@ -488,7 +479,7 @@ export default function Navbar() {
                       >
                         <span className="nav-link__label">{item.label}</span>
                         {showIndicator && (
-                          <motion.span
+                          <m.span
                             layoutId="nav-indicator"
                             className="nav-indicator"
                             aria-hidden="true"
@@ -496,13 +487,13 @@ export default function Navbar() {
                           />
                         )}
                       </button>
-                    </motion.li>
+                    </m.li>
                   )
                 })}
 
                 {/* Side Missions — a route, not a section anchor, so it sits apart and
                     carries its own indigo marker. */}
-                <motion.li {...railItem(navItems.length)}>
+                <m.li {...railItem(navItems.length)}>
                   <button
                     onClick={() => {
                       navigate(SIDE_MISSIONS_ROUTE)
@@ -518,7 +509,7 @@ export default function Navbar() {
                       className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     />
                     {isSideMissions && (
-                      <motion.span
+                      <m.span
                         layoutId="nav-route-indicator"
                         className="nav-indicator nav-indicator--route"
                         aria-hidden="true"
@@ -526,8 +517,8 @@ export default function Navbar() {
                       />
                     )}
                   </button>
-                </motion.li>
-              </motion.ul>
+                </m.li>
+              </m.ul>
             </div>
 
             {/* Right controls */}
@@ -564,9 +555,9 @@ export default function Navbar() {
                 <FiMenu size={16} />
               </button>
             </div>
-          </motion.div>
-        </motion.div>
-      </motion.nav>
+          </m.div>
+        </m.div>
+      </m.nav>
 
       {/* ── Mobile full-screen menu ──────────────────────── */}
       <AnimatePresence>
@@ -574,7 +565,7 @@ export default function Navbar() {
           <>
             {/* Backdrop. It sits above the bar — an open modal covers the page's
                 own chrome — and closes the drawer when it is clicked. */}
-            <motion.div
+            <m.div
               key="backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -587,7 +578,7 @@ export default function Navbar() {
             />
 
             {/* Drawer */}
-            <motion.div
+            <m.div
               key="drawer"
               id={DRAWER_ID}
               ref={drawerRef}
@@ -628,7 +619,7 @@ export default function Navbar() {
               <nav aria-label="Mobile navigation">
                 <ul className="flex flex-col gap-2" role="list">
                   {navItems.map((item, i) => (
-                    <motion.li
+                    <m.li
                       key={item.href}
                       initial={{ opacity: 0, x: 30 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -645,11 +636,11 @@ export default function Navbar() {
                       >
                         {item.label}
                       </button>
-                    </motion.li>
+                    </m.li>
                   ))}
 
                   {/* Side Missions destination */}
-                  <motion.li
+                  <m.li
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: navItems.length * 0.07, duration: 0.35 }}
@@ -669,7 +660,7 @@ export default function Navbar() {
                       Side Missions
                       <FiArrowUpRight size={18} aria-hidden="true" />
                     </button>
-                  </motion.li>
+                  </m.li>
                 </ul>
               </nav>
 
@@ -693,6 +684,7 @@ export default function Navbar() {
                     Resume
                   </a>
                 )}
+
                 <a
                   href="#contact"
                   onClick={(e) => { e.preventDefault(); handleNavClick('#contact') }}
@@ -707,7 +699,7 @@ export default function Navbar() {
                   Hire Me
                 </a>
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>

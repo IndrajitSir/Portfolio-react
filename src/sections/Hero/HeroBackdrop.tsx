@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { m, useReducedMotion } from 'framer-motion'
 
 /**
  * HeroBackdrop
@@ -27,7 +27,7 @@ export default function HeroBackdrop() {
       {/* One viewport tall, not hero-tall: the mobile hero is much taller than
           the screen, and letting the photo stretch with it would blow the
           subject's head up to twice its size. */}
-      <motion.div
+      <m.div
         className="absolute inset-x-0 top-0 h-[100svh]"
         initial={reduceMotion ? undefined : { opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -67,7 +67,7 @@ export default function HeroBackdrop() {
               'linear-gradient(180deg, rgba(8,9,13,0.72) 0%, rgba(8,9,13,0.82) 45%, rgba(8,9,13,0.95) 100%)',
           }}
         />
-      </motion.div>
+      </m.div>
 
       {/* The scrim: dark under the text, open over the subject. */}
       <div
