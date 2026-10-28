@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, type ComponentType, type LazyExoticComponent } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type ComponentType, type LazyExoticComponent } from 'react'
 import { FiArrowLeft } from 'react-icons/fi'
 import { RouteProvider } from '@/context/RouteContext'
 import { useRoute } from '@/context/route'
@@ -6,7 +6,6 @@ import { useLenis } from '@/hooks/useLenis'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import CustomCursor from '@/components/ui/CustomCursor'
-import Preloader from '@/components/ui/Preloader'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import NoiseOverlay from '@/components/ui/NoiseOverlay'
 import Hero from '@/sections/Hero/Hero'
@@ -22,6 +21,68 @@ const StrobiCompanion = lazy(() => import('@/components/ui/StrobiCompanion'))
 // The whale stage owns the Three.js scene, so it loads below the hero rather
 // than in the entry chunk.
 const Whale = lazy(() => import('@/sections/Whale/Whale'))
+
+function DeferredWhale() {
+  const placeholderRef = useRef<HTMLDivElement>(null)
+  const [shouldLoad, setShouldLoad] = useState(
+    () => typeof window !== 'undefined' && window.location.hash.startsWith('#whale-'),
+  )
+
+  useEffect(() => {
+    if (shouldLoad) return
+    const placeholder = placeholderRef.current
+    if (!placeholder) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setShouldLoad(true)
+        observer.disconnect()
+      },
+      { rootMargin: '50% 0px' },
+    )
+    observer.observe(placeholder)
+    return () => observer.disconnect()
+  }, [shouldLoad])
+
+  if (!shouldLoad) {
+    return <div ref={placeholderRef} id="whale" aria-hidden="true" style={{ height: '1000svh' }} />
+  }
+
+  return (
+    <Suspense fallback={<div id="whale" aria-hidden="true" style={{ height: '1000svh' }} />}>
+      <Whale />
+    </Suspense>
+  )
+}
+
+function DeferredStrobiCompanion() {
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    let timer = 0
+    const onFirstInput = () => {
+      window.removeEventListener('pointerdown', onFirstInput)
+      window.removeEventListener('keydown', onFirstInput)
+      window.removeEventListener('scroll', onFirstInput)
+      timer = window.setTimeout(() => setReady(true), 1200)
+    }
+    window.addEventListener('pointerdown', onFirstInput, { once: true, passive: true })
+    window.addEventListener('keydown', onFirstInput, { once: true })
+    window.addEventListener('scroll', onFirstInput, { once: true, passive: true })
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener('pointerdown', onFirstInput)
+      window.removeEventListener('keydown', onFirstInput)
+      window.removeEventListener('scroll', onFirstInput)
+    }
+  }, [])
+
+  return ready ? (
+    <Suspense fallback={null}>
+      <StrobiCompanion />
+    </Suspense>
+  ) : null
+}
 
 // Lazy-load below-fold sections for performance
 const About       = lazy(() => import('@/sections/About/About'))
@@ -78,10 +139,8 @@ function Portfolio() {
   return (
     <main id="main-content" role="main">
       <Hero />
-      {/* The whale's section height, so the page does not jump when it loads. */}
-      <Suspense fallback={<div style={{ height: '1000svh' }} aria-hidden="true" />}>
-        <Whale />
-      </Suspense>
+      {/* Keep its full scroll space, but don't fetch Three.js until the stage is near. */}
+      <DeferredWhale />
     </main>
   )
 }
@@ -104,13 +163,8 @@ function AppInner() {
       <NoiseOverlay />
       <ScrollProgress />
       <CustomCursor />
-      <Preloader />
       <Navbar />
-      {!isSideMissions && (
-        <Suspense fallback={null}>
-          <StrobiCompanion />
-        </Suspense>
-      )}
+      {!isSideMissions && <DeferredStrobiCompanion />}
 
       {isSideMissions ? (
         <Suspense fallback={<SectionFallback />}>

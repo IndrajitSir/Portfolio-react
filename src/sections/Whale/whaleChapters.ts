@@ -120,19 +120,20 @@ export const whaleChapters: WhaleChapter[] = [
  * Final container rests, in the same order as `whaleChapters`.
  *
  * Coordinates are world units: the whale runs along X with its head at -3.5 and
- * its tail at +3.1, the back sits near y=1.0, and the containers sit on top of
- * it in Docker's stepped two-row stack. These positions are shared by the
- * meshes, the hover labels and the camera dive.
+ * its tail at +3.1, the back sits near y=1.1, and the containers sit on top of
+ * it as chunky plates in Docker's stepped two-row stack, set forward of the
+ * tail the way the mark sets them. These positions are shared by the meshes,
+ * the hover labels and the camera dive.
  */
-export const CONTAINER_SIZE = { width: 0.94, height: 0.52, depth: 0.82 }
+export const CONTAINER_SIZE = { width: 0.96, height: 0.92, depth: 1.1 }
 
 export const containerPositions: [number, number, number][] = [
-  [-1.59, 1.38, 0],
-  [-0.53, 1.38, 0],
-  [0.53, 1.38, 0],
-  [1.59, 1.38, 0],
-  [-1.06, 1.92, 0],
-  [0, 1.92, 0],
+  [-2.14, 1.62, 0],
+  [-1.08, 1.62, 0],
+  [-0.02, 1.62, 0],
+  [1.04, 1.62, 0],
+  [-1.61, 2.56, 0],
+  [-0.55, 2.56, 0],
 ]
 
 /**

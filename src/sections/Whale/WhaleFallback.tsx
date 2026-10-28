@@ -33,25 +33,25 @@ export default function WhaleFallback() {
           </g>
           <path
             d="M60 190 C70 140 130 112 210 108 C320 102 430 108 520 132 C565 144 600 162 618 184 C604 196 570 204 530 206 C470 220 410 232 330 236 C250 240 160 232 110 214 C80 206 62 200 60 190 Z"
-            fill="#1d63ed"
-            fillOpacity="0.6"
-            stroke="#8cc6ff"
-            strokeOpacity="0.7"
+            fill="#37e6c9"
+            fillOpacity="0.85"
+            stroke="#a8f7e7"
+            strokeOpacity="0.6"
             strokeWidth="1.4"
           />
           <path
             d="M600 182 C630 154 664 140 692 144 C686 165 668 184 646 196 C664 206 678 222 682 244 C652 242 622 224 604 200 Z"
-            fill="#1a54c8"
-            fillOpacity="0.75"
-            stroke="#8cc6ff"
-            strokeOpacity="0.6"
+            fill="#2cd2b6"
+            fillOpacity="0.9"
+            stroke="#a8f7e7"
+            strokeOpacity="0.5"
             strokeWidth="1.3"
           />
-          <ellipse cx="252" cy="214" rx="52" ry="17" fill="#1a4bb4" transform="rotate(18 252 214)" />
-          <circle cx="112" cy="168" r="7" fill="#04101f" />
-          <circle cx="110" cy="166" r="2" fill="#d9efff" />
-          <path d="M64 196 C88 208 116 210 142 202" fill="none" stroke="#08224d" strokeWidth="2" strokeLinecap="round" />
-          <g fill="#8fd2ff" fillOpacity="0.65">
+          <ellipse cx="252" cy="214" rx="52" ry="17" fill="#2cd2b6" transform="rotate(18 252 214)" />
+          <circle cx="112" cy="168" r="7" fill="#0b1c33" />
+          <circle cx="110" cy="166" r="2" fill="#37e6c9" />
+          <path d="M64 196 C88 208 116 210 142 202" fill="none" stroke="#0b1c33" strokeWidth="2" strokeLinecap="round" />
+          <g fill="#8bf2de" fillOpacity="0.7">
             <circle cx="128" cy="78" r="5" />
             <circle cx="138" cy="62" r="4" />
             <circle cx="120" cy="60" r="3.5" />
@@ -70,9 +70,9 @@ export default function WhaleFallback() {
               key={index}
               {...box}
               rx="4"
-              fill={['#1d5fe0', '#2a70f0', '#174fb8', '#2f7bf7', '#1f66e6', '#2563eb'][index]}
-              stroke="#9bc9ff"
-              strokeOpacity="0.55"
+              fill={['#37e6c9', '#0380ba', '#0380ba', '#37e6c9', '#37e6c9', '#0380ba'][index]}
+              stroke="#a8f7e7"
+              strokeOpacity="0.4"
               strokeWidth="1"
             />
           ))}

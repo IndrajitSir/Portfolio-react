@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
-import ParticleSaturn from "@/components/originkit/ui/particle-saturn-03";
+
+const ParticleSaturn = lazy(() => import("@/components/originkit/ui/particle-saturn-03"));
 
 /**
  * HeroSaturn
@@ -75,24 +76,26 @@ export default function HeroSaturn() {
         sm:translate-x-[12%] sm:-translate-y-[10%]"
     >
       {inView && idle && (
-        <ParticleSaturn
-          coreColor={ACCENT_TEAL}
-          ringColor={ACCENT_INDIGO}
-          density={9}
-          particleSize={14}
-          glow={16}
-          tilt={31}
-          roll={-36}
-          spinSpeed={7}
-          ringOptions={{
-            gaps: 2,
-            orbitSpeed: 8,
-            innerRadius: 128,
-            outerRadius: 224,
-          }}
-          dragSensitivity={2}
-          sizePercent={120}
-        />
+        <Suspense fallback={null}>
+          <ParticleSaturn
+            coreColor={ACCENT_TEAL}
+            ringColor={ACCENT_INDIGO}
+            density={9}
+            particleSize={14}
+            glow={16}
+            tilt={31}
+            roll={-36}
+            spinSpeed={7}
+            ringOptions={{
+              gaps: 2,
+              orbitSpeed: 8,
+              innerRadius: 128,
+              outerRadius: 224,
+            }}
+            dragSensitivity={2}
+            sizePercent={120}
+          />
+        </Suspense>
       )}
     </div>
   );

@@ -28,9 +28,18 @@ export interface WhaleCanvasProps {
   onSelect: (index: number) => void
 }
 
-const BODY_COLOR = '#2563eb'
-const EDGE_COLOR = '#9bc9ff'
-const CONTAINER_COLORS = ['#1d5fe0', '#2a70f0', '#174fb8', '#2f7bf7', '#1f66e6', '#2563eb']
+/**
+ * The mark's palette: a mint whale, mint and blue plates, and navy for the eye,
+ * the grin and the shadow lines. Everything else here belongs to the blueprint.
+ */
+const MINT = '#37e6c9'
+const MINT_SHADE = '#2cd2b6'
+const MINT_DEEP = '#21b59c'
+const EDGE_COLOR = '#a8f7e7'
+const NAVY = '#0b1c33'
+const TILE_BLUE = '#0380ba'
+/** The stack alternates mint and blue plates, as the mark's stack does. */
+const CONTAINER_COLORS = [MINT, TILE_BLUE, TILE_BLUE, MINT, MINT, TILE_BLUE]
 
 const smoothstep = (from: number, to: number, value: number) => {
   const x = clamp((value - from) / (to - from), 0, 1)
@@ -44,18 +53,21 @@ const easeInOutCubic = (value: number) => {
 }
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 
-/** The whale's side profile, extruded into a solid with rounded bevels. */
+/**
+ * The mark's side profile: a tall rounded head, a flat back for the stack, and
+ * a long belly that sweeps up into the tail stock. Extruded with round bevels.
+ */
 function createBodyGeometry(): THREE.ExtrudeGeometry {
   const shape = new THREE.Shape()
-  shape.moveTo(-3.55, 0.02)
-  shape.bezierCurveTo(-3.52, 0.62, -2.98, 0.96, -2.3, 1.03)
-  shape.bezierCurveTo(-1.5, 1.11, -0.35, 1.08, 0.72, 0.99)
-  shape.bezierCurveTo(1.56, 0.91, 2.22, 0.78, 2.66, 0.55)
-  shape.bezierCurveTo(2.93, 0.41, 3.06, 0.26, 3.1, 0.12)
-  shape.bezierCurveTo(3.0, 0.0, 2.9, -0.12, 2.7, -0.22)
-  shape.bezierCurveTo(2.25, -0.44, 1.82, -0.62, 1.26, -0.82)
-  shape.bezierCurveTo(0.42, -1.08, -0.7, -1.14, -1.62, -0.96)
-  shape.bezierCurveTo(-2.52, -0.8, -3.3, -0.48, -3.55, 0.02)
+  shape.moveTo(-3.46, 0.94)
+  shape.bezierCurveTo(-3.52, 1.08, -3.34, 1.13, -3.06, 1.13)
+  shape.lineTo(1.7, 1.13)
+  // The dorsal line lifts into the flukes, as the mark's back rises into its tail.
+  shape.bezierCurveTo(2.3, 1.14, 2.66, 1.22, 2.86, 1.16)
+  shape.bezierCurveTo(2.68, 0.9, 2.42, 0.6, 2.04, 0.32)
+  shape.bezierCurveTo(1.3, -0.06, 0.5, -0.62, -0.3, -1.0)
+  shape.bezierCurveTo(-1.2, -1.36, -2.36, -1.24, -2.94, -0.72)
+  shape.bezierCurveTo(-3.3, -0.42, -3.52, 0.24, -3.46, 0.94)
 
   const geometry = new THREE.ExtrudeGeometry(shape, {
     depth: 1.7,
@@ -70,28 +82,34 @@ function createBodyGeometry(): THREE.ExtrudeGeometry {
   return geometry
 }
 
-/** Two flukes with the notch between them, extruded and centred on the tail. */
+/**
+ * The mark's flukes: two pointed leaves, an upper one leaning up and a lower one
+ * reaching right, split by a deep notch. The origin is the root where the dorsal
+ * line runs in, so the leaves grow out of the body's rear rather than its back.
+ */
 function createTailGeometry(): THREE.ExtrudeGeometry {
   const shape = new THREE.Shape()
-  shape.moveTo(0, 0)
-  shape.bezierCurveTo(0.2, 0.35, 0.55, 0.62, 0.62, 0.92)
-  shape.bezierCurveTo(0.66, 1.08, 0.46, 1.15, 0.32, 1.02)
-  shape.bezierCurveTo(0.16, 0.82, 0.02, 0.48, -0.06, 0.18)
-  shape.lineTo(-0.06, -0.18)
-  shape.bezierCurveTo(0.02, -0.48, 0.16, -0.82, 0.32, -1.02)
-  shape.bezierCurveTo(0.46, -1.15, 0.66, -1.08, 0.62, -0.92)
-  shape.bezierCurveTo(0.55, -0.62, 0.2, -0.35, 0, 0)
+  // The waist, where the dorsal line runs in and both leaves are rooted.
+  shape.moveTo(-0.14, 0.0)
+  // Upper leaf: leading edge up to the tip, trailing edge bulging right into the notch.
+  shape.bezierCurveTo(-0.4, 0.58, -0.44, 1.16, -0.18, 1.4)
+  shape.bezierCurveTo(0.06, 1.48, 0.5, 1.0, 0.6, 0.48)
+  // Lower leaf: out to its pointed tip, which sits just above the waist line.
+  shape.bezierCurveTo(0.94, 0.34, 1.32, 0.32, 1.6, 0.46)
+  // Under it, the underside arcing back to the waist.
+  shape.bezierCurveTo(1.46, 0.24, 1.06, 0.06, 0.58, 0.04)
+  shape.bezierCurveTo(0.34, -0.02, 0.06, 0.0, -0.14, 0.0)
 
   const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth: 0.42,
+    depth: 0.72,
     bevelEnabled: true,
-    bevelThickness: 0.06,
+    bevelThickness: 0.07,
     bevelSize: 0.06,
     bevelSegments: 3,
-    curveSegments: 20,
+    curveSegments: 24,
     steps: 1,
   })
-  geometry.translate(0, 0, -0.21)
+  geometry.translate(0, 0, -0.36)
   return geometry
 }
 
@@ -122,7 +140,11 @@ function Container({
   const { width, height, depth } = CONTAINER_SIZE
 
   const label = useMemo(
-    () => createLabelTexture(whaleChapters[index].code, '#e2f0ff'),
+    () =>
+      createLabelTexture(
+        whaleChapters[index].code,
+        CONTAINER_COLORS[index] === MINT ? NAVY : '#e2f0ff',
+      ),
     [index],
   )
   useEffect(() => () => label.dispose(), [label])
@@ -169,7 +191,7 @@ function Container({
     <group ref={group}>
       <RoundedBox
         args={[width, height, depth]}
-        radius={0.06}
+        radius={0.1}
         smoothness={compact ? 2 : 4}
         castShadow={false}
         receiveShadow={false}
@@ -177,9 +199,9 @@ function Container({
         <meshStandardMaterial
           ref={material}
           color={CONTAINER_COLORS[index]}
-          metalness={0.4}
-          roughness={0.38}
-          emissive="#4f8fff"
+          metalness={0.12}
+          roughness={0.45}
+          emissive={EDGE_COLOR}
           emissiveIntensity={0.04}
         />
         <Edges threshold={28} color={EDGE_COLOR} />
@@ -201,9 +223,9 @@ function Container({
           <boxGeometry args={[width - 0.1, height - 0.08, 0.022]} />
           <meshStandardMaterial
             color={CONTAINER_COLORS[index]}
-            metalness={0.45}
-            roughness={0.32}
-            emissive="#4f8fff"
+            metalness={0.14}
+            roughness={0.4}
+            emissive={EDGE_COLOR}
             emissiveIntensity={hovered === index ? 0.28 : 0.08}
           />
         </mesh>
@@ -236,6 +258,7 @@ function Container({
   )
 }
 
+/** The mark's spout: teardrops of water arcing up over the brow, nothing plumbed. */
 function Spout() {
   const drops = useRef<Array<THREE.Mesh | null>>([])
 
@@ -243,32 +266,22 @@ function Spout() {
     const time = clock.getElapsedTime()
     drops.current.forEach((drop, index) => {
       if (!drop) return
-      const rise = (time * 0.34 + index * 0.17) % 1
+      const rise = (time * 0.26 + index * 0.17) % 1
+      // The drops fan out over the brow instead of rising on one line, which is
+      // what makes the spray read as the mark's.
+      const angle = -0.42 + index * 0.17
       drop.position.set(
-        -0.14 + Math.sin((rise + index) * Math.PI) * 0.18,
-        0.28 + rise * 0.92,
-        Math.cos(index * 1.7) * 0.14,
+        -0.08 + Math.sin(angle) * rise * 1.1,
+        0.06 + Math.cos(angle) * rise * 1.15,
+        Math.cos(index * 1.7) * 0.12,
       )
-      drop.scale.setScalar(0.075 * (1 - rise * 0.55))
+      const size = 0.1 * (1 - rise * 0.45) * (0.82 + (index % 3) * 0.14)
+      drop.scale.set(size * 0.78, size * 1.55, size * 0.78)
     })
   })
 
   return (
-    <group position={[-2.58, 1.0, 0]}>
-      <mesh position={[0, 0.06, 0]}>
-        <cylinderGeometry args={[0.055, 0.11, 0.22, 12]} />
-        <meshStandardMaterial color="#3b82f6" metalness={0.5} roughness={0.4} />
-      </mesh>
-      <mesh position={[0, 0.56, 0]}>
-        <cylinderGeometry args={[0.20, 0.03, 0.95, 12, 1, true]} />
-        <meshBasicMaterial
-          color="#a7dcff"
-          transparent
-          opacity={0.1}
-          side={THREE.DoubleSide}
-          depthWrite={false}
-        />
-      </mesh>
+    <group position={[-3.02, 1.06, 0]}>
       {[0, 1, 2, 3, 4, 5].map((index) => (
         <mesh
           key={index}
@@ -277,7 +290,7 @@ function Spout() {
           }}
         >
           <sphereGeometry args={[1, 10, 8]} />
-          <meshBasicMaterial color="#a7dcff" transparent opacity={0.52} />
+          <meshBasicMaterial color="#4fe8cd" transparent opacity={0.92} />
         </mesh>
       ))}
     </group>
@@ -306,24 +319,22 @@ function WhaleModel({
   const finMaterial = useRef<THREE.MeshStandardMaterial>(null)
   const tailMaterial = useRef<THREE.MeshStandardMaterial>(null)
   const eyeMaterial = useRef<THREE.MeshStandardMaterial>(null)
-  const smileMaterial = useRef<THREE.LineBasicMaterial>(null)
+  const smileMaterial = useRef<THREE.MeshBasicMaterial>(null)
 
   const bodyGeometry = useMemo(createBodyGeometry, [])
   const tailGeometry = useMemo(createTailGeometry, [])
   const bodyEdges = useMemo(() => new THREE.EdgesGeometry(bodyGeometry, 42), [bodyGeometry])
 
+  // The grin is a tube, not a line: WebGL lines cannot be thicker than a pixel
+  // and the mark's mouth is a bold stroke.
   const smile = useMemo(() => {
     const curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-3.46, -0.06, 1.14),
-      new THREE.Vector3(-3.02, -0.24, 1.16),
-      new THREE.Vector3(-2.44, -0.28, 1.12),
+      new THREE.Vector3(-2.96, -0.6, 1.0),
+      new THREE.Vector3(-2.6, -0.74, 1.04),
+      new THREE.Vector3(-2.1, -0.68, 1.04),
+      new THREE.Vector3(-1.7, -0.5, 1.0),
     ])
-    const points = curve.getPoints(24)
-    const segments: THREE.Vector3[] = []
-    for (let index = 0; index < points.length - 1; index += 1) {
-      segments.push(points[index], points[index + 1])
-    }
-    return new THREE.BufferGeometry().setFromPoints(segments)
+    return new THREE.TubeGeometry(curve, 24, 0.07, 8, false)
   }, [])
 
   useFrame(() => {
@@ -351,7 +362,7 @@ function WhaleModel({
     }
     if (smileMaterial.current) {
       smileMaterial.current.transparent = true
-      smileMaterial.current.opacity = reveal * 0.9
+      smileMaterial.current.opacity = reveal * 0.94
     }
 
     // A breath of idle motion moves the body, stack and all. It is skipped
@@ -369,57 +380,58 @@ function WhaleModel({
         <mesh geometry={bodyGeometry}>
           <meshStandardMaterial
             ref={bodyMaterial}
-            color={BODY_COLOR}
-            metalness={0.42}
-            roughness={0.36}
+            color={MINT}
+            metalness={0.14}
+            roughness={0.5}
           />
         </mesh>
         <lineSegments geometry={bodyEdges}>
           <lineBasicMaterial color={EDGE_COLOR} transparent opacity={0.16} />
         </lineSegments>
 
-        <mesh geometry={tailGeometry} position={[3.02, 0.12, 0.03]} scale={0.95} rotation={[0, 0.12, 0]}>
+        <mesh geometry={tailGeometry} position={[2.26, 1.14, 0.03]} rotation={[0, 0.12, 0]}>
           <meshStandardMaterial
             ref={tailMaterial}
-            color="#1f5ad4"
-            metalness={0.4}
-            roughness={0.4}
+            color={MINT_SHADE}
+            metalness={0.14}
+            roughness={0.48}
           />
         </mesh>
 
-        {/* Pectoral fins, one on each side. The near fin breaks the belly line,
-            which is what makes the silhouette read as an animal rather than a hull. */}
-        <mesh position={[-1.8, -0.82, 0.96]} rotation={[0.18, 0.22, -0.62]} scale={[1.02, 0.15, 0.46]}>
+        {/* Pectoral fins, one on each side. The mark's near fin is a small flipper
+            that hangs just under the belly, angled down-right. */}
+        <mesh position={[-1.3, -1.16, 0.84]} rotation={[0.14, 0.22, -0.62]} scale={[0.5, 0.15, 0.24]}>
           <sphereGeometry args={[1, 20, 14]} />
           <meshStandardMaterial
             ref={finMaterial}
-            color="#2a6df0"
-            metalness={0.42}
-            roughness={0.4}
+            color={MINT_SHADE}
+            metalness={0.14}
+            roughness={0.48}
           />
         </mesh>
-        <mesh position={[-1.72, -0.68, -0.92]} rotation={[-0.16, -0.22, -0.5]} scale={[0.86, 0.13, 0.38]}>
+        <mesh position={[-1.05, -1.14, -0.82]} rotation={[-0.14, -0.22, -0.5]} scale={[0.44, 0.13, 0.2]}>
           <sphereGeometry args={[1, 20, 14]} />
-          <meshStandardMaterial color="#1a4bb4" metalness={0.4} roughness={0.45} />
+          <meshStandardMaterial color={MINT_DEEP} metalness={0.14} roughness={0.5} />
         </mesh>
 
         {/* Eye and blowhole sit proud of the bevel, so the face survives the lighting. */}
-        <mesh position={[-2.7, 0.3, 1.13]}>
-          <sphereGeometry args={[0.1, 16, 12]} />
-          <meshStandardMaterial ref={eyeMaterial} color="#04101f" roughness={0.2} />
+        <mesh position={[-1.42, 0.02, 1.12]}>
+          <sphereGeometry args={[0.125, 16, 12]} />
+          <meshStandardMaterial ref={eyeMaterial} color={NAVY} roughness={0.25} />
         </mesh>
-        <mesh position={[-2.67, 0.33, 1.205]}>
-          <sphereGeometry args={[0.028, 10, 8]} />
-          <meshBasicMaterial color="#e5f5ff" />
+        {/* The glint is a mint crescent riding the eye's upper edge, as in the mark. */}
+        <mesh position={[-1.38, 0.08, 1.2]}>
+          <sphereGeometry args={[0.044, 10, 8]} />
+          <meshBasicMaterial color={MINT} />
         </mesh>
-        <mesh position={[-2.5, 1.04, 0]} rotation={[-Math.PI / 2, 0, 0.18]}>
+        <mesh position={[-3.02, 1.16, 0]} rotation={[-Math.PI / 2, 0, 0.18]}>
           <circleGeometry args={[0.075, 16]} />
-          <meshBasicMaterial color="#0a2a5e" />
+          <meshBasicMaterial color={NAVY} />
         </mesh>
 
-        <lineSegments geometry={smile}>
-          <lineBasicMaterial ref={smileMaterial} color="#08224d" transparent opacity={0.9} />
-        </lineSegments>
+        <mesh geometry={smile}>
+          <meshBasicMaterial ref={smileMaterial} color={NAVY} transparent opacity={0.94} />
+        </mesh>
 
         <Spout />
       </group>
@@ -619,16 +631,16 @@ function Annotations({ compact }: { compact: boolean }) {
   const label = 'whitespace-nowrap font-mono-code text-[8px] uppercase tracking-[0.2em] text-[#8fc4ff]'
   return (
     <>
-      <Html position={[-3.35, 1.35, 0.4]} center style={{ pointerEvents: 'none' }}>
+      <Html position={[-3.5, 1.42, 0.4]} center style={{ pointerEvents: 'none' }}>
         <span className={label}>Head</span>
       </Html>
-      <Html position={[-2.62, 2.45, 0]} center style={{ pointerEvents: 'none' }}>
+      <Html position={[-3.02, 2.52, 0]} center style={{ pointerEvents: 'none' }}>
         <span className={label}>Spout</span>
       </Html>
-      <Html position={[3.5, 1.0, 0]} center style={{ pointerEvents: 'none' }}>
+      <Html position={[3.62, 1.9, 0]} center style={{ pointerEvents: 'none' }}>
         <span className={label}>Flukes</span>
       </Html>
-      <Html position={[0, 2.55, 0]} center style={{ pointerEvents: 'none' }}>
+      <Html position={[-0.55, 3.28, 0]} center style={{ pointerEvents: 'none' }}>
         <span className={label}>Stack · 06</span>
       </Html>
     </>
